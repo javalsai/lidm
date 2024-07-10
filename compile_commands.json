@@ -1,0 +1,50 @@
+[
+ {
+  "directory": "/home/javalsai/coding/li",
+  "arguments": [
+   "gcc",
+   "-c",
+   "-o",
+   "dist/main.o",
+   "src/main.c",
+   "-Iinclude"
+  ],
+  "file": "src/main.c"
+ },
+ {
+  "directory": "/home/javalsai/coding/li",
+  "arguments": [
+   "gcc",
+   "-c",
+   "-o",
+   "dist/users.o",
+   "src/users.c",
+   "-Iinclude"
+  ],
+  "file": "src/users.c"
+ },
+ {
+  "directory": "/home/javalsai/coding/li",
+  "arguments": [
+   "gcc",
+   "-c",
+   "-o",
+   "dist/sessions.o",
+   "src/sessions.c",
+   "-Iinclude"
+  ],
+  "file": "src/sessions.c"
+ },
+ {
+  "directory": "/home/javalsai/coding/li",
+  "arguments": [
+   "gcc",
+   "-c",
+   "-o",
+   "dist/util.o",
+   "src/util.c",
+   "-Iinclude"
+  ],
+  "file": "src/util.c"
+ }
+]

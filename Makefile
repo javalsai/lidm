@@ -8,10 +8,10 @@ CFLAGS=-I$(IDIR)
 
 LIBS=-lm
 
-_DEPS =
+_DEPS = util.h users.h sessions.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = main.o
+_OBJ = main.o util.o users.o sessions.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: $(CDIR)/%.c $(DEPS)
