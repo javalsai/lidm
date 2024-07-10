@@ -1,6 +1,7 @@
 #include <sys/types.h>
 
 struct session {
+  const char *type;
   char *name;
   char *path;
 };

@@ -1,6 +1,8 @@
 #include <pwd.h>
 #include <stdio.h>
+#include <sys/ioctl.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include <sessions.h>
 #include <users.h>
@@ -16,8 +18,14 @@ int main() {
            users->users[i].display_name);
 
   for (uint i = 0; i < sessions->length; i++)
-    printf("s[%d]: %s %s\n", i, sessions->sessions[i].name,
-           sessions->sessions[i].path);
+    printf("s[%d]: %s %s %s\n", i, sessions->sessions[i].type,
+           sessions->sessions[i].name, sessions->sessions[i].path);
+
+  struct winsize w;
+  ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+
+  printf("lines %d\n", w.ws_row);
+  printf("columns %d\n", w.ws_col);
 
   return 0;
 }
