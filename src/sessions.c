@@ -9,13 +9,17 @@
 #include <sessions.h>
 #include <util.h>
 
-static const char *sources[][2] = {
-  { "xorg", "/usr/share/xsessions" },
-  { "wl", "/usr/share/wayland-sessions" },
+struct source_dir {
+  enum session_type type;
+  char* dir;
+};
+static const struct source_dir sources[] = {
+  { XORG, "/usr/share/xsessions" },
+  { WAYLAND, "/usr/share/wayland-sessions" },
 };
 static const size_t sources_size = sizeof(sources) / sizeof(sources[0]);
 
-static struct session __new_session(const char *type, char *name, const char *path) {
+static struct session __new_session(enum session_type type, char *name, const char *path) {
   struct session __session;
   __session.type = type;
   strcln(&__session.name, name);
@@ -33,7 +37,7 @@ static u_int16_t used_size = 0;
 static struct session *sessions = NULL;
 static struct sessions_list *__sessions_list = NULL;
 
-static const char* session_type;
+static enum session_type session_type;
 static int fn(const char *fpath, const struct stat *sb, int typeflag) {
   // practically impossible to reach this
   // but will prevent break
@@ -82,7 +86,7 @@ static int fn(const char *fpath, const struct stat *sb, int typeflag) {
 }
 
 static struct sessions_list __list;
-// This code is designed to be run purely sinlge threaded
+// This code is designed to be run purely single threaded
 struct sessions_list *get_avaliable_sessions() {
   if (sessions != NULL)
     return __sessions_list;
@@ -90,8 +94,8 @@ struct sessions_list *get_avaliable_sessions() {
     sessions = malloc(alloc_size * unit_size);
 
   for (uint i = 0; i < sources_size; i++) {
-    session_type = sources[i][0];
-    ftw(sources[i][1], &fn, 1);
+    session_type = sources[i].type;
+    ftw(sources[i].dir, &fn, 1);
   }
 
   sessions = realloc(sessions, used_size * unit_size);

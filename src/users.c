@@ -10,6 +10,7 @@
 
 static struct user __new_user(struct passwd *p) {
   struct user __user;
+  strcln(&__user.shell, p->pw_shell);
   strcln(&__user.username, p->pw_name);
   if (p->pw_gecos[0] == '\0')
     __user.display_name = __user.username;
@@ -29,7 +30,7 @@ static struct user *users = NULL;
 static struct users_list *__users_list = NULL;
 
 struct users_list __list;
-// This code is designed to be run purely sinlge threaded
+// This code is designed to be run purely single threaded
 struct users_list *get_human_users() {
   if (users != NULL)
     return __users_list;

@@ -1,6 +1,6 @@
 [
  {
-  "directory": "/home/javalsai/coding/li",
+  "directory": "/home/javalsai/coding/lidm",
   "arguments": [
    "gcc",
    "-c",
@@ -12,7 +12,31 @@
   "file": "src/main.c"
  },
  {
-  "directory": "/home/javalsai/coding/li",
+  "directory": "/home/javalsai/coding/lidm",
+  "arguments": [
+   "gcc",
+   "-c",
+   "-o",
+   "dist/util.o",
+   "src/util.c",
+   "-Iinclude"
+  ],
+  "file": "src/util.c"
+ },
+ {
+  "directory": "/home/javalsai/coding/lidm",
+  "arguments": [
+   "gcc",
+   "-c",
+   "-o",
+   "dist/ui.o",
+   "src/ui.c",
+   "-Iinclude"
+  ],
+  "file": "src/ui.c"
+ },
+ {
+  "directory": "/home/javalsai/coding/lidm",
   "arguments": [
    "gcc",
    "-c",
@@ -24,7 +48,7 @@
   "file": "src/users.c"
  },
  {
-  "directory": "/home/javalsai/coding/li",
+  "directory": "/home/javalsai/coding/lidm",
   "arguments": [
    "gcc",
    "-c",
@@ -36,15 +60,15 @@
   "file": "src/sessions.c"
  },
  {
-  "directory": "/home/javalsai/coding/li",
+  "directory": "/home/javalsai/coding/lidm",
   "arguments": [
    "gcc",
    "-c",
    "-o",
-   "dist/util.o",
-   "src/util.c",
+   "dist/efield.o",
+   "src/efield.c",
    "-Iinclude"
   ],
-  "file": "src/util.c"
+  "file": "src/efield.c"
  }
 ]

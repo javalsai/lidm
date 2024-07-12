@@ -8,17 +8,17 @@ CFLAGS=-I$(IDIR)
 
 LIBS=-lm
 
-_DEPS = util.h users.h sessions.h
+_DEPS = util.h ui.h efield.h keys.h users.h sessions.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = main.o util.o users.o sessions.o
+_OBJ = main.o util.o ui.o efield.o users.o sessions.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: $(CDIR)/%.c $(DEPS)
 	@mkdir -p $(ODIR)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-li: $(OBJ)
+lidm: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 .PHONY: clean

@@ -1,6 +1,10 @@
+#ifndef _USERSH_
+#define _USERSH_
+
 #include <sys/types.h>
 
 struct user {
+  char *shell;
   char *username;
   char *display_name;
 };
@@ -11,3 +15,5 @@ struct users_list {
 };
 
 struct users_list *get_human_users();
+
+#endif
