@@ -62,7 +62,7 @@ Btw, the default fg style should disable decorators set up in other elements (cu
 # Contributing
 Don't do this to yourself, but you can ofc, you can also fork or whatever (make sure to comply with GNU's GPLv3), but I want to do the rust rewrite 😡 (after it, I'll leave this around in case somebody with ancient hardware needs it, or if somebody wants to port it for a microwave...)
 
-This is also GPLv3 bcs I was too lazy to look for the "do anything I don't care" license, also it's funny legally trapping people into FOSS.
+This is also GPLv3 bcs I was too lazy to look for the "do anything I don't care" license, also it's funny legally trapping people into FOSS. **EDIT:** just realized ly uses it and I coudl've just copied it :(, idk how bad GPLv3 respect to changing license and I *could* rebase but that never goes well, so I'll consult my lawyer (chatGPT) later.
 
 # Contributors
 Special thanks to:
