@@ -36,6 +36,7 @@ I spedrun it, basically did in in 3 days on the same couch on [unhelty back posi
 
 The name is just ly byt changing "y" with "i", that had a reason but forgot it, (maybe the i in *simple*), so I remembered this sh*tty laptop with a lid, this thing is also a display manager (dm, ly command is also `ly-dm`), so just did lidm due to all that.
 ![think gif](https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcTFzaGVmb3VjN3FnOXV6OG9rMG91a2QwM3c0aDV0NWpoZjFzNDEwayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/d3mlE7uhX8KFgEmY/giphy.gif) <!--gif's likely broken-->
+> *there's also a [change.org post](https://www.change.org/p/stoppt-die-chatkontrolle-grundrechte-gelten-auch-im-netz)*
 
 Btw, this laptop is so bad that I can't even render markdown in reasonable time, I'll just push this and fix render issues live :)
 
@@ -77,6 +78,10 @@ This is also GPLv3 bcs I was too lazy to look for the "do anything I don't care"
 Special thanks to:
 * ChatGPT, in times of slow laptops where pages take ages to load, a single tab connected to a bunch of burning cloud GPUs feeding corporate hype is all you need to get quick answers for your questions, as long as you know how to filter AI crap ofc.
 * My lack of gf, can't imagine this project being possible if somebody actually cared about me daily.
+
+# Milestones
+* If this ~~video~~ **repo** gets to 100 ~~likes~~ **stars**, I'll make an arch aur package and properly document installation on multiple init systems.
+* (I might also make a nix flake if yall nix nerds ask me for it)
 
 # Recommendations
 Hope you didn't expect actual project recommendations, but these songs are 🔥
