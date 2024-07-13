@@ -13,6 +13,7 @@ Lidm is a really light display manager made in C, highly customizable and held t
 
 ## WIP
 * Save last selection
+* Show/hide passwd switch
 * Config parsing, it's fully customizable, but everything hardcoded for now :)
 * Long sessions, strings, usernames, passwords... they will just overflow or f*ck your terminal, I know it and I don't know if I'll fix it.
 
@@ -46,6 +47,14 @@ Btw, this laptop is so bad that I can't even render markdown in reasonable time,
 * That system should have the resources neccessary for this program to make sense (sessions, users...)
 * A compiler (optional, you can compile by hand, but I doubt you want to see the code)
 * Make (also optional, but does things atomatically, make sure `gcc` and `mkdir -p` work as expected)
+
+# Usage
+On top of pure intuition:
+* you can change focus of session/user/passwd with up/down arrows
+* in case arrow keys do nothing on the focused input (either is empty text or doesn't have more options), it tries to change session and if there's only one session it changes user
+* typing anything will allow to put a custom user or shell command too, you can use arrow keys to move
+* ESC and then left/right arrows will force to change the option of the focused input, useful if you're editing the current input and arrow keys just move
+* editing a predefined option on a user or a shell session, will put you in edit mode preserving the original value, other cases start from scratch
 
 # Compiling
 ```sh
