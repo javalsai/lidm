@@ -11,11 +11,13 @@ struct editable_field field_new(char* content) {
   } else {
     field_trim(&__efield, 0);
   }
+  __efield.content[__efield.length] = '\0';
   return __efield;
 }
 
 void field_trim(struct editable_field *field, u_char pos) {
   field->length = field->pos = pos;
+  field->content[field->length] = '\0';
 }
 
 void field_update(struct editable_field *field, char *update) {
@@ -28,12 +30,14 @@ void field_update(struct editable_field *field, char *update) {
   if (insert_len == 1) {
     // backspace
     if (*update == 127) {
+      if (field->pos == 0) return;
       if (field->pos < field->length) {
         memcpy(&field->content[field->pos - 1], &field->content[field->pos],
                field->length - field->pos);
       }
       (field->pos)--;
       (field->length)--;
+      field->content[field->length] = '\0';
       return;
     }
   }
@@ -51,6 +55,7 @@ void field_update(struct editable_field *field, char *update) {
 
   field->pos += insert_len;
   field->length += insert_len;
+  field->content[field->length] = '\0';
 }
 
 // returns bool depending if it was able to "use" the seek
@@ -60,5 +65,8 @@ bool field_seek(struct editable_field *field, char seek) {
   if(seek < 0 && -seek > field->pos) field->pos = 0;
   else if(seek > 0 && 255 - field->pos < seek) field->pos = 255;
   else field->pos += seek;
+
+  if(field->pos > field->length) field->pos = field->length;
+
   return true;
 }

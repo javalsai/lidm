@@ -1,4 +1,5 @@
 // i'm sorry
+// really sorry
 
 #include <errno.h>
 #include <signal.h>
@@ -35,6 +36,9 @@ static void print_session(struct uint_point, struct session, bool);
 static void print_user(struct uint_point, struct user, bool);
 static void print_passwd(struct uint_point, uint, bool);
 
+enum input { SESSION, USER, PASSWD };
+static u_char inputs_n = 3;
+
 // ansi resource: https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
 static struct termios orig_term;
 static struct termios term;
@@ -57,6 +61,7 @@ void setup(struct config __config) {
   theme = __config.theme;
   functions = __config.functions;
   strings = __config.strings;
+  behavior = __config.behavior;
 
   tcgetattr(STDOUT_FILENO, &orig_term);
   term = orig_term; // save term
@@ -64,10 +69,9 @@ void setup(struct config __config) {
   term.c_lflag &= ~(ICANON | ECHO);
   tcsetattr(STDOUT_FILENO, TCSANOW, &term);
 
-  // save cursor pos, save screen, hide cursor, set color and reset screen
+  // save cursor pos, save screen, set color and reset screen
   // (applying color to all screen)
-  printf("\x1b[s\x1b[?47h\x1b[%s;%sm\x1b[2J", theme.colors.bg,
-         theme.colors.fg);
+  printf("\x1b[s\x1b[?47h\x1b[%s;%sm\x1b[2J", theme.colors.bg, theme.colors.fg);
 
   print_footer();
   atexit(restore_all);
@@ -107,6 +111,8 @@ struct opt_field {
   uint current_opt; // 0 is edit mode btw
   struct editable_field efield;
 };
+void print_ofield(struct opt_field *focused_input);
+
 static struct opt_field ofield_new(uint opts) {
   struct opt_field __field;
   __field.opts = opts;
@@ -118,7 +124,25 @@ static struct opt_field ofield_new(uint opts) {
   return __field;
 }
 static void ofield_toedit(struct opt_field *ofield, char *init) {
+  ofield->current_opt = 0;
   ofield->efield = field_new(init);
+}
+static void ofield_type(struct opt_field *ofield, char *new, char *startstr) {
+  if (ofield->current_opt != 0)
+    ofield_toedit(ofield, startstr);
+  field_update(&ofield->efield, new);
+}
+// true if it changed anything, single opt fields return false
+static bool ofield_opt_seek(struct opt_field *ofield, char seek) {
+  // TODO: think this
+  if (ofield->opts == 0 || (ofield->opts == 1 && ofield->current_opt != 0))
+    return false;
+
+  ofield->current_opt =
+      1 + ((ofield->current_opt - 1 + seek + ofield->opts) % ofield->opts);
+
+  print_ofield(ofield);
+  return true;
 }
 // true in case it was able to "use" the seek (a empty only editable field
 // wouldn't)
@@ -132,54 +156,171 @@ static bool ofield_seek(struct opt_field *ofield, char seek) {
   if (ofield->opts == 0)
     return false;
 
-  ofield->current_opt = (ofield->current_opt + seek + ofield->opts + 1) %
-                        (ofield->opts + 1); // not sure about this one
+  ofield_opt_seek(ofield, seek);
+
   return true;
 }
+
 static u_char ofield_max_displ_pos(struct opt_field *ofield) {
   // TODO: set max cursor pos too
-  // keep in mind that also have to keep in mind scrolling and ughhh, mentally blocked, but this is complex
-  if(ofield->current_opt == 0)
+  // keep in mind that also have to keep in mind scrolling and ughhh, mentally
+  // blocked, but this is complex
+  if (ofield->current_opt == 0)
     return ofield->efield.pos;
   else
     return 0;
 }
 
-enum input { SESSION, USER, PASSWD };
-static u_char inputs_n = 3;
 enum input focused_input = PASSWD;
 struct opt_field of_session;
 struct opt_field of_user;
 struct opt_field of_passwd;
 
-void update_cursor_focus() {
+struct users_list *gusers;
+struct sessions_list *gsessions;
+
+// not *that* OF tho
+struct opt_field *get_of(enum input from) {
+  if (from == SESSION)
+    return &of_session;
+  if (from == USER)
+    return &of_user;
+  if (from == PASSWD)
+    return &of_passwd;
+  return NULL;
+}
+
+void ffield_cursor_focus() {
   struct uint_point bstart = box_start();
   u_char line = bstart.y;
   u_char row = bstart.x + 15;
+
+  // rows in here quite bodged
   if (focused_input == SESSION) {
     line += 5;
-    row += ofield_max_displ_pos(&of_session);
+    row += (of_session.opts > 1) * 2;
   } else if (focused_input == USER) {
     line += 7;
-    row += ofield_max_displ_pos(&of_user);
-  } else if (focused_input == PASSWD) {
+    row += (of_user.opts > 1) * 2;
+  } else if (focused_input == PASSWD)
     line += 9;
-    row += ofield_max_displ_pos(&of_passwd);
-  }
+
+  struct opt_field *ofield = get_of(focused_input);
+  row += ofield->current_opt == 0 ? ofield_max_displ_pos(ofield) : 0;
+
   printf("\x1b[%d;%dH", line, row);
   fflush(stdout);
 }
 
+struct user get_current_user() {
+  if (of_user.current_opt != 0)
+    return gusers->users[of_user.current_opt - 1];
+  else {
+    struct user custom_user;
+    custom_user.shell = "/usr/bin/bash";
+    custom_user.username = custom_user.display_name = of_user.efield.content;
+    return custom_user;
+  }
+}
+
+struct session get_current_session() {
+  if (of_session.current_opt != 0) {
+    // this is for the default user shell :P, not the greatest implementation
+    // but I want to get his done
+    if (behavior.include_defshell &&
+        of_session.current_opt == gsessions->length + 1) {
+      struct session shell_session;
+      shell_session.type = SHELL;
+      shell_session.path = shell_session.name = get_current_user().shell;
+      return shell_session;
+    } else
+      return gsessions->sessions[of_session.current_opt - 1];
+  } else {
+    struct session custom_session;
+    custom_session.type = SHELL;
+    custom_session.name = custom_session.path = of_session.efield.content;
+    return custom_session;
+  }
+}
+
+void print_field(enum input focused_input) {
+  struct uint_point origin = box_start();
+
+  if (focused_input == PASSWD) {
+    print_passwd(origin, of_passwd.efield.length, false);
+  } else if (focused_input == SESSION) {
+    print_session(origin, get_current_session(), of_session.opts > 1);
+  } else if (focused_input == USER) {
+    print_user(origin, get_current_user(), of_user.opts > 1);
+    print_field(SESSION);
+  }
+
+  ffield_cursor_focus();
+}
+
+void print_ffield() { print_field(focused_input); }
+void print_ofield(struct opt_field *ofield) {
+  enum input input;
+  if (ofield == &of_session)
+    input = SESSION;
+  else if (ofield == &of_user)
+    input = USER;
+  else if (ofield == &of_passwd)
+    input = PASSWD;
+  else
+    return;
+
+  print_field(input);
+}
+
 // true = forward, false = backward
-void change_field_focus(bool direction) {
+void ffield_move(bool direction) {
   if (direction)
     focused_input = (focused_input + 1 + inputs_n) % inputs_n;
   else
     focused_input = (focused_input - 1 + inputs_n) % inputs_n;
+
+  ffield_cursor_focus();
+}
+
+// tf I'm doing
+void ffield_change_opt(bool direction) {
+  struct opt_field *ffield = get_of(focused_input);
+  if (focused_input == PASSWD)
+    ffield = &of_session;
+  if (!ofield_opt_seek(ffield, direction ? 1 : -1)) {
+    if (focused_input == PASSWD || focused_input == SESSION)
+      ofield_opt_seek(&of_user, direction ? 1 : -1);
+    else
+      ofield_opt_seek(&of_session, direction ? 1 : -1);
+  }
+}
+void ffield_change_pos(bool direction) {
+  struct opt_field *ffield = get_of(focused_input);
+  if (!ofield_seek(ffield, direction ? 1 : -1))
+    if (!ofield_opt_seek(&of_session, direction ? 1 : -1))
+      ofield_opt_seek(&of_user, direction ? 1 : -1);
+
+  ffield_cursor_focus();
+}
+
+void ffield_type(char *text) {
+  struct opt_field *field = get_of(focused_input);
+  char *start = "";
+  if (focused_input == USER && of_user.current_opt != 0)
+    start = get_current_user().username;
+  if (focused_input == SESSION && of_session.current_opt != 0 &&
+      get_current_session().type == SHELL)
+    start = get_current_session().path;
+
+  ofield_type(field, text, start);
+  print_ffield();
 }
 
 int load(struct users_list *users, struct sessions_list *sessions) {
   /// SETUP
+  gusers = users;
+  gsessions = sessions;
 
   // hostnames larger won't render properly
   char *hostname = malloc(16);
@@ -211,36 +352,51 @@ int load(struct users_list *users, struct sessions_list *sessions) {
          boxstart.x + boxw - 3 - (uint)strlen(fmtd_time), theme.colors.e_date,
          fmtd_time, theme.colors.fg);
 
-  print_session(boxstart, sessions->sessions[0], false);
-  print_user(boxstart, users->users[0], false);
-  print_passwd(boxstart, 5, false);
-  fflush(stdout);
-  update_cursor_focus();
+  print_field(SESSION);
+  print_field(USER);
+  print_field(PASSWD);
+  ffield_cursor_focus();
 
   /// INTERACTIVE
   u_char len;
   char seq[256];
-
+  uint esc = 0;
   while (true) {
     read_press(&len, seq);
     if (*seq == '\x1b') {
       enum keys ansi_code = find_ansi(seq);
       if (ansi_code != -1) {
-        if (ansi_code == functions.refresh) {
+        if (ansi_code == ESC) {
+          esc = 2;
+        } else if (ansi_code == functions.refresh) {
           restore_all();
           return 0;
         } else if (ansi_code == functions.reboot) {
+          restore_all();
           system("reboot");
           exit(0);
         } else if (ansi_code == functions.poweroff) {
+          restore_all();
           system("poweroff");
           exit(0);
         } else if (ansi_code == A_UP || ansi_code == A_DOWN) {
-          change_field_focus(ansi_code == A_UP);
+          ffield_move(ansi_code == A_DOWN);
+        } else if (ansi_code == A_RIGHT || ansi_code == A_LEFT) {
+          if (esc)
+            ffield_change_opt(ansi_code == A_RIGHT);
+          else
+            ffield_change_pos(ansi_code == A_RIGHT);
         }
       }
-    } else {}
-      /*printf("norm(%d): %d\n", len, *seq);*/
+    } else {
+      if(len == 1 && *seq == '\n') {
+        printf("\x1b[HTODO: submit creds\n");
+      }
+      ffield_type(seq);
+    }
+
+    if (esc != 0)
+      esc--;
   }
 }
 
