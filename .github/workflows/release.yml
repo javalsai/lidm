@@ -1,0 +1,21 @@
+name: C Make
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  release:
+    permissions: write-all
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: make
+      run: make
+    - uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: lidm
+        asset_name: lidm
+        tag: ${{ github.ref }}
