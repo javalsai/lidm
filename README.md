@@ -8,6 +8,9 @@ Lidm is a really light display manager made in C, highly customizable and held t
 
 > *I'm open if anybody wants to contact me to record a proper demo of the program, my laptop can't handle it and idk how to config obs for hyprland*
 
+# Index
+(TODO, VSC(odium) does this automatically, I'm on nvim rn 😎)
+
 ## Features
 * Builds fast af
 * Works everywhere you can get gcc to compile
@@ -32,6 +35,7 @@ Lidm is a really light display manager made in C, highly customizable and held t
 We all know that the most important thing in a project is the ideology of the author and the movements he wants to support, so [**#stopchatcontrol**](https://stopchatcontrol.eu).
 <!-- doubt markdown will allow me to render this properly -->
 [ ![stopchatcontrol](https://stopchatcontrol.eu/wp-content/uploads/2023/09/1-1-1024x1024.png) ](https://stopchatcontrol.eu)
+> *there's also a [change.org post](https://www.change.org/p/stoppt-die-chatkontrolle-grundrechte-gelten-auch-im-netz)*
 
 # Backstory
 I went into summer travel to visit family with an old laptop that barely supports x86_64, and ly recently added some avx2 instructions I think (I just get invalid op codes), manually building (any previous commit too) didn't work because of something in the `build.zig` file, so out of boredom I decided to craft up my own simple display manager on the only language this thing can handle, ✨C✨ (I hate this and reserve the right for the rust rewrite, actually solid).
@@ -39,13 +43,10 @@ I went into summer travel to visit family with an old laptop that barely support
 I spedrun it, basically did in in 3 days on the same couch on [unhelty back positions (even worse)](https://i.redd.it/4bkje8amisu61.png) while touching *some* grass (:o), and I'm bad af in C, so this is spaghetti code on **another** level. I think it doesn't do almost anything unsafe, I mean, I didn't check allocations and it's capable of reallocating memory until your username uses all memory and crashes the system due to a off by 1 error, but pretty consistent otherwise (probably).
 
 The name is just ly byt changing "y" with "i", that had a reason but forgot it, (maybe the i in *simple*), so I remembered this sh*tty laptop with a lid, this thing is also a display manager (dm, ly command is also `ly-dm`), so just did lidm due to all that.
+
 ![think gif](https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcTFzaGVmb3VjN3FnOXV6OG9rMG91a2QwM3c0aDV0NWpoZjFzNDEwayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/d3mlE7uhX8KFgEmY/giphy.gif) <!--gif's likely broken-->
-> *there's also a [change.org post](https://www.change.org/p/stoppt-die-chatkontrolle-grundrechte-gelten-auch-im-netz)*
 
 Btw, this laptop is so bad that I can't even render markdown in reasonable time, I'll just push this and fix render issues live :)
-
-# Index
-(TODO, VSC(odium) does this automatically, I'm on nvim rn 😎)
 
 # Requirements
 * A computer with unix based system.
@@ -65,6 +66,11 @@ On top of pure intuition:
 ```sh
 make # 👍
 ```
+
+# Installation
+* You can put the compiled binary anywhere you want tbh, you can even setuid it if you want to run it with any user, but code's not too safe 😬.
+* Prepare the [configuration](#configuring)
+* Make a service file for this if you want it on launch, just check how ly does it, this works pretty much the same way.
 
 # Configuring
 Copy `config.ini` (if I haven't moved it) to `/etc/lidm.ini` and configure it to your liking. Also, don't place empty lines (for now).
