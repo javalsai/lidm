@@ -19,7 +19,6 @@ Lidm is a really light display manager made in C, highly customizable and held t
 * desktop's file `TryExec` key
 * Save last selection
 * Show/hide passwd switch
-* Config parsing, it's fully customizable, but everything hardcoded for now :)
 * Long sessions, strings, usernames, passwords... they will just overflow or f\*ck your terminal, I know it and I don't know if I'll fix it.
 
 ## Forget it
