@@ -7,6 +7,7 @@
    "-o",
    "dist/main.o",
    "src/main.c",
+   "-O3",
    "-Iinclude"
   ],
   "file": "src/main.c"
@@ -19,6 +20,7 @@
    "-o",
    "dist/util.o",
    "src/util.c",
+   "-O3",
    "-Iinclude"
   ],
   "file": "src/util.c"
@@ -31,6 +33,7 @@
    "-o",
    "dist/ui.o",
    "src/ui.c",
+   "-O3",
    "-Iinclude"
   ],
   "file": "src/ui.c"
@@ -43,6 +46,7 @@
    "-o",
    "dist/users.o",
    "src/users.c",
+   "-O3",
    "-Iinclude"
   ],
   "file": "src/users.c"
@@ -55,6 +59,7 @@
    "-o",
    "dist/sessions.o",
    "src/sessions.c",
+   "-O3",
    "-Iinclude"
   ],
   "file": "src/sessions.c"
@@ -67,6 +72,7 @@
    "-o",
    "dist/efield.o",
    "src/efield.c",
+   "-O3",
    "-Iinclude"
   ],
   "file": "src/efield.c"
@@ -79,8 +85,22 @@
    "-o",
    "dist/auth.o",
    "src/auth.c",
+   "-O3",
    "-Iinclude"
   ],
   "file": "src/auth.c"
+ },
+ {
+  "directory": "/home/javalsai/coding/lidm",
+  "arguments": [
+   "gcc",
+   "-c",
+   "-o",
+   "dist/config.o",
+   "src/config.c",
+   "-O3",
+   "-Iinclude"
+  ],
+  "file": "src/config.c"
  }
 ]

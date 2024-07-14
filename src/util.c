@@ -15,6 +15,16 @@ void strcln(char **dest, const char *source) {
   strcpy(*dest, source);
 }
 
+enum keys find_keyname(char* name) {
+  for (size_t i = 0; i < sizeof(key_mappings) / sizeof(key_mappings[0]); i++) {
+    if(strcmp(key_names[i], name) == 0)
+      return (enum keys)i;
+  }
+
+  perror("key not found");
+  exit(1);
+}
+
 enum keys find_ansi(char *seq) {
   for (size_t i = 0; i < sizeof(key_mappings) / sizeof(key_mappings[0]); i++) {
     struct key_mapping mapping = key_mappings[i];

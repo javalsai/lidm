@@ -4,6 +4,8 @@ Lidm is a really light display manager made in C, highly customizable and held t
 ![demo image](assets/lidm.png)
 > *this is shown as in a terminal emulator, actual linux console doesn't support as much color and decorations*
 
+> *but all colors and strings are fully suctomizable*
+
 > *I'm open if anybody wants to contact me to record a proper demo of the program, my laptop can't handle it and idk how to config obs for hyprland*
 
 ## Features
@@ -14,6 +16,7 @@ Lidm is a really light display manager made in C, highly customizable and held t
 * Automatically detects xorg and wayland sessions, plus allowing to launch the default user shell (if enabled in config)
 
 ## WIP
+* desktop's file `TryExec` key
 * Save last selection
 * Show/hide passwd switch
 * Config parsing, it's fully customizable, but everything hardcoded for now :)
@@ -21,7 +24,7 @@ Lidm is a really light display manager made in C, highly customizable and held t
 
 ## Forget it
 * Any kind of arguments
-* UTF characters, I'm using `strlen()` and treating characters as per byte basis, UTF-8 chars might work or not
+* UTF characters, I'm using `strlen()` and treating characters as per byte basis, UTF-8 chars might work or not actually, might fix it by replacing some `strlen()` with a utflen one.
 
 > [!CAUTION]
 > (they should add `> [!DISCLAIMER]` fr) I wrote this readme with the same quality as the code, behing this keyboard there's half a brainrotcell left writing what it remembers of this program, so don't take this to seriously, I'm typing as I think without filter lol, but the program works, or should. Also, about any "TODO" in this readme (or the code), I didn't forget finishing it, I actually don't care. And, references to ~~code~~ **anything** are likely to be outdated, check the commit history to know what I was refering to exactly if you care.
@@ -65,7 +68,7 @@ make # 👍
 ```
 
 # Configuring
-Ugh, config will be a straigh copy of config defaults to `/etc` I think, there's no config yet :P and you need to enable the service, just do what ly does (I'm doing this on dinit, all init systems should be supported).
+Copy `config.ini` (if I haven't moved it) to `/etc/lidm.ini` and configure it to your liking. Also, don't place empty lines (for now).
 
 Also configurable colors are just gonna be put inside `\x1b[...m`, ofc you can add an m to break this and this can f* up really bad or even make some nice UI effect possible, but please don't, you should also be able to embed the `\x1b` byte in the config as I won't parse escape codes, I think that the parser is just gonna grab anything in the config file from the space after the `=` (yes, I'ma enforce that space, get good taste if you don't like it) until the newline, you can put any abomination in there.
 

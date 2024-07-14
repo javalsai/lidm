@@ -92,6 +92,8 @@ static int fn(const char *fpath, const struct stat *sb, int typeflag) {
       break;
   }
 
+  fclose(fd);
+
   // just add this to the list
   if (name_buf != NULL && exec_buf != NULL) {
     if (used_size >= alloc_size) {
