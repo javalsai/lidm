@@ -1,9 +1,13 @@
+#include <grp.h>
+#include <pwd.h>
+#include <security/_pam_types.h>
 #include <security/pam_appl.h>
 #include <security/pam_misc.h>
 #include <sys/wait.h>
 
 #include <auth.h>
 #include <stdlib.h>
+#include <ui.h>
 
 int pam_conversation(int num_msg, const struct pam_message **msg,
                      struct pam_response **resp, void *appdata_ptr) {
@@ -22,91 +26,97 @@ int pam_conversation(int num_msg, const struct pam_message **msg,
   return PAM_SUCCESS;
 }
 
-bool check_passwd(char *user, char *passwd) {
+pam_handle_t *get_pamh(char *user, char *passwd) {
   pam_handle_t *pamh = NULL;
   struct pam_conv pamc = {pam_conversation, (void *)passwd};
   int retval;
 
   retval = pam_start("login", user, &pamc, &pamh);
   if (retval != PAM_SUCCESS) {
-    return false;
+    return NULL;
   }
 
   retval = pam_authenticate(pamh, 0);
   if (retval != PAM_SUCCESS) {
     pam_end(pamh, retval);
-    return false;
+    return NULL;
   }
 
   retval = pam_acct_mgmt(pamh, 0);
   if (retval != PAM_SUCCESS) {
     pam_end(pamh, retval);
+    return NULL;
+  }
+
+  return pamh;
+}
+
+bool launch(char *user, char *passwd, struct session session,
+            void (*cb)(void)) {
+  struct passwd *pw = getpwnam(user);
+  if (pw == NULL) {
+    print_err("could not get user info");
     return false;
   }
 
-  pam_end(pamh, PAM_SUCCESS);
-  return true;
-}
-
-/*void run(char *user, char *passwd, char *type, char *command) {*/
-/*  int pipefd[2];*/
-/*  pid_t pid;*/
-/**/
-/*  if (pipe(pipefd) == -1) {*/
-/*    perror("pipe");*/
-/*    exit(EXIT_FAILURE);*/
-/*  }*/
-/**/
-/*  if ((pid = fork()) == -1) {*/
-/*    perror("fork");*/
-/*    exit(EXIT_FAILURE);*/
-/*  }*/
-/**/
-/*  if (pid == 0) {*/
-/*    close(pipefd[0]);*/
-/*    write(pipefd[1], passwd, strlen(passwd));*/
-/*    close(pipefd[1]);*/
-/*    exit(EXIT_SUCCESS);*/
-/*  } else {*/
-/*    close(pipefd[1]);*/
-/**/
-/*    if (dup2(pipefd[0], STDIN_FILENO) == -1) {*/
-/*      perror("dup2");*/
-/*      exit(EXIT_FAILURE);*/
-/*    }*/
-/*    close(pipefd[0]);*/
-/**/
-/*    execlp("su", "-", user, type, command, (char *)NULL);*/
-/*    perror("execlp");*/
-/*    exit(EXIT_FAILURE);*/
-/*  }*/
-/*}*/
-
-void run(char *user, char *passwd, char *type, char *command) {
-  int pipefd[2];
-  pipe(pipefd);
-  close(STDIN_FILENO);
-  dup2(pipefd[0], STDIN_FILENO);
-  write(pipefd[1], passwd, strlen(passwd));
-  write(pipefd[1], "\n", 1);
-  char *const args[] = { "-", user, type, command, NULL };
-  execvp("su", args);
-  exit(1);
-}
-
-bool launch(char *user, char *passwd, struct session session, void (*cb)(void)) {
-  if (!check_passwd(user, passwd))
+  gid_t *groups;
+  int ngroups = 0;
+  getgrouplist(user, pw->pw_gid, NULL, &ngroups);
+  groups = malloc(ngroups * sizeof(gid_t));
+  if (groups == NULL) {
+    print_err("malloc error");
     return false;
+  }
+  if (getgrouplist(user, pw->pw_gid, groups, &ngroups) == -1) {
+    free(groups);
+    print_err("error fetching groups");
+    return false;
+  }
+
+  pam_handle_t *pamh = get_pamh(user, passwd);
+  if (pamh == NULL) {
+    print_err("error on pam authentication");
+    return false;
+  }
+
+  char **envlist = pam_getenvlist(pamh);
+  if (envlist == NULL) {
+    print_err("error getting pam env");
+    return false;
+  }
+
+  // point of no return
+  int setgrps_ret = setgroups(ngroups, groups);
+  free(groups);
+  if (setgrps_ret == -1) {
+    perror("setgroups");
+    exit(EXIT_FAILURE);
+  }
+
+  if (setgid(pw->pw_gid) == -1) {
+    perror("setgid");
+    exit(EXIT_FAILURE);
+  }
+
+  if (setuid(pw->pw_uid) == -1) {
+    perror("setuid");
+    exit(EXIT_FAILURE);
+  }
+
+  for (char **env = envlist; *env != NULL; env++) {
+    putenv(*env);
+  }
 
   if (cb != NULL)
     cb();
 
+  pam_end(pamh, PAM_SUCCESS);
   if (session.type == SHELL) {
     system("clear");
-    run(user, passwd, "-s", session.exec);
+    execl(session.exec, session.exec, NULL);
   } else if (session.type == XORG || session.type == WAYLAND) {
     system("clear");
-    run(user, passwd, "-c", session.exec);
+    execl(session.exec, session.exec, NULL);
   }
 
   return true;
