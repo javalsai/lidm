@@ -73,7 +73,7 @@ make # 👍
 * Make a service file for this if you want it on launch, just check how ly does it, this works pretty much the same way.
 
 # Configuring
-Copy `config.ini` (if I haven't moved it) to `/etc/lidm.ini` and configure it to your liking. Also, don't place empty lines (for now).
+Copy any file from `themes/` (`default.ini` will always be updated) to `/etc/lidm.ini` and/or configure it to your liking. Also, don't place empty lines (for now).
 
 Also configurable colors are just gonna be put inside `\x1b[...m`, ofc you can add an m to break this and this can f* up really bad or even make some nice UI effect possible, but please don't, you should also be able to embed the `\x1b` byte in the config as I won't parse escape codes, I think that the parser is just gonna grab anything in the config file from the space after the `=` (yes, I'ma enforce that space, get good taste if you don't like it) until the newline, you can put any abomination in there.
 
