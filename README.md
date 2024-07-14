@@ -104,6 +104,7 @@ Hope you didn't expect actual project recommendations, but these songs are 🔥
 * "Alec Benjamin - I Sent My Therapist To Therapy"
 * "The Neighbourhood - Sweater Weather"
 * "Cascada - Everytime We Touch" (potentially the sped up versoin if better)
+* "Mitski - My Love Mine All Mine"
 
 Oh, an actual recommendation, if you don't like a element you can change the fg color of it to be the same as the bg.
 
