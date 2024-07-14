@@ -486,7 +486,7 @@ static void print_passwd(struct uint_point origin, uint length, bool err) {
   memset(passwd_prompt, 32, 32);
   memset(passwd_prompt, '*', length);
 
-  printf("\r\x1b[%dC\x1b[%sm\x1b[4m", origin.x + 14, pass_color);
+  printf("\r\x1b[%dC\x1b[%sm", origin.x + 14, pass_color);
   fflush(stdout);
   write(STDOUT_FILENO, passwd_prompt, 32);
   printf("\x1b[%sm", theme.colors.fg);
