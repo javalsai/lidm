@@ -13,6 +13,7 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <auth.h>
 #include <efield.h>
 #include <keys.h>
 #include <sessions.h>
@@ -231,14 +232,14 @@ struct session get_current_session() {
         of_session.current_opt == gsessions->length + 1) {
       struct session shell_session;
       shell_session.type = SHELL;
-      shell_session.path = shell_session.name = get_current_user().shell;
+      shell_session.exec = shell_session.name = get_current_user().shell;
       return shell_session;
     } else
       return gsessions->sessions[of_session.current_opt - 1];
   } else {
     struct session custom_session;
     custom_session.type = SHELL;
-    custom_session.name = custom_session.path = of_session.efield.content;
+    custom_session.name = custom_session.exec = of_session.efield.content;
     return custom_session;
   }
 }
@@ -311,7 +312,7 @@ void ffield_type(char *text) {
     start = get_current_user().username;
   if (focused_input == SESSION && of_session.current_opt != 0 &&
       get_current_session().type == SHELL)
-    start = get_current_session().path;
+    start = get_current_session().exec;
 
   ofield_type(field, text, start);
   print_ffield();
@@ -389,8 +390,13 @@ int load(struct users_list *users, struct sessions_list *sessions) {
         }
       }
     } else {
-      if(len == 1 && *seq == '\n') {
-        printf("\x1b[HTODO: submit creds\n");
+      if (len == 1 && *seq == '\n') {
+        if (!launch(get_current_user().username, of_passwd.efield.content,
+                    get_current_session(), &restore_all)) {
+          print_passwd(box_start(), of_passwd.efield.length, true);
+          ffield_cursor_focus();
+          continue;
+        }
       }
       ffield_type(seq);
     }

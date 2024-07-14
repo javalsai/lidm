@@ -4,6 +4,8 @@ Lidm is a really light display manager made in C, highly customizable and held t
 ![demo image](assets/lidm.png)
 > *this is shown as in a terminal emulator, actual linux console doesn't support as much color and decorations*
 
+> *I'm open if anybody wants to contact me to record a proper demo of the program, my laptop can't handle it and idk how to config obs for hyprland*
+
 ## Features
 * Builds fast af
 * Works everywhere you can get gcc to compile
@@ -15,7 +17,7 @@ Lidm is a really light display manager made in C, highly customizable and held t
 * Save last selection
 * Show/hide passwd switch
 * Config parsing, it's fully customizable, but everything hardcoded for now :)
-* Long sessions, strings, usernames, passwords... they will just overflow or f*ck your terminal, I know it and I don't know if I'll fix it.
+* Long sessions, strings, usernames, passwords... they will just overflow or f\*ck your terminal, I know it and I don't know if I'll fix it.
 
 ## Forget it
 * Any kind of arguments

@@ -11,7 +11,8 @@ enum session_type {
 
 struct session {
   char *name;
-  char *path;
+  char *exec;
+  char *tryexec;
   enum session_type type;
 };
 

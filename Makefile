@@ -4,14 +4,14 @@ IDIR=include
 ODIR=dist
 
 CC=gcc
-CFLAGS=-I$(IDIR)
+CFLAGS=-O3 -I$(IDIR)
 
-LIBS=-lm
+LIBS=-lm -lpam -lpam_misc
 
-_DEPS = util.h ui.h efield.h keys.h users.h sessions.h
+_DEPS = util.h ui.h auth.h efield.h keys.h users.h sessions.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = main.o util.o ui.o efield.o users.o sessions.o
+_OBJ = main.o util.o ui.o auth.o efield.o users.o sessions.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: $(CDIR)/%.c $(DEPS)

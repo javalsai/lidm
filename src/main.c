@@ -38,7 +38,6 @@ static const struct config default_config() {
   __theme.colors = __colors;
   __theme.chars = __chars;
 
-
   struct functions __functions;
   __functions.poweroff = F1;
   __functions.reboot = F2;
@@ -66,12 +65,15 @@ static const struct config default_config() {
   return __config;
 }
 
-int main(int argc, char* argv[]) {
+#include <stdio.h>
+#include <auth.h>
+int main(int argc, char *argv[]) {
   setup(default_config());
 
   struct users_list *users = get_human_users();
   struct sessions_list *sessions = get_avaliable_sessions();
 
   int ret = load(users, sessions);
-  if(ret == 0) execl(argv[0], argv[0], NULL);
+  if (ret == 0)
+    execl(argv[0], argv[0], NULL);
 }

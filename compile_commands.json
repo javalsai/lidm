@@ -70,5 +70,17 @@
    "-Iinclude"
   ],
   "file": "src/efield.c"
+ },
+ {
+  "directory": "/home/javalsai/coding/lidm",
+  "arguments": [
+   "gcc",
+   "-c",
+   "-o",
+   "dist/auth.o",
+   "src/auth.c",
+   "-Iinclude"
+  ],
+  "file": "src/auth.c"
  }
 ]

@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -11,19 +12,21 @@
 
 struct source_dir {
   enum session_type type;
-  char* dir;
+  char *dir;
 };
 static const struct source_dir sources[] = {
-  { XORG, "/usr/share/xsessions" },
-  { WAYLAND, "/usr/share/wayland-sessions" },
+    {XORG, "/usr/share/xsessions"},
+    {WAYLAND, "/usr/share/wayland-sessions"},
 };
 static const size_t sources_size = sizeof(sources) / sizeof(sources[0]);
 
-static struct session __new_session(enum session_type type, char *name, const char *path) {
+static struct session __new_session(enum session_type type, char *name,
+                                    const char *exec, const char *tryexec) {
   struct session __session;
   __session.type = type;
   strcln(&__session.name, name);
-  strcln(&__session.path, path);
+  strcln(&__session.exec, exec);
+  strcln(&__session.tryexec, tryexec);
 
   return __session;
 }
@@ -53,35 +56,63 @@ static int fn(const char *fpath, const struct stat *sb, int typeflag) {
     return 0;
   }
 
-  bool found = false;
+  u_char found = 0;
   size_t alloc_size = sb->st_blksize;
-  char *buf = malloc(sb->st_blksize);
-  while (true) {
-    buf = realloc(buf, sb->st_blksize);
-    ssize_t read_size = getline(&buf, &alloc_size, fd);
-    if (read_size == -1)
-      break;
 
-    uint read;
-    if ((read = sscanf(buf, "Name=%s\n", buf)) != 0) {
-      found = true;
-      buf = realloc(buf, read);
+  char *name_buf = NULL;
+  char *exec_buf = NULL;
+  char *tryexec_buf = NULL;
+  while (true) {
+    char *buf = malloc(sb->st_blksize);
+    ssize_t read_size = getline(&buf, &alloc_size, fd);
+    if (read_size == -1) {
+      free(buf);
       break;
     }
+
+    uint read;
+    char *key = malloc(read_size);
+    if ((read = sscanf(buf, "%[^=]=%[^\n]\n", key, buf)) != 0) {
+      if (strcmp(key, "Name") == 0) {
+        found &= 0b001;
+        name_buf = realloc(buf, read);
+      } else if (strcmp(key, "Exec") == 0) {
+        found &= 0b010;
+        exec_buf = realloc(buf, read);
+      } else if (strcmp(key, "TryExec") == 0) {
+        found &= 0b100;
+        tryexec_buf = realloc(buf, read);
+      } else
+        free(buf);
+    } else
+      free(buf);
+    free(key);
+
+    if (found == 0b111)
+      break;
   }
 
   // just add this to the list
-  if (found) {
+  if (name_buf != NULL && exec_buf != NULL) {
     if (used_size >= alloc_size) {
       alloc_size += bs;
       sessions = realloc(sessions, alloc_size * unit_size);
     }
 
-    sessions[used_size] = __new_session(session_type, buf, fpath);
+    /*printf("n %s\ne %s\nte %s\n", name_buf, exec_buf, tryexec_buf);*/
+    sessions[used_size] = __new_session(session_type, name_buf, exec_buf,
+                                        tryexec_buf == NULL ? "" : tryexec_buf);
+
     used_size++;
   }
 
-  free(buf);
+  if (name_buf != NULL)
+    free(name_buf);
+  if (exec_buf != NULL)
+    free(exec_buf);
+  if (tryexec_buf != NULL)
+    free(tryexec_buf);
+
   return 0;
 }
 
