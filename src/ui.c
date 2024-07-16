@@ -395,10 +395,9 @@ int load(struct users_list *users, struct sessions_list *sessions) {
                     get_current_session(), &restore_all)) {
           print_passwd(box_start(), of_passwd.efield.length, true);
           ffield_cursor_focus();
-          continue;
         }
-      }
-      ffield_type(seq);
+      } else
+        ffield_type(seq);
     }
 
     if (esc != 0)

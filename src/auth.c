@@ -1,13 +1,16 @@
 #include <grp.h>
 #include <pwd.h>
+#include <stdlib.h>
 #include <security/_pam_types.h>
 #include <security/pam_appl.h>
 #include <security/pam_misc.h>
+#include <stdio.h>
 #include <sys/wait.h>
 
 #include <auth.h>
-#include <stdlib.h>
+#include <sessions.h>
 #include <ui.h>
+#include <unistd.h>
 
 int pam_conversation(int num_msg, const struct pam_message **msg,
                      struct pam_response **resp, void *appdata_ptr) {
@@ -48,7 +51,42 @@ pam_handle_t *get_pamh(char *user, char *passwd) {
     return NULL;
   }
 
+  retval = pam_setcred(pamh, PAM_ESTABLISH_CRED);
+  if (retval != PAM_SUCCESS) {
+    pam_end(pamh, retval);
+    return NULL;
+  }
+
+  retval = pam_open_session(pamh, 0);
+  if (retval != PAM_SUCCESS) {
+    pam_end(pamh, retval);
+    return NULL;
+  }
+
   return pamh;
+}
+
+void moarEnv(char* user, struct session session, struct passwd *pw) {
+  chdir(pw->pw_dir);
+  setenv("HOME", pw->pw_dir, true);
+  setenv("USER", user, true);
+  setenv("LOGNAME", user, true);
+
+  char *xdg_session_type;
+  if(session.type == SHELL) xdg_session_type = "tty";
+  if(session.type == XORG) xdg_session_type = "wayland";
+  if(session.type == WAYLAND) xdg_session_type = "x11";
+  setenv("XDG_SESSION_TYPE", xdg_session_type, true);
+
+  char* buf;
+  size_t bsize = snprintf(NULL, 0, "/run/user/%d", pw->pw_uid);
+  buf = malloc(bsize);
+  snprintf(buf, bsize, "/run/user/%d", pw->pw_uid);
+  setenv("XDG_RUNTIME_DIR", buf, true);
+  setenv("XDG_SESSION_CLASS", "user", true);
+  setenv("XDG_SESSION_ID", "1", true);
+  /*setenv("XDG_SESSION_DESKTOP", , true);*/
+  setenv("XDG_SEAT", "seat0", true);
 }
 
 bool launch(char *user, char *passwd, struct session session,
@@ -85,6 +123,9 @@ bool launch(char *user, char *passwd, struct session session,
     return false;
   }
 
+  if (cb != NULL)
+    cb();
+
   // point of no return
   int setgrps_ret = setgroups(ngroups, groups);
   free(groups);
@@ -103,20 +144,22 @@ bool launch(char *user, char *passwd, struct session session,
     exit(EXIT_FAILURE);
   }
 
-  for (char **env = envlist; *env != NULL; env++) {
-    putenv(*env);
+  for(uint i = 0; envlist[i] != NULL; i++) {
+    putenv(envlist[i]);
   }
+  free(envlist);
+  moarEnv(user, session, pw);
 
-  if (cb != NULL)
-    cb();
-
+  pam_setcred(pamh, PAM_DELETE_CRED);
+  pam_close_session(pamh, 0);
   pam_end(pamh, PAM_SUCCESS);
+
   if (session.type == SHELL) {
     system("clear");
-    execl(session.exec, session.exec, NULL);
+    execl(session.exec, NULL);
   } else if (session.type == XORG || session.type == WAYLAND) {
     system("clear");
-    execl(session.exec, session.exec, NULL);
+    execl(session.exec, NULL);
   }
 
   return true;
