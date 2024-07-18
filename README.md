@@ -87,7 +87,7 @@ This is also GPLv3 bcs I was too lazy to look for the "do anything I don't care"
 # Contributors
 Special thanks to:
 * ChatGPT, in times of slow laptops where pages take ages to load, a single tab connected to a bunch of burning cloud GPUs feeding corporate hype is all you need to get quick answers for your questions, as long as you know how to filter AI crap ofc.
-* My lack of gf, can't imagine this project being possible if somebody actually cared about me daily.
+* [My lack of gf](https://www.instagram.com/reel/C8sa3Gltmtq/?igsh=NO_ZUCKERBERG__FUCK_OFF_YOUR_FINGERPRINGTING_QUERY__OBVIOUSLY_STANDS_FOR_INSTAGRAM_SHARE_ID_FFS), can't imagine this project being possible if somebody actually cared about me daily.
 
 # Milestones
 * If this ~~video~~ **repo** gets to 100 ~~likes~~ **stars**, I'll make an arch aur package and properly document installation on multiple init systems.

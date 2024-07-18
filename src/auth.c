@@ -79,7 +79,7 @@ void moarEnv(char* user, struct session session, struct passwd *pw) {
   setenv("XDG_SESSION_TYPE", xdg_session_type, true);
 
   char* buf;
-  size_t bsize = snprintf(NULL, 0, "/run/user/%d", pw->pw_uid);
+  size_t bsize = snprintf(NULL, 0, "/run/user/%d", pw->pw_uid) + 1;
   buf = malloc(bsize);
   snprintf(buf, bsize, "/run/user/%d", pw->pw_uid);
   setenv("XDG_RUNTIME_DIR", buf, true);
