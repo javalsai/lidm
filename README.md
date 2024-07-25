@@ -1,7 +1,7 @@
 # lidm
 Lidm is a really light display manager made in C, highly customizable and held together by hopes and prayers 🙏
 
-![demo image](assets/lidm.png)
+![demo image](assets/lidm.gif)
 > *this is shown as in a terminal emulator, actual linux console doesn't support as much color and decorations*
 
 > *but all colors and strings are fully customizable*
@@ -73,7 +73,7 @@ make # 👍
 * Make a service file for this if you want it on launch, just check how ly does it, this works pretty much the same way.
 
 # Configuring
-Copy any file from `themes/` (`default.ini` will always be updated) to `/etc/lidm.ini` and/or configure it to your liking. Also, don't place empty lines (for now).
+Copy any `.ini` file from [`themes/`](./themes/) (`default.ini` will always be updated) to `/etc/lidm.ini` and/or configure it to your liking. Also, don't place empty lines (for now).
 
 Also configurable colors are just gonna be put inside `\x1b[...m`, ofc you can add an m to break this and this can f* up really bad or even make some nice UI effect possible, but please don't, you should also be able to embed the `\x1b` byte in the config as I won't parse escape codes, I think that the parser is just gonna grab anything in the config file from the space after the `=` (yes, I'ma enforce that space, get good taste if you don't like it) until the newline, you can put any abomination in there.
 
