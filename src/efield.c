@@ -32,7 +32,7 @@ void field_update(struct editable_field *field, char *update) {
     if (*update == 127) {
       if (field->pos == 0) return;
       if (field->pos < field->length) {
-        memcpy(&field->content[field->pos - 1], &field->content[field->pos],
+        memmove(&field->content[field->pos - 1], &field->content[field->pos],
                field->length - field->pos);
       }
       (field->pos)--;
