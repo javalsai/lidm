@@ -101,11 +101,11 @@ bool launch(char *user, char *passwd, struct session session,
   if (cb != NULL)
     cb();
 
-  if(setgid(pw->pw_gid) == -1) {
+  if (setgid(pw->pw_gid) == -1) {
     perror("setgid");
     exit(EXIT_FAILURE);
   }
-  if(initgroups(user, pw->pw_gid) == -1) {
+  if (initgroups(user, pw->pw_gid) == -1) {
     perror("init groups");
     exit(EXIT_FAILURE);
   }
@@ -133,19 +133,26 @@ bool launch(char *user, char *passwd, struct session session,
   free(envlist);
   moarEnv(user, session, pw);
 
-  pam_setcred(pamh, PAM_DELETE_CRED);
-  pam_close_session(pamh, 0);
-  pam_end(pamh, PAM_SUCCESS);
+  uint pid = fork();
+  if (pid == 0) { // child
+    // TODO: these will be different due to TryExec
+    // and, Exec/TryExec might contain spaces as args
+    if (session.type == SHELL) {
+      system("clear");
+      execlp(session.exec, session.exec, NULL);
+    } else if (session.type == XORG || session.type == WAYLAND) {
+      system("clear");
+      execlp(session.exec, session.exec, NULL);
+    }
+    perror("execl error");
+    fprintf(stderr, "failure calling session");
+  } else {
+    waitpid(pid, NULL, 0);
 
-  if (session.type == SHELL) {
-    system("clear");
-    execlp(session.exec, session.exec, NULL);
-  } else if (session.type == XORG || session.type == WAYLAND) {
-    system("clear");
-    execlp(session.exec, session.exec, NULL);
+    pam_setcred(pamh, PAM_DELETE_CRED);
+    pam_close_session(pamh, 0);
+    pam_end(pamh, PAM_SUCCESS);
   }
-  perror("execl error");
-  fprintf(stderr, "failure calling session");
 
   return true;
 }
