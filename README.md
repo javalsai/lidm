@@ -4,9 +4,9 @@ Lidm is a really light display manager made in C, highly customizable and held t
 ![demo image](assets/lidm.png)
 > *this is shown as in a terminal emulator, actual linux console doesn't support as much color and decorations*
 
-> *but all colors and strings are fully suctomizable*
+> *but all colors and strings are fully customizable*
 
-> *I'm open if anybody wants to contact me to record a proper demo of the program, my laptop can't handle it and idk how to config obs for hyprland*
+> *I'm open if anybody wants to contact me to record a proper demo of the program, my laptop can't handle it and idk how to config obs for hyprland (ended up doing it, spent 40min processing a 2min video jusy to give 1fps)*
 
 # Index
 (TODO, VSC(odium) does this automatically, I'm on nvim rn 😎)
@@ -15,7 +15,7 @@ Lidm is a really light display manager made in C, highly customizable and held t
 * Builds fast af
 * Works everywhere you can get gcc to compile
 * Fast and possibly efficient
-* Fully customizable, from strings to colors (I hope you know ansi escape codes), to action buttons
+* Fully customizable, from strings, through action keys, to colors (I hope you know ansi escape codes)
 * Automatically detects xorg and wayland sessions, plus allowing to launch the default user shell (if enabled in config)
 
 ## WIP
