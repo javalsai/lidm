@@ -1,5 +1,6 @@
 # lidm
 Lidm is a really light display manager made in C, highly customizable and held together by hopes and prayers 🙏
+Made by everyone's favourite penguin: Javalsai!!!
 
 ![demo image](assets/lidm.gif)
 > *this is shown as in a terminal emulator, actual linux console doesn't support as much color and decorations*
