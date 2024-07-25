@@ -9,7 +9,6 @@ source=("lidm::https://github.com/javalsai/lidm/releases/download/v$pkgver.zip")
 sha256sums=('2771ca603fb02520cb1ea2dac10400fd4f512d7a8883a7ecffefe6595a93dcf5')
 
 package() {
-    pwd
     install -d "$pkgdir/usr/bin/lidm"
 }
 sha256sums=('5eb72f7d0425e81f9b42f70159ecc44d1b6ca5cfd4fde845d01348964273ab64')
