@@ -74,18 +74,13 @@ sudo make install
 * Prepare the [configuration](#configuring).
 * Make a service file for this if you want it on launch, just check how ly does it, this works pretty much the same way.
 
-# Starting with SystemD
-Starting lidm with SystemD is not fully supported, however it will start on launch.
-In the lidm directory run these commands:
-```sh
-sudo cp assets/li.service /etc/systemd/system
-sudo systemdtl enable li
-```
-You may also want to disable your current Display Manager for instance:
+# Disabling other DM's with systemd
+You may want to disable your current Display Manager for instance:
 ```sh
 sudo systemctl disable sddm         # Disables SDDM (KDE's dm)
 sudo systemctl disable lightdm      # Disables lightDM (popular lightweight DM)
 sudo systemctl disable gdm          # Disables GDM (Gnomes DM)
+sudo systemctl disable ly           # Disables LYDM (tui dm)
 ```
 
 # Configuring
