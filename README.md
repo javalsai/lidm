@@ -75,9 +75,12 @@ make # 👍
 
 # Starting with SystemD
 Starting lidm with SystemD is not fully supported, however it will start on launch.
-In the lidm directory run these commands:
+Firstly, edit the assets/li.service file to have the corrent path of the lidm binary.
+eg:
+```ExecStart=$HOME/git/lidm/lidm```
+Then, in the lidm directory run these commands:
 ```sh
-sudo cp li.service /etc/systemd/system
+sudo cp assets/li.service /etc/systemd/system
 sudo systemdtl enable li
 ```
 You may also want to disable your current Display Manager for instance:
