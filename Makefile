@@ -24,3 +24,13 @@ lidm: $(OBJ)
 .PHONY: clean
 clean:
 	rm -f $(ODIR)/*.o *- li $(INCDIR)/*-
+
+# Copy lidm to /usr/bin
+install: lidm
+	install -m 755 lidm /usr/bin
+	if command -v systemctl &> /dev/null; then \
+		echo "Systemd exists, copying service file"; \
+		cp assets/li.service /etc/systemd/system/; \
+	else \
+		echo "No systemd"; \
+	fi

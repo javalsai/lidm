@@ -6,7 +6,7 @@ Conflicts=getty@tty3.service
 
 [Service]
 Type=idle
-ExecStart=$HOME/git/lidm/assets/li.service
+ExecStart=/usr/bin/lidm
 StandardError=journal
 StandardInput=tty
 TTYPath=/dev/tty3
