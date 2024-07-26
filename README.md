@@ -6,7 +6,7 @@ Lidm is a really light display manager made in C, highly customizable and held t
 
 > *but all colors and strings are fully customizable*
 
-> *I'm open if anybody wants to contact me to record a proper demo of the program, my laptop can't handle it and idk how to config obs for hyprland (ended up doing it, spent 40min processing a 2min video jusy to give 1fps)*
+> *I'm open if anybody wants to contact me to record a proper demo of the program, my laptop can't handle it and idk how to config obs for hyprland (ended up doing it, spent 40min processing a 2min video just to give 1fps)*
 
 # Index
 (TODO, VSC(odium) does this automatically, I'm on nvim rn 😎)
