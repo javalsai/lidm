@@ -38,7 +38,7 @@ We all know that the most important thing in a project is the ideology of the au
 > *there's also a [change.org post](https://www.change.org/p/stoppt-die-chatkontrolle-grundrechte-gelten-auch-im-netz)*
 
 # Backstory
-I went into summer travel to visit family with an old laptop that barely supports x86_64, and ly recently added some avx2 instructions I think (I just get invalid op codes), manually building (any previous commit too) didn't work because of something in the `build.zig` file, so out of boredom I decided to craft up my own simple display manager on the only language this thing can handle, ✨C✨ (I hate this and reserve the right for the rust rewrite, actually solid).
+I travelling in the summer to visit family with an old laptop that barely supports x86_64, and ly recently added some avx2 instructions I think (I just get invalid op codes), manually building (any previous commit too) didn't work because of something in the `build.zig` file, so out of boredom I decided to craft up my own simple display manager on the only language this thing can handle, ✨C✨ (I hate this and reserve the right for the rust rewrite, actually solid).
 
 I spedrun it, basically did in in 3 days on the same couch on [unhelty back positions (even worse)](https://i.redd.it/4bkje8amisu61.png) while touching *some* grass (:o), and I'm bad af in C, so this is spaghetti code on **another** level. I think it doesn't do almost anything unsafe, I mean, I didn't check allocations and it's capable of reallocating memory until your username uses all memory and crashes the system due to a off by 1 error, but pretty consistent otherwise (probably).
 
@@ -86,17 +86,13 @@ This is also GPLv3 bcs I was too lazy to look for the "do anything I don't care"
 
 # Contributors
 Special thanks to:
+* DeaDvey, the most awesomest and so is first on this list.
 * ChatGPT, in times of slow laptops where pages take ages to load, a single tab connected to a bunch of burning cloud GPUs feeding corporate hype is all you need to get quick answers for your questions, as long as you know how to filter AI crap ofc.
 * [My lack of gf](https://www.instagram.com/reel/C8sa3Gltmtq/?igsh=NO_ZUCKERBERG__FUCK_OFF_YOUR_FINGERPRINGTING_QUERY__OBVIOUSLY_STANDS_FOR_INSTAGRAM_SHARE_ID_FFS), can't imagine this project being possible if somebody actually cared about me daily.
 
 # Milestones
 * If this ~~video~~ **repo** gets to 100 ~~likes~~ **stars**, I'll make an arch aur package and properly document installation on multiple init systems.
 * (I might also make a nix flake if yall nix nerds ask me for it)
-
-# Contributors
-* DeaDvey
-* killertfus
-* Javalsai
 
 # Recommendations
 Hope you didn't expect actual project recommendations, but these songs are 🔥
