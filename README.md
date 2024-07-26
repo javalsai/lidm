@@ -15,6 +15,7 @@ LiDM is a really light display manager made in C, highly customizable and held t
 * Fast and possibly efficient.
 * Fully customizable, from strings, through action keys, to colors (I hope you know ansi escape codes)
 * Automatically detects xorg and wayland sessions, plus allowing to launch the default user shell (If enabled in config)
+* Starts with many init systems eg: systemd and dinit.
 
 ## WIP
 * Desktop's file `TryExec` key.
@@ -71,6 +72,20 @@ make # 👍
 * You can put the compiled binary anywhere you want tbh, you can even setuid it if you want to run it with any user, but code's not too safe 😬.
 * Prepare the [configuration](#configuring).
 * Make a service file for this if you want it on launch, just check how ly does it, this works pretty much the same way.
+
+# Starting with SystemD
+* Starting lidm with SystemD is not fully supported, however it will start on launch.
+In the lidm directory run these commands:
+```sh
+sudo cp li.service /etc/systemd/system
+sudo systemdtl enable li
+```
+You may also want to disable your current Display Manager for instance:
+```sh
+sudo systemctl disable sddm       # Disables SDDM (KDE's dm)
+sudo systemctl disable lightdm      # Disables lightDM (popular lightweight DM)
+sudo systemctl disable gdm      # Disables GDM (Gnomes DM)
+```
 
 # Configuring
 Copy any `.ini` file from [`themes/`](./themes/) (`default.ini` will always be updated) to `/etc/lidm.ini` and/or configure it to your liking. Also, don't place empty lines (for now).
