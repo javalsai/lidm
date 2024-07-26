@@ -10,7 +10,9 @@ LiDM is a really light display manager made in C, highly customizable and held t
 (TODO, VSC(odium) does this automatically, I'm on nvim rn 😎).
 
 ## Features
-* Builds fast af.
+* Builds fast as FUCK.
+  * 2.830s: laptop, -O3, -j2, `AMD E-450 APU with Radeon(tm) HD Graphics`
+  * 0.172s: desktop, -O3, -j12, `AMD Ryzen 5 5600G with Radeon Graphics`
 * Works everywhere you can get gcc to compile.
 * Fast and possibly efficient.
 * Fully customizable, from strings, through action keys, to colors (I hope you know ansi escape codes)
@@ -139,6 +141,8 @@ Hope you didn't expect actual project recommendations, but these songs are 🔥:
 * "The Neighbourhood - Sweater Weather"
 * "Cascada - Everytime We Touch" (potentially the sped up versoin if better)
 * "Mitski - My Love Mine All Mine"
+* "Dutch Melrose - RUNRUNRUN"
+* "Bring Me The Horizon - Happy Song"
 
 Oh, an actual recommendation, if you don't like a element you can change the fg color of it to be the same as the bg.
 
