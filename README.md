@@ -1,7 +1,7 @@
 # LiDM
 LiDM is a really light display manager made in C, highly customizable and held together by hopes and prayers 🙏.
 
-![demo image](assets/lidm.gif)
+![demo image](assets/media/lidm.gif)
 > *This is shown as in a terminal emulator, actual linux console doesn't support as much color and decorations.*
 
 > *But all colors and strings are fully customizable.*
@@ -24,7 +24,6 @@ LiDM is a really light display manager made in C, highly customizable and held t
 * Long sessions, strings, usernames, passwords... they will just overflow or fuck your terminal, I know it and I don't know if I'll fix it.
 
 ## Forget it
-* Any kind of arguments.
 * UTF characters, I'm using `strlen()` and treating characters as per byte basis, UTF-8 chars might work or not actually, might fix it by replacing some `strlen()` with a utflen one.
 
 > [!CAUTION]
@@ -54,6 +53,8 @@ FYI, this laptop is so bad that I can't even render markdown in reasonable time,
 * Make (Also optional, but does things atomatically, make sure `gcc` and `mkdir -p` work as expected).
 
 # Usage
+Regarding arguments: If a single argument is provided (don't even do `--` or standard parsing...), it passes that argument to `chvt` on startup, used (at least) by the dinit service.
+
 On top of pure intuition:
 * You can change focus of session/user/passwd with up/down arrows.
 * In case arrow keys do nothing on the focused input (Either is empty text or doesn't have more options), it tries to change session and if there's only one session it changes user.
@@ -66,13 +67,27 @@ On top of pure intuition:
 git clone https://github.com/javalsai/lidm.git
 cd lidm
 make # 👍
-sudo make install
 ```
 
 # Installation
 * You can put the compiled binary anywhere you want tbh, you can even setuid it if you want to run it with any user, but code's not too safe 😬.
 * Prepare the [configuration](#configuring).
+```sh
+# place binary in /usr/bin and copy
+# default theme to /etc
+make install
+```
 * Make a service file for this if you want it on launch, just check how ly does it, this works pretty much the same way.
+```sh
+# automatically detects init system
+# and installs service file (for tty7)
+make install-service
+
+# There's manual scripts too:
+make install-service-systemd # systemd
+make install-service-dinit # dinit
+```
+
 
 # Disabling other DM's with systemd
 You may want to disable your current Display Manager for instance:
