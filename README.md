@@ -74,7 +74,7 @@ make # 👍
 * Make a service file for this if you want it on launch, just check how ly does it, this works pretty much the same way.
 
 # Starting with SystemD
-* Starting lidm with SystemD is not fully supported, however it will start on launch.
+Starting lidm with SystemD is not fully supported, however it will start on launch.
 In the lidm directory run these commands:
 ```sh
 sudo cp li.service /etc/systemd/system
