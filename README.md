@@ -1,4 +1,4 @@
-# lidm
+# LiDM
 LiDM is a really light display manager made in C, highly customizable and held together by hopes and prayers 🙏.
 
 ![demo image](assets/lidm.gif)
