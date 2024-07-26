@@ -6,7 +6,7 @@ Lidm is a really light display manager made in C, highly customizable and held t
 
 > *but all colors and strings are fully customizable*
 
-> *I'm open if anybody wants to contact me to record a proper demo of the program, my laptop can't handle it and idk how to config obs for hyprland (ended up doing it, spent 40min processing a 2min video jusy to give 1fps)*
+> *I'm open if anybody wants to contact me to record a proper demo of the program, my laptop can't handle it and idk how to config obs for hyprland (ended up doing it, spent 40min processing a 2min video just to give 1fps)*
 
 # Index
 (TODO, VSC(odium) does this automatically, I'm on nvim rn 😎)
@@ -42,7 +42,7 @@ I went into summer travel to visit family with an old laptop that barely support
 
 I spedrun it, basically did in in 3 days on the same couch on [unhelty back positions (even worse)](https://i.redd.it/4bkje8amisu61.png) while touching *some* grass (:o), and I'm bad af in C, so this is spaghetti code on **another** level. I think it doesn't do almost anything unsafe, I mean, I didn't check allocations and it's capable of reallocating memory until your username uses all memory and crashes the system due to a off by 1 error, but pretty consistent otherwise (probably).
 
-The name is just ly byt changing "y" with "i", that had a reason but forgot it, (maybe the i in *simple*), so I remembered this sh*tty laptop with a lid, this thing is also a display manager (dm, ly command is also `ly-dm`), so just did lidm due to all that.
+The name is just ly but changing "y" with "i", that had a reason but forgot it, (maybe the i in *simple*), so I remembered this sh*tty laptop with a lid, this thing is also a display manager (dm, ly command is also `ly-dm`), so just did lidm due to all that.
 
 ![think gif](https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcTFzaGVmb3VjN3FnOXV6OG9rMG91a2QwM3c0aDV0NWpoZjFzNDEwayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/d3mlE7uhX8KFgEmY/giphy.gif) <!--gif's likely broken-->
 
