@@ -9,7 +9,7 @@ LiDM is a really light display manager made in C, highly customizable and held t
 > *I'm open if anybody wants to contact me to record a proper demo of the program, my laptop can't handle it and idk how to config obs for hyprland (ended up doing it, spent 40min processing a 2min video just to give 1fps.*
 
 # Index
-(TODO, VSC(odium) does this automatically, I'm on nvim rn 😎)
+(TODO, VSC(odium) does this automatically, I'm on nvim rn 😎).
 
 ## Features
 * Builds fast AF.
@@ -19,13 +19,13 @@ LiDM is a really light display manager made in C, highly customizable and held t
 * Automatically detects xorg and wayland sessions, plus allowing to launch the default user shell (if enabled in config)
 
 ## WIP
-* desktop's file `TryExec` key
-* Save last selection
-* Show/hide passwd switch
+* desktop's file `TryExec` key.
+* Save last selection.
+* Show/hide passwd switch.
 * Long sessions, strings, usernames, passwords... they will just overflow or fuck your terminal, I know it and I don't know if I'll fix it.
 
 ## Forget it
-* Any kind of arguments
+* Any kind of arguments.
 * UTF characters, I'm using `strlen()` and treating characters as per byte basis, UTF-8 chars might work or not actually, might fix it by replacing some `strlen()` with a utflen one.
 
 > [!CAUTION]
@@ -35,7 +35,7 @@ LiDM is a really light display manager made in C, highly customizable and held t
 We all know that the most important thing in a project is the ideology of the author and the movements he wants to support, so [**#stopchatcontrol**](https://stopchatcontrol.eu).
 <!-- doubt markdown will allow me to render this properly -->
 [ ![stopchatcontrol](https://stopchatcontrol.eu/wp-content/uploads/2023/09/1-1-1024x1024.png) ](https://stopchatcontrol.eu)
-> *there's also a [change.org post](https://www.change.org/p/stoppt-die-chatkontrolle-grundrechte-gelten-auch-im-netz)*
+> *there's also a [change.org post](https://www.change.org/p/stoppt-die-chatkontrolle-grundrechte-gelten-auch-im-netz).*
 
 # Backstory
 I travelling in the summer to visit family with an old laptop that barely supports x86_64, and ly recently added some avx2 instructions I think (I just get invalid op codes), manually building (any previous commit too) didn't work because of something in the `build.zig` file, so out of boredom I decided to craft up my own simple display manager on the only language this thing can handle, ✨C✨ (I hate this and reserve the right for the rust rewrite, actually solid).
@@ -46,30 +46,32 @@ The name is just ly but changing "y" with "i", that had a reason but forgot it, 
 
 ![think gif](https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcTFzaGVmb3VjN3FnOXV6OG9rMG91a2QwM3c0aDV0NWpoZjFzNDEwayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/d3mlE7uhX8KFgEmY/giphy.gif) <!--gif's likely broken-->
 
-FYI, this laptop is so bad that I can't even render markdown in reasonable time, I'll just push this and fix render issues live :)
+FYI, this laptop is so bad that I can't even render markdown in reasonable time, I'll just push this and fix render issues live :).
 
 # Requirements
 * A computer with unix based system.
-* That system should have the resources neccessary for this program to make sense (sessions, users...)
-* A compiler (optional, you can compile by hand, but I doubt you want to see the code)
-* Make (also optional, but does things atomatically, make sure `gcc` and `mkdir -p` work as expected)
+* That system should have the resources neccessary for this program to make sense (sessions, users...).
+* A compiler (optional, you can compile by hand, but I doubt you want to see the code).
+* Make (also optional, but does things atomatically, make sure `gcc` and `mkdir -p` work as expected).
 
 # Usage
 On top of pure intuition:
-* you can change focus of session/user/passwd with up/down arrows
-* in case arrow keys do nothing on the focused input (either is empty text or doesn't have more options), it tries to change session and if there's only one session it changes user
-* typing anything will allow to put a custom user or shell command too, you can use arrow keys to move
-* ESC and then left/right arrows will force to change the option of the focused input, useful if you're editing the current input and arrow keys just move
-* editing a predefined option on a user or a shell session, will put you in edit mode preserving the original value, other cases start from scratch
+* you can change focus of session/user/passwd with up/down arrows.
+* in case arrow keys do nothing on the focused input (either is empty text or doesn't have more options), it tries to change session and if there's only one session it changes user.
+* typing anything will allow to put a custom user or shell command too, you can use arrow keys to move.
+* ESC and then left/right arrows will force to change the option of the focused input, useful if you're editing the current input and arrow keys just move.
+* editing a predefined option on a user or a shell session, will put you in edit mode preserving the original value, other cases start from scratch.
 
-# Compiling
+# Building from source
 ```sh
+git clone https://github.com/javalsai/lidm.git
+cd lidm
 make # 👍
 ```
 
 # Installation
 * You can put the compiled binary anywhere you want tbh, you can even setuid it if you want to run it with any user, but code's not too safe 😬.
-* Prepare the [configuration](#configuring)
+* Prepare the [configuration](#configuring).
 * Make a service file for this if you want it on launch, just check how ly does it, this works pretty much the same way.
 
 # Configuring
@@ -77,7 +79,7 @@ Copy any `.ini` file from [`themes/`](./themes/) (`default.ini` will always be u
 
 Also configurable colors are just gonna be put inside `\x1b[...m`, ofc you can add an m to break this and this can f* up really bad or even make some nice UI effect possible, but please don't, you should also be able to embed the `\x1b` byte in the config as I won't parse escape codes, I think that the parser is just gonna grab anything in the config file from the space after the `=` (yes, I'ma enforce that space, get good taste if you don't like it) until the newline, you can put any abomination in there.
 
-Btw, the default fg style should disable decorators set up in other elements (cursive, underline... it's just adding 20 to the number btw, so if cursive is 4 (iirc), disabling it is 24).
+The default fg style should disable decorators set up in other elements (cursive, underline... it's just adding 20 to the number btw, so if cursive is 4 (iirc), disabling it is 24).
 
 # Contributing
 Don't do this to yourself, but you can ofc, you can also fork or whatever (make sure to comply with GNU's GPLv3), but I want to do the rust rewrite 😡 (after it, I'll leave this around in case somebody with ancient hardware needs it, or if somebody wants to port it for a microwave...)
@@ -87,17 +89,17 @@ This is also GPLv3 bcs I was too lazy to look for the "do anything I don't care"
 # Contributors
 Special thanks to:
 * Javalsai, Maintainer and everyone's second favourite penguin!!!
-* DeaDvey, the most awesomest of all.
+* DeaDvey, the most awesomest of all, did some pretty HARDCORE gramer cheking.
 * KillerTofus, [made the AUR package](https://github.com/javalsai/lidm/pull/2)! Saved me from reading the Arch Wiki 💀.
 * ChatGPT, in times of slow laptops where pages take ages to load, a single tab connected to a bunch of burning cloud GPUs feeding corporate hype is all you need to get quick answers for your questions, as long as you know how to filter AI crap ofc.
 * [My lack of gf](https://www.instagram.com/reel/C8sa3Gltmtq/?igsh=NO_ZUCKERBERG__FUCK_OFF_YOUR_FINGERPRINGTING_QUERY__OBVIOUSLY_STANDS_FOR_INSTAGRAM_SHARE_ID_FFS), can't imagine this project being possible if somebody actually cared about me daily.
 
 # Milestones
 * If this ~~video~~ **repo** gets to 100 ~~likes~~ **stars**, I'll make an arch aur package and properly document installation on multiple init systems.
-* (I might also make a nix flake if yall nix nerds ask me for it)
+* (I might also make a nix flake if yall nix nerds ask me for it).
 
 # Recommendations
-Hope you didn't expect actual project recommendations, but these songs are 🔥
+Hope you didn't expect actual project recommendations, but these songs are 🔥:
 * "Sixpence None the Richer - Kiss Me"
 * "Avril Lavigne - Complicated"
 * "Shawn Mendes - There's Nothing Holdin' Me Back"
