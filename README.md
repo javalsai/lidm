@@ -85,9 +85,9 @@ sudo systemdtl enable li
 ```
 You may also want to disable your current Display Manager for instance:
 ```sh
-sudo systemctl disable sddm       # Disables SDDM (KDE's dm)
+sudo systemctl disable sddm         # Disables SDDM (KDE's dm)
 sudo systemctl disable lightdm      # Disables lightDM (popular lightweight DM)
-sudo systemctl disable gdm      # Disables GDM (Gnomes DM)
+sudo systemctl disable gdm          # Disables GDM (Gnomes DM)
 ```
 
 # Configuring
