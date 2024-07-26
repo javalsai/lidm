@@ -22,7 +22,7 @@ LiDM is a really light display manager made in C, highly customizable and held t
 * desktop's file `TryExec` key
 * Save last selection
 * Show/hide passwd switch
-* Long sessions, strings, usernames, passwords... they will just overflow or f\*ck your terminal, I know it and I don't know if I'll fix it.
+* Long sessions, strings, usernames, passwords... they will just overflow or fuck your terminal, I know it and I don't know if I'll fix it.
 
 ## Forget it
 * Any kind of arguments
@@ -92,6 +92,11 @@ Special thanks to:
 # Milestones
 * If this ~~video~~ **repo** gets to 100 ~~likes~~ **stars**, I'll make an arch aur package and properly document installation on multiple init systems.
 * (I might also make a nix flake if yall nix nerds ask me for it)
+
+# Contributors
+* DeaDvey
+* killertfus
+* Javalsai
 
 # Recommendations
 Hope you didn't expect actual project recommendations, but these songs are 🔥
