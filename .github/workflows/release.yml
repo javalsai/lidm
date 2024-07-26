@@ -19,5 +19,5 @@ jobs:
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: lidm
-        asset_name: lidm
+        asset_name: lidm-x86_64 # will compile for more archs other day
         tag: ${{ github.ref }}
