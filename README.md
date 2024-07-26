@@ -75,7 +75,7 @@ make # 👍
 
 # Starting with SystemD
 Starting lidm with SystemD is not fully supported, however it will start on launch.
-Firstly, edit the assets/li.service file to have the corrent path of the lidm binary.
+Firstly, edit the assets/li.service file to have the correct path of the lidm binary.
 eg:
 ```ExecStart=$HOME/git/lidm/lidm```
 Then, in the lidm directory run these commands:
