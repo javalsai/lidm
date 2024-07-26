@@ -4,7 +4,9 @@ IDIR=include
 ODIR=dist
 
 CC=gcc
-CFLAGS=-O3 -I$(IDIR)
+CFLAGS?=-O3
+_CFLAGS=-I$(DIR)
+ALLFLAGS=$(CFLAGS) -I$(IDIR)
 
 LIBS=-lm -lpam -lpam_misc
 
@@ -16,10 +18,10 @@ OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: $(CDIR)/%.c $(DEPS)
 	@mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
+	$(CC) -c -o $@ $< $(ALLFLAGS)
 
 lidm: $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+	$(CC) -o $@ $^ $(ALLFLAGS) $(LIBS)
 
 .PHONY: clean
 clean:
