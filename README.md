@@ -1,20 +1,20 @@
 # lidm
-Lidm is a really light display manager made in C, highly customizable and held together by hopes and prayers 🙏
+LiDM is a really light display manager made in C, highly customizable and held together by hopes and prayers 🙏.
 
 ![demo image](assets/lidm.gif)
-> *this is shown as in a terminal emulator, actual linux console doesn't support as much color and decorations*
+> *this is shown as in a terminal emulator, actual linux console doesn't support as much color and decorations.*
 
-> *but all colors and strings are fully customizable*
+> *but all colors and strings are fully customizable.*
 
-> *I'm open if anybody wants to contact me to record a proper demo of the program, my laptop can't handle it and idk how to config obs for hyprland (ended up doing it, spent 40min processing a 2min video just to give 1fps)*
+> *I'm open if anybody wants to contact me to record a proper demo of the program, my laptop can't handle it and idk how to config obs for hyprland (ended up doing it, spent 40min processing a 2min video just to give 1fps.*
 
 # Index
 (TODO, VSC(odium) does this automatically, I'm on nvim rn 😎)
 
 ## Features
-* Builds fast af
-* Works everywhere you can get gcc to compile
-* Fast and possibly efficient
+* Builds fast AF.
+* Works everywhere you can get gcc to compile.
+* Fast and possibly efficient.
 * Fully customizable, from strings, through action keys, to colors (I hope you know ansi escape codes)
 * Automatically detects xorg and wayland sessions, plus allowing to launch the default user shell (if enabled in config)
 
@@ -46,7 +46,7 @@ The name is just ly but changing "y" with "i", that had a reason but forgot it, 
 
 ![think gif](https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcTFzaGVmb3VjN3FnOXV6OG9rMG91a2QwM3c0aDV0NWpoZjFzNDEwayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/d3mlE7uhX8KFgEmY/giphy.gif) <!--gif's likely broken-->
 
-Btw, this laptop is so bad that I can't even render markdown in reasonable time, I'll just push this and fix render issues live :)
+FYI, this laptop is so bad that I can't even render markdown in reasonable time, I'll just push this and fix render issues live :)
 
 # Requirements
 * A computer with unix based system.
