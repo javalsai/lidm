@@ -32,6 +32,9 @@ install: lidm
 	install -m755 ./lidm /usr/bin
 	install -m755 ./themes/default.ini /etc/lidm.ini
 
+uninstall:
+	rm -rf /usr/bin/lidm /etc/lidm.ini
+
 install-service:
 	@if command -v systemctl &> /dev/null; then \
 		make install-service-systemd; \
