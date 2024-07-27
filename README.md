@@ -90,6 +90,8 @@ make install-service-systemd # systemd
 make install-service-dinit # dinit
 ```
 
+> [!NOTE]
+> You can skip **most** of this with the [AUR packages](./assets/pkg/aur/) (yes, just AUR for now)
 
 # Disabling other DM's with systemd
 You may want to disable your current Display Manager for instance:
