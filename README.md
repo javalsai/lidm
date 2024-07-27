@@ -1,3 +1,7 @@
+[![GitHub license](https://badgen.net/github/license/javalsai/lidm)](https://github.com/javalsai/lidm/blob/master/LICENSE)
+[![GitHub branches](https://badgen.net/github/branches/javalsai/lidm)](https://github.com/javalsai/lidm)
+[![Latest Release](https://badgen.net/github/release/javalsai/lidm)](https://github.com/javalsai/lidm/releases)
+
 # LiDM
 LiDM is a really light display manager made in C, highly customizable and held together by hopes and prayers 🙏.
 
@@ -119,6 +123,8 @@ I spedrun it in roughly 3 days and I'm bad af in C, so this is spaghetti code on
 The name is just ly but changing "y" with "i", that had a reason but forgot it, (maybe the i in *simple*), so I remembered this sh*tty laptop with a lid, this thing is also a display manager (dm, ly command is also `ly-dm`), so just did lidm due to all that.
 
 # Contributors
+[![GitHub Contributors](https://contrib.rocks/image?repo=javalsai/lidm&max=20)](https://github.com/javalsai/lidm/graphs/contributors)
+
 * DeaDvey, the most awesomest of all, did some pretty HARDCORE gramer cheking.
 * KillerTofus, [made the AUR package](https://github.com/javalsai/lidm/pull/2)! Saved me from reading the Arch Wiki 💀.
 * ChatGPT, in times of slow laptops where pages take ages to load, a single tab connected to a bunch of burning cloud GPUs feeding corporate hype is all you need to get quick answers for your questions, as long as you know how to filter AI crap ofc.
