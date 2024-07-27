@@ -569,7 +569,7 @@ void print_errno(const char *descr) {
             origin.x, theme.colors.err, errno, strerror(errno));
   else {
     fprintf(stderr, "\x1b[%d;%dH\x1b[%sm%s(%d): %s", origin.y - 1, origin.x,
-            descr, theme.colors.err, errno, strerror(errno));
+            theme.colors.err, descr, errno, strerror(errno));
   }
 }
 

@@ -5,12 +5,14 @@
 #include <security/pam_misc.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/mman.h>
 #include <sys/wait.h>
 
 #include <auth.h>
 #include <sessions.h>
 #include <ui.h>
 #include <unistd.h>
+#include <util.h>
 
 int pam_conversation(int num_msg, const struct pam_message **msg,
                      struct pam_response **resp, void *appdata_ptr) {
@@ -50,6 +52,11 @@ pam_handle_t *get_pamh(char *user, char *passwd) {
   return pamh;
 }
 #undef CHECK_PAM_RET
+
+void *shmalloc(size_t size) {
+  return mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS,
+              -1, 0);
+}
 
 void moarEnv(char *user, struct session session, struct passwd *pw) {
   chdir(pw->pw_dir);
@@ -96,56 +103,89 @@ bool launch(char *user, char *passwd, struct session session,
     return false;
   }
 
-  // point of no return
-  // TODO: move this to get_pamh, before first setcred, like login does
-  if (cb != NULL)
-    cb();
-
-  if(setgid(pw->pw_gid) == -1) {
-    perror("setgid");
-    exit(EXIT_FAILURE);
+  bool *reach_session = shmalloc(sizeof(bool));
+  if (reach_session == NULL) {
+    perror("error allocating shared memory");
+    return false;
   }
-  if(initgroups(user, pw->pw_gid) == -1) {
-    perror("init groups");
-    exit(EXIT_FAILURE);
+  *reach_session = false;
+
+  uint pid = fork();
+  if (pid == 0) { // child
+    char *TERM = NULL;
+    char *_GETTERM = getenv("TERM");
+    if (_GETTERM != NULL)
+      strcln(&TERM, _GETTERM);
+    if (clearenv() != 0) {
+      print_errno("clearenv");
+      _exit(EXIT_FAILURE);
+    }
+
+    char **envlist = pam_getenvlist(pamh);
+    if (envlist == NULL) {
+      print_errno("pam_getenvlist");
+      _exit(EXIT_FAILURE);
+    }
+    for (uint i = 0; envlist[i] != NULL; i++) {
+      putenv(envlist[i]);
+    }
+    // FIXME: path hotfix
+    putenv("PATH=/bin:/usr/bin");
+    if (TERM != NULL) {
+      setenv("TERM", TERM, true);
+      free(TERM);
+    }
+
+    free(envlist);
+    moarEnv(user, session, pw);
+
+    // TODO: chown stdin to user
+    // does it inherit stdin from parent and
+    // does parent need to reclaim it after
+    // this dies?
+
+    if (setgid(pw->pw_gid) == -1) {
+      print_errno("setgid");
+      _exit(EXIT_FAILURE);
+    }
+    if (initgroups(user, pw->pw_gid) == -1) {
+      print_errno("initgroups");
+      _exit(EXIT_FAILURE);
+    }
+
+    if (setuid(pw->pw_uid) == -1) {
+      perror("setuid");
+      _exit(EXIT_FAILURE);
+    }
+
+    if (cb != NULL)
+      cb();
+
+    *reach_session = true;
+
+    // TODO: these will be different due to TryExec
+    // and, Exec/TryExec might contain spaces as args
+    if (session.type == SHELL) {
+      system("clear");
+      execlp(session.exec, session.exec, NULL);
+    } else if (session.type == XORG || session.type == WAYLAND) {
+      system("clear");
+      execlp(session.exec, session.exec, NULL);
+    }
+    perror("execl error");
+    fprintf(stderr, "failure calling session");
+  } else {
+    waitpid(pid, NULL, 0);
+
+    pam_setcred(pamh, PAM_DELETE_CRED);
+    pam_close_session(pamh, 0);
+    pam_end(pamh, PAM_SUCCESS);
+
+    if (*reach_session == false) {
+      return false;
+    } else
+      exit(0);
   }
-
-  char **envlist = pam_getenvlist(pamh);
-  if (envlist == NULL) {
-    perror("pam_getenvlist");
-    exit(EXIT_FAILURE);
-  }
-
-  // TODO: chown stdin to user
-
-  if (setuid(pw->pw_uid) == -1) {
-    perror("setuid");
-    exit(EXIT_FAILURE);
-  }
-
-  system("clear");
-  printf("\x1b[0m\x1b[H");
-  for (uint i = 0; envlist[i] != NULL; i++) {
-    putenv(envlist[i]);
-  }
-  // NOTE: path hotfix
-  putenv("PATH=/bin:/usr/bin");
-  free(envlist);
-  moarEnv(user, session, pw);
-
-  pam_setcred(pamh, PAM_DELETE_CRED);
-  pam_close_session(pamh, 0);
-  pam_end(pamh, PAM_SUCCESS);
-
-  if (session.type == SHELL) {
-    system("clear");
-    execlp(session.exec, session.exec, NULL);
-  } else if (session.type == XORG || session.type == WAYLAND) {
-    system("clear");
-    execlp(session.exec, session.exec, NULL);
-  }
-  perror("execl error");
-  fprintf(stderr, "failure calling session");
 
   return true;
 }

@@ -34,7 +34,6 @@ We all know that the most important thing in a project is the ideology of the au
 [ ![stopchatcontrol](https://stopchatcontrol.eu/wp-content/uploads/2023/09/1-1-1024x1024.png) ](https://stopchatcontrol.eu)
 > *there's also a [change.org post](https://www.change.org/p/stoppt-die-chatkontrolle-grundrechte-gelten-auch-im-netz).*
 
-
 # Requirements
 * A computer with unix based system.
 * That system should have the resources neccessary for this program to make sense (Sessions, users...).
@@ -79,6 +78,7 @@ make install-service-dinit # dinit
 
 > [!NOTE]
 > You can skip **most** of this with the [AUR packages](https://aur.archlinux.org/packages?K=javalsai&SeB=m)
+
 # Disabling other DM's with systemd
 You may want to disable your current Display Manager for instance:
 ```sh

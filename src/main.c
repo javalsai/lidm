@@ -9,9 +9,20 @@
 #include <ui.h>
 #include <users.h>
 
+void chvt(char *arg) {
+  size_t bsize = snprintf(NULL, 0, "chvt %s", arg) + 1;
+  char *buf = malloc(bsize);
+  snprintf(buf, bsize, "chvt %s", arg);
+  system(buf);
+  free(buf);
+}
+
 int main(int argc, char *argv[]) {
-  struct config* config = parse_config("/etc/lidm.ini");
-  if(config == NULL) {
+  if (argc == 2)
+    chvt(argv[1]);
+
+  struct config *config = parse_config("/etc/lidm.ini");
+  if (config == NULL) {
     fprintf(stderr, "error parsing config\n");
     return 1;
   }
