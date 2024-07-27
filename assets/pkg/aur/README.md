@@ -6,7 +6,7 @@ There are three packages that follow standard conventions:
 * `lidm-bin`: Fetches latest release binary (compiled by GitHub Actions, also updated per release)
 * `lidm-git`: Fetches latest commit and builds it (should be updated automatically)
 
-> [!ATTENTION]
+> [!IMPORTANT]
 > None of those packages include the service files, I'm considering automatically detecting it on the package function or providing it as separate services (standard practice again).
 >
 > Depending on how good these packages go (my first packages :P) I'll make these ones too.
