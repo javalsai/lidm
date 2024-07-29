@@ -33,5 +33,5 @@ int main(int argc, char *argv[]) {
 
   int ret = load(users, sessions);
   if (ret == 0)
-  execl(argv[0], argv[0], NULL);
+    execl(argv[0], argv[0], NULL);
 }
