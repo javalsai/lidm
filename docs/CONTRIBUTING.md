@@ -22,14 +22,14 @@ For small fixes or incremental improvements simply fork the repo and follow the 
         - Have a first line with less than *80 characters* and have a second line that is *empty* if you want to add a description.
 
 4. Once you are happy with your changes, submit a pull request.
-     - Open the pull-request.
+     - Open the pull request.
      - Add a short description explaining briefly what you've done (or if it's a work-in-progress - what you need to do)
 
 ## Issues
 
 1. Do a quick search on GitHub to check if the issue has already been reported.
 2. [Open an issue](https://github.com//javalsai/lidm/issues/new) and describe the issue you are having - you could include:
-     - Screenshots
+     - Screenshots.
      - Ways to reproduce the issue.
      - Your lidm version.
      - Your platform (e.g. arch linux or Ubuntu 15.04 x64)
