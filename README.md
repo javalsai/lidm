@@ -3,7 +3,7 @@
 [![Latest Release](https://badgen.net/github/release/javalsai/lidm)](https://github.com/javalsai/lidm/releases)
 
 # LiDM
-LiDM is a really light [display manager](https://en.wikipedia.org/wiki/Login_manager) made in C, highly customizable and held together by hopes and prayers 🙏.
+LiDM is a really light UI portion a [login manager](https://en.wikipedia.org/wiki/Login_manager) like a TUI [X Display Manager](https://en.wikipedia.org/wiki/X_display_manager) made in C, highly customizable and held together by hopes and prayers 🙏.
 
 ![demo gif](assets/media/lidm.gif)
 > *shown as in a featured terminal emulator, actual linux console doesn't support as much color and decorations*
