@@ -1,9 +1,27 @@
+#include <errno.h>
+#include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <chvt.h>
 
 static char *vterms[] = {"/dev/tty", "/dev/tty0", "/dev/vc/0", "/dev/systty",
                          "/dev/console"};
+
+int chvt_str(char *str) {
+  char *err;
+  errno = 0;
+  long i = strtol(str, &err, 10);
+  if (errno) {
+    perror("strol");
+    return -1;
+  }
+  // I'm not gonna elaborate on this....
+  if (i > INT_MAX || i < INT_MIN || *err)
+    return -1;
+
+  return chvt((int)i);
+}
 
 int chvt(int n) {
   fprintf(stderr, "activating vt %d\n", n);

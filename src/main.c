@@ -1,5 +1,3 @@
-#include <errno.h>
-#include <limits.h>
 #include <pwd.h>
 #include <stdbool.h>
 #include <sys/ioctl.h>
@@ -11,20 +9,6 @@
 #include <sessions.h>
 #include <ui.h>
 #include <users.h>
-
-int chvt_str(char *str) {
-  char *err;
-  long i = strtol(str, &err, 10);
-  if (errno) {
-    perror("strol");
-    return -1;
-  }
-  // I'm not gonna elaborate on this....
-  if (i > INT_MAX || i < INT_MIN || *err)
-    return -1;
-
-  return chvt((int)i);
-}
 
 int main(int argc, char *argv[]) {
   if (argc == 2)
