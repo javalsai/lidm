@@ -11,9 +11,13 @@ LiDM is a really light display manager made in C, highly customizable and held t
 > *however, all colors and strings are fully customizable*
 
 ## Features
-* Builds **FAST** (as of `a32e4a5`).
-  * `2.830s`: laptop, -O3, -j2, `AMD E-450 APU with Radeon(tm) HD Graphics`
-  * `0.172s`: desktop, -O3, -j12, `AMD Ryzen 5 5600G with Radeon Graphics`
+* Builds **FAST**.
+  * `a32e4a5`:
+    * `2.830s`: laptop, -O3, -j2, `AMD E-450 APU with Radeon(tm) HD Graphics`
+    * `0.172s`: desktop, -O3, -j12, `AMD Ryzen 5 5600G with Radeon Graphics`
+  * `663427e`:
+    * `0.085s`: desktop, -O0, `AMD Ryzen 5 5600G with Radeon Graphics`
+    * `0.009s`: desktop, -O0, CC=tcc, `AMD Ryzen 5 5600G with Radeon Graphics`
 * Works everywhere you can get gcc to compile.
 * Fast and possibly efficient.
 * Fully customizable, from strings, including action keys, to colors (I hope you know ansi escape codes)
