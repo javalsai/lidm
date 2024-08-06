@@ -10,10 +10,10 @@ ALLFLAGS=$(CFLAGS) -I$(IDIR)
 
 LIBS=-lm -lpam -lpam_misc
 
-_DEPS = util.h ui.h config.h auth.h efield.h keys.h users.h sessions.h
+_DEPS = util.h ui.h config.h auth.h efield.h keys.h users.h sessions.h chvt.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = main.o util.o ui.o config.o auth.o efield.o users.o sessions.o
+_OBJ = main.o util.o ui.o config.o auth.o efield.o users.o sessions.o chvt.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: $(CDIR)/%.c $(DEPS)

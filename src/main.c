@@ -4,22 +4,23 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <chvt.h>
 #include <config.h>
 #include <sessions.h>
 #include <ui.h>
 #include <users.h>
 
-void chvt(char *arg) {
-  size_t bsize = snprintf(NULL, 0, "chvt %s", arg) + 1;
-  char *buf = malloc(bsize);
-  snprintf(buf, bsize, "chvt %s", arg);
-  system(buf);
-  free(buf);
+int chvt_char(char c) {
+  int i = c - '0';
+  if (i >= 0 && i <= 9) {
+    return chvt(i);
+  }
+  return -1;
 }
 
 int main(int argc, char *argv[]) {
   if (argc == 2)
-    chvt(argv[1]);
+    chvt_char(argv[1][0]);
 
   struct config *config = parse_config("/etc/lidm.ini");
   if (config == NULL) {
