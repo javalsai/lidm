@@ -1,3 +1,5 @@
+#include <errno.h>
+#include <limits.h>
 #include <pwd.h>
 #include <stdbool.h>
 #include <sys/ioctl.h>
@@ -10,17 +12,23 @@
 #include <ui.h>
 #include <users.h>
 
-int chvt_char(char c) {
-  int i = c - '0';
-  if (i >= 0 && i <= 9) {
-    return chvt(i);
+int chvt_str(char *str) {
+  char *err;
+  long i = strtol(str, &err, 10);
+  if (errno) {
+    perror("strol");
+    return -1;
   }
-  return -1;
+  // I'm not gonna elaborate on this....
+  if (i > INT_MAX || i < INT_MIN || *err)
+    return -1;
+
+  return chvt((int)i);
 }
 
 int main(int argc, char *argv[]) {
   if (argc == 2)
-    chvt_char(argv[1][0]);
+    chvt_str(argv[1]);
 
   struct config *config = parse_config("/etc/lidm.ini");
   if (config == NULL) {
