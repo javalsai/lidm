@@ -131,7 +131,9 @@ The name is just ly but changing "y" with "i", that had a reason but forgot it, 
 # Contributors
 [![GitHub Contributors](https://contrib.rocks/image?repo=javalsai/lidm&max=20)](https://github.com/javalsai/lidm/graphs/contributors)
 
-* DeaDvey, the most awesomest of all, did some pretty HARDCORE gramer cheking.
 * KillerTofus, [made the AUR package](https://github.com/javalsai/lidm/pull/2)! Saved me from reading the Arch Wiki 💀.
+* DeaDvey, the most awesomest of all, did some pretty HARDCORE gramer cheking. (and trolling, he wrote that, 33 commits of just readme changes ffs)
+* grialion, made a simple C implementation of `chvt` instead of insecurely relying on `kbd utils`'s command.
+* cerealexperiments_, found a missing newline (had the guts to read the source code, crazy ik)
 * ChatGPT, in times of slow laptops where pages take ages to load, a single tab connected to a bunch of burning cloud GPUs feeding corporate hype is all you need to get quick answers for your questions, as long as you know how to filter AI crap ofc.
 * [My lack of gf](https://www.instagram.com/reel/C8sa3Gltmtq), can't imagine this project being possible if somebody actually cared about me daily.
