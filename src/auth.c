@@ -173,7 +173,7 @@ bool launch(char *user, char *passwd, struct session session,
       execlp(session.exec, session.exec, NULL);
     }
     perror("execl error");
-    fprintf(stderr, "failure calling session");
+    fprintf(stderr, "failure calling session\n");
   } else {
     waitpid(pid, NULL, 0);
 
