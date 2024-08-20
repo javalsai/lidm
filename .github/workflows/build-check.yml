@@ -1,0 +1,15 @@
+name: Test Build
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check_build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/workflows/build.yml

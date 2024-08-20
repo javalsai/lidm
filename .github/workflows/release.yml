@@ -1,4 +1,4 @@
-name: C Make
+name: Build for Release
 
 on:
   release:
@@ -10,14 +10,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Install deps
-      run: sudo apt-get install -y libpam0g-dev
-    - name: make
-      run: make
-    - uses: svenstaro/upload-release-action@v2
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: lidm
-        asset_name: lidm-x86_64 # will compile for more archs other day
-        tag: ${{ github.ref }}
+      - name: Build Project
+        uses: ./.github/workflows/build.yml
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: all-builds
+          path: builds
+
+      - name: Upload Builds to Release
+        run: |
+          cd builds
+          for file in ./*; do
+            echo "Uploading $file..."
+            gh release upload ${{ github.event.release.tag_name }} "$file" --clobber
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
