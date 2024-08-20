@@ -128,7 +128,7 @@ struct config *parse_config(char *path) {
   __config = malloc(sizeof(struct config));
   if (__config == NULL)
     return NULL;
-  bool ret = line_parser(fd, &sb.st_blksize, config_line_handler);
+  bool ret = line_parser(fd, (ssize_t*)&sb.st_blksize, config_line_handler);
   if (!ret) {
     free(__config);
     return NULL;
