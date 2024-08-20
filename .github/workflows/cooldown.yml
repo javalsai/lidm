@@ -1,0 +1,20 @@
+name: Issues
+on:
+  issue_comment:
+    types: [created]
+  issues:
+    types: [opened]
+
+jobs:
+  cooldown:
+    name: Cooldown
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+    - name: Cooldown
+      uses: osy/github-cooldown-action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        cooldownMinutes: 15
+        maxNewIssues: 2
+        maxNewComments: 15
