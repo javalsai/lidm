@@ -23,6 +23,7 @@ runs:
 
   steps:
   - uses: actions/checkout@v4
+
     # cache-apt-pkgs-action try to cache :i386 packages challenge impossible
   - if: ${{ inputs.arch_name == 'x86' }}
     shell: bash
@@ -33,18 +34,21 @@ runs:
 
   - uses: awalsh128/cache-apt-pkgs-action@latest
     with:
-      packages: "libpam0g-dev gcc-multilib libx32stdc++6 libaio1"
+      packages: "libpam0g-dev gcc-multilib"
       version: 1.0
 
   - name: Build Code
     shell: bash
     run: |
-      make CC=${{ inputs.cc }} CFLAGS="-O3 ${{ inputs.cflags }}"
+      make CC=${{ inputs.cc }} CFLAGS="-O3 ${{ inputs.cflags }}" \
+        2> stderr-${{ inputs.arch_name }}
       mv lidm lidm-${{ inputs.arch_name }}
 
   - name: Upload Artifact
     uses: actions/upload-artifact@v4
     with:
       name: build-${{ inputs.arch_name }}
-      path: lidm-${{ inputs.arch_name }}
+      path: |
+        lidm-${{ inputs.arch_name }}
+        stderr-${{ inputs.arch_name }}
       retention-days: 1

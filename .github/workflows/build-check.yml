@@ -1,15 +1,10 @@
 name: Test Build
 
-on:
-  push:
-    branches:
-      - '*'
-  pull_request:
-    branches:
-      - main
+on: push
 
 jobs:
   check_build:
+    permissions: write-all
     strategy:
       matrix:
         include:
@@ -23,10 +18,48 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Testing Build Process on ${{ matrix.arch_name }}
+      - uses: myrotvorets/set-commit-status-action@master
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: pending
+          context: Build (${{ matrix.arch_name }})
+
+      - name: Attempt Build (${{ matrix.arch_name }})
         uses: ./.github/actions/build
         with:
-          # TODO: make arch_name optional (dont upload artifact)
           arch_name: ${{ matrix.arch_name }}
           cc: ${{ matrix.cc }}
-          cflags: ${{ matrix.cflags }}
+          cflags: "-Wall ${{ matrix.cflags }}"
+
+      - name: Download Build Results
+        uses: actions/download-artifact@v4
+        with:
+          name: build-${{ matrix.arch_name }}
+          path: build-results
+
+      - name: Process Results
+        id: get-stats
+        if: always()
+        run: |
+          if ! [ -d "build-results" ]; then
+            # Build failed
+            echo "DESCR=" >> "$GITHUB_OUTPUT"
+          else
+            # Build Succeeded
+            cd "build-results"
+            ls -lah
+            cat stderr-* >&2
+            WARNS="$(cat stderr-* | grep '^[^ ]*\.[ch]:' | wc -l)"
+            HSIZE="$(stat --printf="%s" lidm-* | numfmt --to=iec-i)B"
+
+            echo "DESCR='$HSIZE, $WARNS warnings'" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set final commit status
+        uses: myrotvorets/set-commit-status-action@master
+        if: always()
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          context: Build (${{ matrix.arch_name }})
+          description: ${{ steps.get-stats.outputs.DESCR }}
