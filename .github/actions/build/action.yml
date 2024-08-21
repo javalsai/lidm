@@ -1,0 +1,50 @@
+name: Build Project
+
+on:
+  workflow_call:
+
+# TODO: make arch_name optional (dont upload artifact)
+inputs:
+  arch_name:
+    description: "Architecture Name"
+    required: true
+  cc:
+    description: "The compiler to use"
+    required: false
+    default: "gcc"
+  cflags:
+    description: "Compiler flags"
+    required: false
+    default: ""
+
+
+runs:
+  using: "composite"
+
+  steps:
+  - uses: actions/checkout@v4
+    # cache-apt-pkgs-action try to cache :i386 packages challenge impossible
+  - if: ${{ inputs.arch_name == 'x86' }}
+    shell: bash
+    run: |
+      sudo dpkg --add-architecture i386
+      sudo apt-get update -y
+      sudo apt-get install -y libpam0g-dev:i386
+
+  - uses: awalsh128/cache-apt-pkgs-action@latest
+    with:
+      packages: "libpam0g-dev gcc-multilib libx32stdc++6 libaio1"
+      version: 1.0
+
+  - name: Build Code
+    shell: bash
+    run: |
+      make CC=${{ inputs.cc }} CFLAGS="-O3 ${{ inputs.cflags }}"
+      mv lidm lidm-${{ inputs.arch_name }}
+
+  - name: Upload Artifact
+    uses: actions/upload-artifact@v4
+    with:
+      name: build-${{ inputs.arch_name }}
+      path: lidm-${{ inputs.arch_name }}
+      retention-days: 1

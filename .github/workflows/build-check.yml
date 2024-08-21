@@ -10,6 +10,23 @@ on:
 
 jobs:
   check_build:
+    strategy:
+      matrix:
+        include:
+          - arch_name: x86_64
+            cc: gcc
+            cflags:
+          - arch_name: x86
+            cc: gcc
+            cflags: -m32
+
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/workflows/build.yml
+      - uses: actions/checkout@v4
+      - name: Testing Build Process on ${{ matrix.arch_name }}
+        uses: ./.github/actions/build
+        with:
+          # TODO: make arch_name optional (dont upload artifact)
+          arch_name: ${{ matrix.arch_name }}
+          cc: ${{ matrix.cc }}
+          cflags: ${{ matrix.cflags }}
