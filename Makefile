@@ -3,7 +3,9 @@ LDIR=lib
 IDIR=include
 ODIR=dist
 
-CC=gcc
+PREFIX=/usr
+
+CC?=gcc
 CFLAGS?=-O3
 _CFLAGS=-I$(DIR)
 ALLFLAGS=$(CFLAGS) -I$(IDIR)
@@ -27,13 +29,14 @@ lidm: $(OBJ)
 clean:
 	rm -f $(ODIR)/*.o *- li $(INCDIR)/*-
 
-# Copy lidm to /usr/bin
+# Copy lidm to ${DESTDIR}${PREFIX}/bin (/usr/bin)
 install: lidm
-	install -m755 ./lidm /usr/bin
-	install -m755 ./themes/default.ini /etc/lidm.ini
+	mkdir -p ${DESTDIR}${PREFIX}/bin ${DESTDIR}/etc
+	install -m755 ./lidm ${DESTDIR}${PREFIX}/bin
+	install -m755 ./themes/default.ini ${DESTDIR}/etc/lidm.ini
 
 uninstall:
-	rm -rf /usr/bin/lidm /etc/lidm.ini
+	rm -rf ${DESTDIR}${PREFIX}/bin/lidm ${DESTDIR}/etc/lidm.ini
 
 install-service:
 	@if command -v systemctl &> /dev/null; then \
