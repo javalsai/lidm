@@ -425,18 +425,19 @@ static void print_session(struct uint_point origin, struct session session,
     session_type = strings.s_xorg;
   } else if (session.type == WAYLAND) {
     session_type = strings.s_wayland;
-  } else if (session.type == SHELL) {
+  } else {
     session_type = strings.s_shell;
   }
-  printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm", origin.x + 11 - strlen(session_type),
-         theme.colors.e_header, session_type, theme.colors.fg);
+  printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm",
+         (ulong)(origin.x + 11 - strlen(session_type)), theme.colors.e_header,
+         session_type, theme.colors.fg);
 
   char *session_color;
   if (session.type == XORG) {
     session_color = theme.colors.s_xorg;
   } else if (session.type == WAYLAND) {
     session_color = theme.colors.s_wl;
-  } else if (session.type == SHELL) {
+  } else {
     session_color = theme.colors.s_shell;
   }
 
@@ -454,7 +455,7 @@ static void print_user(struct uint_point origin, struct user user,
                        bool multiple) {
   clean_line(origin, 7);
   printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm",
-         origin.x + 11 - strlen(strings.e_user), theme.colors.e_header,
+         (ulong)(origin.x + 11 - strlen(strings.e_user)), theme.colors.e_header,
          strings.e_user, theme.colors.fg);
 
   char *user_color = theme.colors.e_user;
@@ -473,8 +474,8 @@ static char *passwd_prompt[32];
 static void print_passwd(struct uint_point origin, uint length, bool err) {
   clean_line(origin, 9);
   printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm",
-         origin.x + 11 - strlen(strings.e_passwd), theme.colors.e_header,
-         strings.e_passwd, theme.colors.fg);
+         (ulong)(origin.x + 11 - strlen(strings.e_passwd)),
+         theme.colors.e_header, strings.e_passwd, theme.colors.fg);
 
   char *pass_color;
   if (err)
@@ -482,7 +483,7 @@ static void print_passwd(struct uint_point origin, uint length, bool err) {
   else
     pass_color = theme.colors.e_passwd;
 
-  memset(passwd_prompt, 32, 32);
+  memset(passwd_prompt, ' ', sizeof(passwd_prompt));
   memset(passwd_prompt, '*', length);
 
   printf("\r\x1b[%dC\x1b[%sm", origin.x + 14, pass_color);
@@ -498,7 +499,6 @@ static void print_row(uint w, uint n, char *edge1, char *edge2, char **filler) {
   char *row;
   size_t row_size;
 
-  uint size;
   if (filler == NULL) {
     row_size = snprintf(NULL, 0, "%s\x1b[%dC%s\x1b[%dD\x1b[1B", edge1, w, edge2,
                         w + 2) +
