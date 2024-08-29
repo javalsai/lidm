@@ -3,3 +3,6 @@ dist/
 /compile_commands.json
 
 .cache/
+
+# nix build result
+result
