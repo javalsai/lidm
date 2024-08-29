@@ -9,7 +9,7 @@ pkgbase = lidm
 	makedepends = make
 	makedepends = gcc
 	depends = pam
-	source = lidm::git+https://github.com/javalsai/lidm
-	sha256sums = SKIP
+	source = https://github.com/javalsai/lidm/archive/refs/tags/0.0.1.tar.gz
+	sha256sums = eb67cbb9313734c547042799a2fcb3ed6edcfd67ebcd03c1fc78050d00e60d2c
 
 pkgname = lidm

@@ -8,16 +8,19 @@ pkgdesc="A fully colorful cutomizable TUI display manager made in C. (build late
 arch=('any')
 url="https://github.com/javalsai/lidm"
 license=('GPL')
-source=("lidm::git+https://github.com/javalsai/lidm")
-sha256sums=('SKIP')
+source=("tarball.tar.gz::https://github.com/javalsai/lidm/archive/refs/tags/$pkgver.tar.gz")
+sha256sums=('eb67cbb9313734c547042799a2fcb3ed6edcfd67ebcd03c1fc78050d00e60d2c')
 
 build() {
-    cd "$pkgname"
+    tar -xzf "tarball.tar.gz"
+    cd "lidm-$pkgver"
+
     make CFLAGS="-O3"
 }
 
 package() {
-    cd "$pkgname"
+    cd "lidm-$pkgver"
+
     install -Dm755 lidm "${pkgdir}/usr/bin/lidm"
-    install -Dm755 themes/default.ini "${pkgdir}/etc/lidm.ini"
+    install -Dm644 themes/default.ini "${pkgdir}/etc/lidm.ini"
 }
