@@ -27,7 +27,7 @@ lidm: $(OBJ)
 
 .PHONY: clean
 clean:
-	rm -f $(ODIR)/*.o *- li $(INCDIR)/*-
+	rm -f $(ODIR)/*.o lidm
 
 # Copy lidm to ${DESTDIR}${PREFIX}/bin (/usr/bin)
 install: lidm
