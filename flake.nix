@@ -10,8 +10,8 @@
       let
         pkgs = import nixpkgs { inherit system; };
 
-        name = "LiDM";
-        version = "0.0.1";
+        name = "lidm";
+        version = "0.0.2";
 
         lidm = (
           pkgs.stdenv.mkDerivation {
