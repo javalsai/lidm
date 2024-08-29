@@ -1,7 +1,7 @@
 # Maintainer: javalsai <javalsai@proton.me>
 pkgname=lidm
-pkgver=0.0.1
-pkgrel=5
+pkgver=0.0.2
+pkgrel=1
 depends=('pam')
 makedepends=('git' 'make' 'gcc')
 pkgdesc="A fully colorful cutomizable TUI display manager made in C. (build latest tag)"
@@ -9,7 +9,7 @@ arch=('any')
 url="https://github.com/javalsai/lidm"
 license=('GPL')
 source=("tarball.tar.gz::https://github.com/javalsai/lidm/archive/refs/tags/$pkgver.tar.gz")
-sha256sums=('eb67cbb9313734c547042799a2fcb3ed6edcfd67ebcd03c1fc78050d00e60d2c')
+sha256sums=('adf2d196969f6a2df8ceeb3564e1d51cc377f0deaeca31fee0bace58a3d2df2d')
 
 build() {
     tar -xzf "tarball.tar.gz"
