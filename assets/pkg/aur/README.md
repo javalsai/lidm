@@ -15,3 +15,4 @@ There are three packages that follow standard conventions:
 Summary of what to do to install service files anyways:
 * **systemd:** Copy `assets/services/systemd.service` to `/etc/systemd/system/lidm.service` and enable the service (`systemctl enable lidm`)
 * **dinit:** Copy `assets/services/dinit` to `/etc/dinit.d/lidm` and enable the service (`dinitctl enable lidm`)
+* **runit:** Copy `assets/services/runit/` to `/etc/runit/sv/lidm/`, add the service (`ln -s /etc/runit/sv/lidm /run/runit/service`) and enable it (`sv enable lidm`)

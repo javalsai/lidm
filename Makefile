@@ -43,13 +43,18 @@ install-service:
 		make install-service-systemd; \
 	elif command -v dinitctl &> /dev/null; then \
 		make install-service-dinit; \
+	elif command -v sv &> /dev/null; then \
+		make install-service-runit; \
 	else \
-		printf '\x1b[1;31m%s\x1b[0m\n' "Unknown init system, skipping install..."; \
+		printf '\x1b[1;31m%s\x1b[0m\n' "Unknown init system, skipping service install..."; \
 	fi
 
 install-service-systemd:
-	install -m755 ./assets/services/systemd.service /etc/systemd/system/lidm.service
+	install -m655 ./assets/services/systemd.service /etc/systemd/system/lidm.service
 	@printf '\x1b[1m%s\x1b[0m\n\n' " don't forget to run 'systemctl enable lidm'"
 install-service-dinit:
-	install -m755 ./assets/services/dinit /etc/dinit.d/lidm
+	install -m655 ./assets/services/dinit /etc/dinit.d/lidm
 	@printf '\x1b[1m%s\x1b[0m\n\n' " don't forget to run 'dinitctl enable lidm'"
+install-service-runit:
+	rsync -a --no-owner --no-group ./assets/services/runit/. /etc/runit/sv/lidm
+	@printf '\x1b[1m%s\x1b[0m\n\n' " don't forget to run 'ln -s /etc/runit/sv/lidm /run/runit/service' and 'sv enable lidm'"
