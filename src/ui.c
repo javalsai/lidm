@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/reboot.h>
 #include <sys/types.h>
 #include <termios.h>
 #include <time.h>
@@ -374,11 +375,11 @@ int load(struct users_list *users, struct sessions_list *sessions) {
           return 0;
         } else if (ansi_code == functions.reboot) {
           restore_all();
-          system("reboot");
+          reboot(RB_AUTOBOOT);
           exit(0);
         } else if (ansi_code == functions.poweroff) {
           restore_all();
-          system("poweroff");
+          reboot(RB_POWER_OFF);
           exit(0);
         } else if (ansi_code == A_UP || ansi_code == A_DOWN) {
           ffield_move(ansi_code == A_DOWN);
@@ -412,8 +413,8 @@ static void clean_line(struct uint_point origin, uint line) {
     memset(line_cleaner, 32, boxw - 2);
   }
   printf("\x1b[%d;%dH", origin.y + line, origin.x + 1);
+  printf("%s", line_cleaner);
   fflush(stdout);
-  write(STDOUT_FILENO, line_cleaner, boxw - 2);
 }
 
 // TODO: session_len > 32
@@ -469,7 +470,7 @@ static void print_user(struct uint_point origin, struct user user,
   }
 }
 
-static char *passwd_prompt[32];
+static char passwd_prompt[32];
 // TODO: passwd_len > 32
 static void print_passwd(struct uint_point origin, uint length, bool err) {
   clean_line(origin, 9);
@@ -487,8 +488,8 @@ static void print_passwd(struct uint_point origin, uint length, bool err) {
   memset(passwd_prompt, '*', length);
 
   printf("\r\x1b[%dC\x1b[%sm", origin.x + 14, pass_color);
-  fflush(stdout);
-  write(STDOUT_FILENO, passwd_prompt, 32);
+  printf("%s", passwd_prompt);
+
   printf("\x1b[%sm", theme.colors.fg);
 }
 
@@ -521,7 +522,7 @@ static void print_row(uint w, uint n, char *edge1, char *edge2, char **filler) {
   }
 
   for (uint i = 0; i < n; i++) {
-    write(STDOUT_FILENO, row, row_size);
+    printf("%s", row);
   }
   free(row);
 }

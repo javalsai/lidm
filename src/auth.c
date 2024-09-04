@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <grp.h>
 #include <pwd.h>
 #include <security/_pam_types.h>
@@ -37,6 +38,9 @@ int pam_conversation(int num_msg, const struct pam_message **msg,
     pam_end(pamh, ret);                                                        \
     return NULL;                                                               \
   }
+
+void clear_screen() { printf("\x1b[H\x1b[J"); }
+
 pam_handle_t *get_pamh(char *user, char *passwd) {
   pam_handle_t *pamh = NULL;
   struct pam_conv pamc = {pam_conversation, (void *)passwd};
@@ -59,7 +63,10 @@ void *shmalloc(size_t size) {
 }
 
 void moarEnv(char *user, struct session session, struct passwd *pw) {
-  chdir(pw->pw_dir);
+  if (chdir(pw->pw_dir) == -1) {
+    fprintf(stderr, "can't change directory to %s: %s\n", pw->pw_dir,
+            strerror(errno));
+  }
   setenv("HOME", pw->pw_dir, true);
   setenv("USER", pw->pw_name, true);
   setenv("SHELL", pw->pw_shell, true);
@@ -166,10 +173,10 @@ bool launch(char *user, char *passwd, struct session session,
     // TODO: these will be different due to TryExec
     // and, Exec/TryExec might contain spaces as args
     if (session.type == SHELL) {
-      system("clear");
+      clear_screen();
       execlp(session.exec, session.exec, NULL);
     } else if (session.type == XORG || session.type == WAYLAND) {
-      system("clear");
+      clear_screen();
       execlp(session.exec, session.exec, NULL);
     }
     perror("execl error");
