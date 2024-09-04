@@ -31,11 +31,12 @@ clean:
 
 # Copy lidm to ${DESTDIR}${PREFIX}/bin (/usr/bin)
 install: lidm
-	install -Dm755 ./lidm ${DESTDIR}${PREFIX}/bin
+	mkdir -p ${DESTDIR}${PREFIX}/bin ${DESTDIR}${PREFIX}/share/man/man{1,5}
+	install -Dm755 ./lidm ${DESTDIR}${PREFIX}/bin/
 	install -Dm644 ./themes/default.ini ${DESTDIR}/etc/lidm.ini
-	install -Dm644 ./assets/man/lidm.1 ${DESTDIR}/usr/share/man/man1/lidm.1
-	install -Dm644 ./assets/man/lidm-config.5 ${DESTDIR}/usr/share/man/man5/lidm-config.5
-	gzip -f ${DESTDIR}/usr/share/man/man{1/lidm.1,5/lidm-config.5}
+	install -Dm644 ./assets/man/lidm.1 ${DESTDIR}${PREFIX}/share/man/man1/
+	install -Dm644 ./assets/man/lidm-config.5 ${DESTDIR}${PREFIX}/share/man/man5/
+	gzip -f ${DESTDIR}${PREFIX}/share/man/man{1/lidm.1,5/lidm-config.5}
 
 uninstall:
 	rm -rf ${DESTDIR}${PREFIX}/bin/lidm ${DESTDIR}/etc/lidm.ini
