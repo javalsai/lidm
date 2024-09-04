@@ -24,7 +24,7 @@ LiDM is like any [X Display Manager](https://en.wikipedia.org/wiki/X_display_man
 * Fast and possibly efficient.
 * Fully customizable, from strings, including action keys, to colors (I hope you know ansi escape codes)
 * Automatically detects xorg and wayland sessions, plus allowing to launch the default user shell (if enabled in config)
-* Starts with many init systems (systemd, dinit and runit).
+* Starts with many init systems (systemd, dinit, runit and openrc).
 
 ## WIP
 * Desktop's file `TryExec` key.
@@ -60,7 +60,7 @@ We all know that the most important thing in a project is the ideology of the au
 
 # Usage
 ### Arguments
-If a single argument is provided (don't even do `--` or standard parsing...), it passes that argument to `chvt` on startup, used (at least) by the dinit and runit services.
+If a single argument is provided (don't even do `--` or standard parsing...), it passes that argument to `chvt` on startup, used (at least) by most service files.
 
 ### Program
 On top of pure intuition:

@@ -55,11 +55,14 @@ install-service:
 	fi
 
 install-service-systemd:
-	install -m655 ./assets/services/systemd.service /etc/systemd/system/lidm.service
+	install -m644 ./assets/services/systemd.service /etc/systemd/system/lidm.service
 	@printf '\x1b[1m%s\x1b[0m\n\n' " don't forget to run 'systemctl enable lidm'"
 install-service-dinit:
-	install -m655 ./assets/services/dinit /etc/dinit.d/lidm
+	install -m644 ./assets/services/dinit /etc/dinit.d/lidm
 	@printf '\x1b[1m%s\x1b[0m\n\n' " don't forget to run 'dinitctl enable lidm'"
 install-service-runit:
 	rsync -a --no-owner --no-group ./assets/services/runit/. /etc/runit/sv/lidm
 	@printf '\x1b[1m%s\x1b[0m\n\n' " don't forget to run 'ln -s /etc/runit/sv/lidm /run/runit/service' and 'sv enable lidm'"
+install-service-openrc:
+	install -m755 ./assets/services/openrc /etc/init.d/lidm
+	@printf '\x1b[1m%s\x1b[0m\n\n' " don't forget to run 'rc-update add lidm'"
