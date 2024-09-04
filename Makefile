@@ -52,6 +52,8 @@ install-service:
 		make install-service-runit; \
 	elif command -v rc-update &> /dev/null; then \
 		make install-service-openrc; \
+	elif command -v s6-service &> /dev/null; then \
+		make install-service-s6; \
 	else \
 		printf '\x1b[1;31m%s\x1b[0m\n' "Unknown init system, skipping service install..."; \
 	fi
@@ -68,3 +70,6 @@ install-service-runit:
 install-service-openrc:
 	install -m755 ./assets/services/openrc /etc/init.d/lidm
 	@printf '\x1b[1m%s\x1b[0m\n\n' " don't forget to run 'rc-update add lidm'"
+install-service-s6:
+	rsync -a --no-owner --no-group ./assets/services/s6/. /etc/s6/sv/lidm
+	@printf '\x1b[1m%s\x1b[0m\n\n' " don't forget to run 's6-service add default lidm' and 's6-db-reload'"

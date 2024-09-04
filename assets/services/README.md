@@ -24,5 +24,10 @@ The manuall steps for installation are:
 * Copy `openrc` to `/etc/init.d/lidm`
 * Enable the service with `rc-update add lidm`
 
+## S6
+* Copy `s6/` to `/etc/s6/sv/lidm/`
+* Add the service with `s6-service add default lidm`
+* Reload the database with `s6-db-reload` (you might have to run this every time the service file changes)
+
 > [!WARNING]
 > Make sure to disable any other service that might run on tty7, such us lightdm or most display managers out there.

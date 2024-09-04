@@ -24,7 +24,7 @@ LiDM is like any [X Display Manager](https://en.wikipedia.org/wiki/X_display_man
 * Fast and possibly efficient.
 * Fully customizable, from strings, including action keys, to colors (I hope you know ansi escape codes)
 * Automatically detects xorg and wayland sessions, plus allowing to launch the default user shell (if enabled in config)
-* Starts with many init systems (systemd, dinit, runit and openrc).
+* Starts with many init systems (systemd, dinit, runit, openrc and s6).
 
 ## WIP
 * Desktop's file `TryExec` key.
