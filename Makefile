@@ -50,6 +50,8 @@ install-service:
 		make install-service-dinit; \
 	elif command -v sv &> /dev/null; then \
 		make install-service-runit; \
+	elif command -v rc-update &> /dev/null; then \
+		make install-service-openrc; \
 	else \
 		printf '\x1b[1;31m%s\x1b[0m\n' "Unknown init system, skipping service install..."; \
 	fi
