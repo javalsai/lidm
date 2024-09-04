@@ -1,0 +1,81 @@
+.\" Manpage for lidm
+.\" https://github.com/javalsai/lidm
+.TH lidm-config 5
+
+.SH NAME
+lidm-config \- Configuration file syntax for lidm
+
+
+.SH SYNOPSIS
+\fB\fI/etc/lidm.ini\fP
+
+
+.SH DESCRIPTION
+The \fI/etc/lidm.ini\fP file specifies all the configuration for lidm, including theme colors.
+
+The config parser is very primitive still, so the file only consists of \fBkey/value\fP pairs separated by \fB' = '\fP (yes, the surrounding spaces are neccessary). It will also not warn if the config is invalid.
+
+You can't escape characters with \fB'\\'\fP, but the program reads until the end of line, so you can put any raw bytes there.
+
+
+.SH KEYS
+Similar keys are grouped together to keep this as short as possible.
+
+.SS Colors
+All keys under this section are always wrapped inside ansi sequences (\fB\\x1b[...m\fP).
+.TP
+\fBcolors.bd, colors.fg, colors.err\fP
+Background, foreground and error escape sequences. \fB'fg'\fP is also used as reset sequence, so it must remove effects used in other keys (such as bold, underline...) \fBWITHOUT\fP using the \fB'0'\fP sequence, as that would remove the background color.
+.TP
+\fBcolors.s_wl, colors.s_xorg, colors.s_shell\fP
+Coloring for sessions of such types (Wayland, X.org, Shells)
+.TP
+\fBcolors.f_other\fP
+This was going to be used for session of other type I think, but is currently unused, however it still needs to be specified.
+.TP
+\fBcolors.e_hostname, colors.e_date, colors.e_box\fP
+Coloring for the hostname, date and box elements.
+.TP
+\fBcolors.e_header\fP
+Coloring for heading elements (left column)
+.TP
+\fBcolors.e_user, colors.e_passwd, colors.e_badpasswd\fP
+Coloring for the user element, password and bad padssword.
+.TP
+\fBcolors.e_key\fP
+Coloring for key elements (eg: F1, F2, CTRL...)
+
+.SS
+Single characters used for some elements (can be longer than a character, but it will likely break UI)
+.TP
+\fBchars.hb, chars.vb\fP
+Character for the horizontal bar (hb) and vertical bar (vb).
+.TP
+\fBchars.ctl, chars.ctr, chars.cbl, chars.cbr\fP
+Characters for the corners of the box (ctl = corner top left, cbr = corner bottom right)
+
+.SS Functions
+.TP
+\fBfunctions.poweroff, functions.reboot, functions.refresh\fP
+Function key to use for such action.
+
+.SS String
+Strings to use for some elements.
+.TP
+\fBstrings.f_poweroff, strings.f_reboot, strings.f_refresh\fP
+Text displayed to name such functions.
+.TP
+\fBstrings.e_user, strings.e_passwd\fP
+Text to display for these element headers.
+.TP
+\fBstrings.s_xorg, strings.s_wayland, strings.s_shell\fP
+Text to display as the header for such sessions.
+
+.SS Behavior
+.TP
+\fBbehavior.include_defshell\fP
+"true"/"false" (invalid input defaults to false), if true, includes the user default shell as a session to launch
+
+
+.SH "SEE ALSO"
+.BR lidm (1)

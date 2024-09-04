@@ -7,12 +7,4 @@ There are three packages that follow standard conventions:
 * [`lidm-git`](https://aur.archlinux.org/packages/lidm-git): Fetches latest commit and builds it (should be updated automatically)
 
 > [!IMPORTANT]
-> None of those packages include the service files, I'm considering automatically detecting it on the package function or providing it as separate services (standard practice again).
->
-> Depending on how good these packages go (my first packages :P) I'll make service ones too.
-
-## Services
-Summary of what to do to install service files anyways:
-* **systemd:** Copy `assets/services/systemd.service` to `/etc/systemd/system/lidm.service` and enable the service (`systemctl enable lidm`)
-* **dinit:** Copy `assets/services/dinit` to `/etc/dinit.d/lidm` and enable the service (`dinitctl enable lidm`)
-* **runit:** Copy `assets/services/runit/` to `/etc/runit/sv/lidm/`, add the service (`ln -s /etc/runit/sv/lidm /run/runit/service`) and enable it (`sv enable lidm`)
+> None of those packages include the service files. [You have to do this yourself](../../services/README.md).

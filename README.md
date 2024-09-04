@@ -91,7 +91,7 @@ make # 👍
 # default theme to /etc
 make install
 ```
-* Make a service file for this if you want it on launch, just check how ly does it, this works pretty much the same way.
+* If you want lidm to run on startup ([manual steps](./assets/services/README.md)):
 ```sh
 # automatically detects init system
 # and installs service file (for tty7)

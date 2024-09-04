@@ -1,0 +1,40 @@
+.\" Manpage for lidm
+.\" https://github.com/javalsai/lidm
+.TH lidm 1
+
+.SH NAME
+lidm \- A text based display manager made in C
+
+
+.SH SYNOPSIS
+\fBlidm\fP [TTY]
+
+
+.SH DESCRIPTION
+\fBlidm\fP is a text based display manager that supports a lot of configuration. Its focus is to be simple, minimal and easy to compile even on really old hardware, while being as customizable as possible.
+
+
+.SH ARGUMENTS
+.TP
+[\fBTTY\fP]\tTTY to switch to, does not mean that it will run in it.
+
+
+.SH FILES
+.TP
+\fI/etc/lidm.ini\fP\tConfig file, see \c
+.BR lidm-config (5) \c
+ for syntax.
+
+
+.SH NOTES
+.SS "Service Files"
+To configure startup behaviour for your init system, see
+.BR https://github.com/javalsai/lidm/tree/master/assets/services
+(make sure you're on the same version, the link points to the latest commit, small command arguments might have changed).
+
+
+.SH "SEE ALSO"
+.BR lidm-config (5)
+.PP
+The upstream GitHub repository can be found at
+.BR https://github.com/javalsai/lidm
