@@ -45,20 +45,25 @@ make install-service-s6 # s6
 ```
 
 # AUR
-[AUR packages](https://aur.archlinux.org/packages?K=lidm&SeB=n) will automatically install most files. 
 
-> [!CAUTION]
+[AUR packages](https://aur.archlinux.org/packages?K=lidm\&SeB=n) will automatically install most files.
+
+> \[!CAUTION]
 > [service files](./assets/pkg/aur#services) have to be manually installed by now.
 
 # Nix Flake
+
 You can install by doing
+
 ```sh
 nix profile install github:javalsai/lidm
 ```
+
 or try it out without installing by:
+
 ```sh
 nix run github:javalsai/lidm
 ```
 
-> [!CAUTION]
+> \[!CAUTION]
 > This doesn't include [service files](./assets/pkg/aur#services) neither
