@@ -74,10 +74,9 @@ struct config {
 };
 
 bool line_parser(
-    FILE* fd,
-    ssize_t* blksize,
+    FILE *fd, ssize_t *blksize,
     u_char (*cb)(char *key,
-               char *value)); // might use this for parsing .desktop files too
+                 char *value)); // might use this for parsing .desktop files too
 struct config *parse_config(char *path);
 
 #endif

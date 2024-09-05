@@ -20,6 +20,6 @@ int chvt(int n);
  * @param str virtual terminal number (string)
  * @return int non-negative value on success
  */
-int chvt_str(char* str);
+int chvt_str(char *str);
 
 #endif

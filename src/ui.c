@@ -228,8 +228,8 @@ struct user get_current_user() {
 
 struct session get_current_session() {
   if (of_session.current_opt != 0) {
-    // this is for the default user shell :P, not the greatest implementation
-    // but I want to get his done
+    // this is for the default user shell :P, not the greatest
+    // implementation but I want to get his done
     if (behavior.include_defshell &&
         of_session.current_opt == gsessions->length + 1) {
       struct session shell_session;
@@ -506,7 +506,7 @@ static void print_empty_row(uint w, uint n, char *edge1, char *edge2) {
 static void print_row(uint w, uint n, char *edge1, char *edge2, char *filler) {
   for (uint i = 0; i < n; i++) {
     printf("%s", edge1);
-    for(uint i = 0; i < w; i++) {
+    for (uint i = 0; i < w; i++) {
       printf("%s", filler);
     }
     printf("%s\x1b[%dD\x1b[1B", edge2, w + 2);

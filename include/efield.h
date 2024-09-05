@@ -10,9 +10,9 @@ struct editable_field {
   char content[255];
 };
 
-struct editable_field field_new(char*);
-void field_trim(struct editable_field*, u_char);
-void field_update(struct editable_field*, char*);
-bool field_seek(struct editable_field*, char);
+struct editable_field field_new(char *);
+void field_trim(struct editable_field *, u_char);
+void field_update(struct editable_field *, char *);
+bool field_seek(struct editable_field *, char);
 
 #endif

@@ -3,9 +3,9 @@
 #include <efield.h>
 #include <ui.h>
 
-struct editable_field field_new(char* content) {
+struct editable_field field_new(char *content) {
   struct editable_field __efield;
-  if(content != NULL) {
+  if (content != NULL) {
     __efield.length = __efield.pos = strlen(content);
     memcpy(__efield.content, content, __efield.length);
   } else {
@@ -30,10 +30,11 @@ void field_update(struct editable_field *field, char *update) {
   if (insert_len == 1) {
     // backspace
     if (*update == 127) {
-      if (field->pos == 0) return;
+      if (field->pos == 0)
+        return;
       if (field->pos < field->length) {
         memmove(&field->content[field->pos - 1], &field->content[field->pos],
-               field->length - field->pos);
+                field->length - field->pos);
       }
       (field->pos)--;
       (field->length)--;
@@ -48,8 +49,8 @@ void field_update(struct editable_field *field, char *update) {
   }
   if (field->pos < field->length) {
     // move with immediate buffer
-    memmove(&field->content[field->pos + insert_len], &field->content[field->pos],
-            field->length - field->pos);
+    memmove(&field->content[field->pos + insert_len],
+            &field->content[field->pos], field->length - field->pos);
   }
   memcpy(&field->content[field->pos], update, insert_len);
 
@@ -60,13 +61,18 @@ void field_update(struct editable_field *field, char *update) {
 
 // returns bool depending if it was able to "use" the seek
 bool field_seek(struct editable_field *field, char seek) {
-  if(field->length == 0) return false;
+  if (field->length == 0)
+    return false;
 
-  if(seek < 0 && -seek > field->pos) field->pos = 0;
-  else if(seek > 0 && 255 - field->pos < seek) field->pos = 255;
-  else field->pos += seek;
+  if (seek < 0 && -seek > field->pos)
+    field->pos = 0;
+  else if (seek > 0 && 255 - field->pos < seek)
+    field->pos = 255;
+  else
+    field->pos += seek;
 
-  if(field->pos > field->length) field->pos = field->length;
+  if (field->pos > field->length)
+    field->pos = field->length;
 
   return true;
 }
