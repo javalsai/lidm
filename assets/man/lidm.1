@@ -16,14 +16,20 @@ lidm \- A text based display manager made in C
 
 .SH ARGUMENTS
 .TP
-[\fBTTY\fP]\tTTY to switch to, does not mean that it will run in it.
+\fB[TTY]\fP
+TTY to switch to, does not mean that it will run in it.
 
+.SH ENVIRONMENT
+.TP
+\fBLIDM_CONF\fP
+Specify the config to use other than \fI/etc/lidm.ini\fP
 
 .SH FILES
 .TP
-\fI/etc/lidm.ini\fP\tConfig file, see \c
-.BR lidm-config (5) \c
- for syntax.
+\fI/etc/lidm.ini\fP
+Config file, see
+.BR lidm-config (5)
+for syntax.
 
 
 .SH NOTES

@@ -110,7 +110,7 @@ make install-service-dinit # dinit
 > [service files](./assets/pkg/aur#services) have to be manually installed by now.
 
 # Configuring
-Copy any `.ini` file from [`themes/`](./themes/) (`default.ini` will always be updated) to `/etc/lidm.ini` and/or configure it to your liking. Also, don't place empty lines (for now).
+Copy any `.ini` file from [`themes/`](./themes/) (`default.ini` will always be updated) to `/etc/lidm.ini` and/or configure it to your liking. Also, don't place empty lines (for now). You can also set `LIDM_CONF` environment variable to specify a config path.
 
 Configured colors are just gonna be put inside `\x1b[...m`, ofc you can add an 'm' to break this and this can f\*ck up really bad or even make some nice UI effect possible, you should also be able to embed the `\x1b` byte in the config as I won't parse escape codes, I think that the parser is just gonna grab anything in the config file from the space after the `=` (yes, I'ma enforce that space, get good taste if you don't like it) until the newline, you can put any abomination in there. But please, keep in mind this might break easily.
 
