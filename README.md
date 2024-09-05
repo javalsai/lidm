@@ -78,36 +78,7 @@ On top of pure intuition:
 * PAM, used for user authentication, just what `login` or `su` use internally. Don't worry, it's surely pre-installed.
 
 # Installation
-## Manually
-* Build the package (you can download automatic builds from the [releases page](https://github.com/javalsai/lidm/releases)):
-```sh
-git clone https://github.com/javalsai/lidm.git
-cd lidm
-make # 👍
-```
-* Install the files (see [configuration](#configuring) for more theming info).
-```sh
-# place binary in /usr/bin and copy
-# default theme to /etc
-make install
-```
-* If you want lidm to run on startup ([manual steps](./assets/services/README.md)):
-```sh
-# automatically detects init system
-# and installs service file (for tty7)
-make install-service
-
-# or if you don't like autodetection
-make install-service-systemd # systemd
-make install-service-dinit # dinit
-# ...other supported init systems....
-```
-
-## AUR
-[AUR packages](https://aur.archlinux.org/packages?K=lidm&SeB=n) will automatically install the binary and config. But I recommend reading [installing manually](#manually) to understand the install process.
-
-> [!CAUTION]
-> [service files](./assets/pkg/aur#services) have to be manually installed by now.
+Check the [installation guide](./INSTALL.md) to use your prefered installation source.
 
 # Configuring
 Copy any `.ini` file from [`themes/`](./themes/) (`default.ini` will always be updated) to `/etc/lidm.ini` and/or configure it to your liking. Also, don't place empty lines (for now). You can also set `LIDM_CONF` environment variable to specify a config path.
@@ -123,11 +94,11 @@ The default fg style should disable decorators set up in other elements (cursive
 If you want to contribute check the [CONTRIBUTING.md](docs/CONTRIBUTING.md)
 
 # Backstory
-Summer travelling to visit family with an old laptop that barely supports x86_64, and ly recently added some avx2 instructions I think (invalid op codes), manually building (any previous commit too) didn't work because of something in the `build.zig` file, so out of boredom I decided to craft up my own simple display manager on the only language this thing can handle... **C** (I hate this and reserve the right for the rust rewrite, actually solid).
+Summer travelling to visit family with an old laptop that barely supports x86\_64, and ly recently added some avx2 instructions I think (invalid op codes), manually building (any previous commit too) didn't work because of something in the `build.zig` file, so out of boredom I decided to craft up my own simple display manager on the only language this thing can handle... **C** (I hate this and reserve the right for the rust rewrite, actually solid).
 
 I spedrun it in roughly 3 days and I'm bad af in C, so this is spaghetti code on **another** level. I think it doesn't do almost anything unsafe, I mean, I didn't check allocations and it's capable of reallocating memory until your username uses all memory, crashing the system due to a off-by-one error, but pretty consistent otherwise (probably).
 
-The name is just ly but changing "y" with "i", that had a reason but forgot it, (maybe the i in *simple*), so I remembered this sh*tty laptop with a lid, this thing is also a display manager (dm, ly command is also `ly-dm`), so just did lidm due to all that.
+The name is just ly but changing "y" with "i", that had a reason but forgot it, (maybe the i in *simple*), so I remembered this sh\*tty laptop with a lid, this thing is also a display manager (dm, ly command is also `ly-dm`), so just did lidm due to all that.
 
 # Contributors
 [![GitHub Contributors](https://contrib.rocks/image?repo=javalsai/lidm&max=20)](https://github.com/javalsai/lidm/graphs/contributors)
