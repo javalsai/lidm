@@ -8,6 +8,14 @@
 
 ![default.ini theme](./screenshots/default.png)
 
+## kanagawa-dragon.ini
+
+![kanagawa-dragon.ini theme](./screenshots/kanagawa-dragon.png)
+
+## kanagawa-wave.ini
+
+![kanagawa-wave.ini theme](./screenshots/kanagawa-wave.png)
+
 ## nature.ini
 
 ![nature.ini theme](./screenshots/nature.png)
@@ -20,18 +28,10 @@
 
 ![old-blue.ini theme](./screenshots/old-blue.png)
 
-## old-blue-thick.ini
+## nothing.ini
 
-![old-blue-thick.ini theme](./screenshots/old-blue-thick.png)
-
-## pure-tastelessness.ini
-
-![pure-tastelessness.ini theme](./screenshots/pure-tastelessness.png)
+![nothing.ini theme](./screenshots/nothing.png)
 
 ## tasteless.ini
 
 ![tasteless.ini theme](./screenshots/tasteless.png)
-
-## tastelessness.ini
-
-![tastelessness.ini theme](./screenshots/tastelessness.png)
