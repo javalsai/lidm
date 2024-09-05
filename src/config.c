@@ -51,14 +51,12 @@ u_char config_line_handler(char *k, char *v) {
     __config->theme.colors.fg = v;
   else if (strcmp(k, "colors.err") == 0)
     __config->theme.colors.err = v;
-  else if (strcmp(k, "colors.s_wl") == 0)
-    __config->theme.colors.s_wl = v;
+  else if (strcmp(k, "colors.s_wayland") == 0)
+    __config->theme.colors.s_wayland = v;
   else if (strcmp(k, "colors.s_xorg") == 0)
     __config->theme.colors.s_xorg = v;
   else if (strcmp(k, "colors.s_shell") == 0)
     __config->theme.colors.s_shell = v;
-  else if (strcmp(k, "colors.f_other") == 0)
-    __config->theme.colors.f_other = v;
   else if (strcmp(k, "colors.e_hostname") == 0)
     __config->theme.colors.e_hostname = v;
   else if (strcmp(k, "colors.e_date") == 0)
@@ -103,10 +101,10 @@ u_char config_line_handler(char *k, char *v) {
     __config->strings.e_user = v;
   else if (strcmp(k, "strings.e_passwd") == 0)
     __config->strings.e_passwd = v;
-  else if (strcmp(k, "strings.s_xorg") == 0)
-    __config->strings.s_xorg = v;
   else if (strcmp(k, "strings.s_wayland") == 0)
     __config->strings.s_wayland = v;
+  else if (strcmp(k, "strings.s_xorg") == 0)
+    __config->strings.s_xorg = v;
   else if (strcmp(k, "strings.s_shell") == 0)
     __config->strings.s_shell = v;
   else if (strcmp(k, "behavior.include_defshell") == 0)

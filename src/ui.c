@@ -438,7 +438,7 @@ static void print_session(struct uint_point origin, struct session session,
   if (session.type == XORG) {
     session_color = theme.colors.s_xorg;
   } else if (session.type == WAYLAND) {
-    session_color = theme.colors.s_wl;
+    session_color = theme.colors.s_wayland;
   } else {
     session_color = theme.colors.s_shell;
   }

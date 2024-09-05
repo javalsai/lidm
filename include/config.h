@@ -14,10 +14,9 @@ struct theme_colors {
   char *bg;
   char *fg;
   char *err;
-  char *s_wl;
+  char *s_wayland;
   char *s_xorg;
   char *s_shell;
-  char *f_other;
   char *e_hostname;
   char *e_date;
   char *e_box;
@@ -57,8 +56,8 @@ struct strings {
   char *f_refresh;
   char *e_user;
   char *e_passwd;
-  char *s_xorg;
   char *s_wayland;
+  char *s_xorg;
   char *s_shell;
 };
 

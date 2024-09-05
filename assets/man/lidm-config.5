@@ -27,11 +27,9 @@ All keys under this section are always wrapped inside ansi sequences (\fB\\x1b[.
 \fBcolors.bd, colors.fg, colors.err\fP
 Background, foreground and error escape sequences. \fB'fg'\fP is also used as reset sequence, so it must remove effects used in other keys (such as bold, underline...) \fBWITHOUT\fP using the \fB'0'\fP sequence, as that would remove the background color.
 .TP
-\fBcolors.s_wl, colors.s_xorg, colors.s_shell\fP
+\fBcolors.s_wayland, colors.s_xorg, colors.s_shell\fP
 Coloring for sessions of such types (Wayland, X.org, Shells)
 .TP
-\fBcolors.f_other\fP
-This was going to be used for session of other type I think, but is currently unused, however it still needs to be specified.
 .TP
 \fBcolors.e_hostname, colors.e_date, colors.e_box\fP
 Coloring for the hostname, date and box elements.
@@ -68,7 +66,7 @@ Text displayed to name such functions.
 \fBstrings.e_user, strings.e_passwd\fP
 Text to display for these element headers.
 .TP
-\fBstrings.s_xorg, strings.s_wayland, strings.s_shell\fP
+\fBstrings.s_wayland, strings.s_xorg, strings.s_shell\fP
 Text to display as the header for such sessions.
 
 .SS Behavior
