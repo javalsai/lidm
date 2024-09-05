@@ -106,7 +106,7 @@ static char *fmt_time() {
 // cursor pos...) should just overlap for now
 
 // ugh, this represent a field which might have options
-// opts is the ammount of other options possible (0 will behave as a passwd)
+// opts is the amount of other options possible (0 will behave as a passwd)
 // aaaand (it's an abstract idea, letme think), also holds the status of a
 // custom content, like custom launch command or user or smth
 struct opt_field {

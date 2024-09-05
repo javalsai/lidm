@@ -72,9 +72,9 @@ On top of pure intuition:
 
 # Requirements
 * A computer with unix based system.
-* That system should have the resources neccessary for this program to make sense (Sessions, users...).
+* That system should have the resources necessary for this program to make sense (Sessions, users...).
 * A compiler (optional, you can compile by hand, but I doubt you want to see the code).
-* Make (Also optional, but does things atomatically, make sure `gcc` and `mkdir -p` work as expected).
+* Make (Also optional, but does things automatically, make sure `gcc` and `mkdir -p` work as expected).
 * PAM, used for user authentication, just what `login` or `su` use internally. Don't worry, it's surely pre-installed.
 
 # Installation
@@ -85,7 +85,7 @@ git clone https://github.com/javalsai/lidm.git
 cd lidm
 make # 👍
 ```
-* Install the files (see [configuration](#configuring) for more themeing info).
+* Install the files (see [configuration](#configuring) for more theming info).
 ```sh
 # place binary in /usr/bin and copy
 # default theme to /etc
@@ -112,7 +112,7 @@ make install-service-dinit # dinit
 # Configuring
 Copy any `.ini` file from [`themes/`](./themes/) (`default.ini` will always be updated) to `/etc/lidm.ini` and/or configure it to your liking. Also, don't place empty lines (for now).
 
-Configurated colors are just gonna be put inside `\x1b[...m`, ofc you can add an 'm' to break this and this can f\*ck up really bad or even make some nice UI effect possible, you should also be able to embed the `\x1b` byte in the config as I won't parse escape codes, I think that the parser is just gonna grab anything in the config file from the space after the `=` (yes, I'ma enforce that space, get good taste if you don't like it) until the newline, you can put any abomination in there. But please, keep in mind this might break easily.
+Configured colors are just gonna be put inside `\x1b[...m`, ofc you can add an 'm' to break this and this can f\*ck up really bad or even make some nice UI effect possible, you should also be able to embed the `\x1b` byte in the config as I won't parse escape codes, I think that the parser is just gonna grab anything in the config file from the space after the `=` (yes, I'ma enforce that space, get good taste if you don't like it) until the newline, you can put any abomination in there. But please, keep in mind this might break easily.
 
 The default fg style should disable decorators set up in other elements (cursive, underline... it's just adding 20 to the number btw, so if cursive is 4 (iirc), disabling it is 24).
 
@@ -133,7 +133,7 @@ The name is just ly but changing "y" with "i", that had a reason but forgot it, 
 [![GitHub Contributors](https://contrib.rocks/image?repo=javalsai/lidm&max=20)](https://github.com/javalsai/lidm/graphs/contributors)
 
 * KillerTofus, [made the AUR package](https://github.com/javalsai/lidm/pull/2)! Saved me from reading the Arch Wiki 💀.
-* DeaDvey, the most awesomest of all, did some pretty HARDCORE gramer cheking. (and trolling, he wrote that, 33 commits of just readme changes ffs)
+* DeaDvey, the most awesomest of all, did some pretty HARDCORE gramer checking. (and trolling, he wrote that, 33 commits of just readme changes ffs)
 * grialion, made a simple C implementation of `chvt` instead of insecurely relying on `kbd utils`'s command.
 * cerealexperiments_, found a missing newline (had the guts to read the source code, crazy ik)
 * ChatGPT, in times of slow laptops where pages take ages to load, a single tab connected to a bunch of burning cloud GPUs feeding corporate hype is all you need to get quick answers for your questions, as long as you know how to filter AI crap ofc.
