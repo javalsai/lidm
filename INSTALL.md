@@ -1,7 +1,7 @@
 # Index
 
 * [Index](#index)
-* [Installing from Souce](#installing-from-source)
+* [Installing from Source](#installing-from-source)
 * [AUR](#aur)
 * [Nix Flake](#nix-flake)
 
@@ -21,7 +21,7 @@ make # 👍
 ```
 
 > \[!NOTE]
-> Theres pre-built binaries on the [releases tab](https://github.com/javalsai/lidm/releases) too.
+> There's pre-built binaries on the [releases tab](https://github.com/javalsai/lidm/releases) too.
 
 Then you can install the files onto your filesystem with:
 

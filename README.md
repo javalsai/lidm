@@ -90,7 +90,7 @@ On top of pure intuition:
 
 # Installation
 
-Check the [installation guide](./INSTALL.md) to use your prefered installation source.
+Check the [installation guide](./INSTALL.md) to use your preferred installation source.
 
 # Configuring
 
