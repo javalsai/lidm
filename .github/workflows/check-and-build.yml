@@ -33,11 +33,25 @@ jobs:
           version: 1.0
       - run: find . -type f -name '*.sh' -not -path './assets/pkg/aur/*/src/*' | xargs shellcheck
 
+  clangcheck:
+    name: Chang Check
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: "clang-format clang-tidy"
+          version: 1.0
+      - run: clang-format -ni src/*.c include/*.h
+      # TODO: include when the errors/warnings are bearable
+      #- run: clang-tidy src/*.c include/*.h
+
   build-linux-amd64:
     name: Build for amd64
     runs-on: ubuntu-24.04
     permissions: write-all
-    needs: [spellcheck, shellcheck]
+    needs: [spellcheck, shellcheck, clangcheck]
 
     steps:
       - uses: actions/checkout@v4
@@ -74,7 +88,7 @@ jobs:
     name: Build for i386
     runs-on: ubuntu-24.04
     permissions: write-all
-    needs: [spellcheck, shellcheck]
+    needs: [spellcheck, shellcheck, clangcheck]
 
     steps:
       - uses: actions/checkout@v4
