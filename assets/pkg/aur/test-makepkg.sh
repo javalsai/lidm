@@ -1,4 +1,4 @@
-#/usr/bin/env bash
+#!/usr/bin/env bash
 set -e
 
 MYSELF=$(realpath "$0")
@@ -8,7 +8,7 @@ for pkg in "$MYDIR"/*/; do
     cd "$pkg"
     printf "\x1b[1mEntering '%s'\x1b[0m\n" "$pkg"
 
-    rm -rf *.{gz,zst} src pkg
+    rm -rf ./*.{gz,zst} src pkg
     makepkg -f .
 
     echo
