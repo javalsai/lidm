@@ -3,7 +3,7 @@ pkgname=lidm
 pkgver=0.0.2
 pkgrel=1
 depends=('pam')
-makedepends=('git' 'make' 'gcc')
+makedepends=('git' 'make' 'gcc' 'gzip')
 pkgdesc="A fully colorful customizable TUI display manager made in C. (build latest tag)"
 arch=('any')
 url="https://github.com/javalsai/lidm"
@@ -20,7 +20,5 @@ build() {
 
 package() {
     cd "lidm-$pkgver"
-
-    install -Dm755 lidm "${pkgdir}/usr/bin/lidm"
-    install -Dm644 themes/default.ini "${pkgdir}/etc/lidm.ini"
+    make install DESTDIR="${pkgdir}"
 }
