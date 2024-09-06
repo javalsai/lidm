@@ -169,3 +169,46 @@ jobs:
           name: build-aarch64
           path: lidm-aarch64
           retention-days: 1
+  build-linux-armv7:
+    name: Build for armv7
+    runs-on: ubuntu-24.04
+    permissions: write-all
+    needs: [spellcheck, shellcheck, clangcheck]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: armv7
+          distro: ubuntu22.04
+          githubToken: ${{ github.token }}
+          install: |
+            apt-get update && \
+            apt-get install -y make gcc libpam0g-dev
+          run: |
+            make -j$(nproc) 2> /tmp/stderr
+
+            cat /tmp/stderr >&2
+            mv lidm lidm-armv7
+
+      - if: inputs.set-statuses
+        id: status
+        run: |
+          HSIZE="$(stat --printf="%s" lidm-armv7 | numfmt --to=iec-i)B"
+          WARNS="$(cat /tmp/stderr | grep '^[^ ]*\.[ch]:' | wc -l)"
+
+          echo "DESCR='$HSIZE, $WARNS warnings'" >> "$GITHUB_OUTPUT"
+
+      - uses: myrotvorets/set-commit-status-action@master
+        if: inputs.set-statuses
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          description: ${{ steps.status.outputs.DESCR }}
+          context: Build for armv7
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-armv7
+          path: lidm-armv7
+          retention-days: 1
