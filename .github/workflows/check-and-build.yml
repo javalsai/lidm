@@ -61,7 +61,7 @@ jobs:
           version: 1.0
       - id: build
         run: |
-          make CFLAGS="-O3 -Wall" 2> /tmp/stderr
+          make -j$(nproc) 2> /tmp/stderr
           cat /tmp/stderr >&2
 
           HSIZE="$(stat --printf="%s" lidm | numfmt --to=iec-i)B"
@@ -103,7 +103,7 @@ jobs:
 
       - id: build
         run: |
-          make CFLAGS="-O3 -Wall -m32" 2> /tmp/stderr
+          make -j$(nproc) CFLAGS="-O3 -Wall -m32" 2> /tmp/stderr
           cat /tmp/stderr >&2
 
           HSIZE="$(stat --printf="%s" lidm | numfmt --to=iec-i)B"
@@ -124,4 +124,48 @@ jobs:
         with:
           name: build-i386
           path: lidm-i386
+          retention-days: 1
+
+  build-linux-aarch64:
+    name: Build for aarch64
+    runs-on: ubuntu-24.04
+    permissions: write-all
+    needs: [spellcheck, shellcheck, clangcheck]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: aarch64
+          distro: ubuntu22.04
+          githubToken: ${{ github.token }}
+          install: |
+            apt-get update && \
+            apt-get install -y make gcc libpam0g-dev
+          run: |
+            make -j$(nproc) 2> /tmp/stderr
+
+            cat /tmp/stderr >&2
+            mv lidm lidm-aarch64
+
+      - if: inputs.set-statuses
+        id: status
+        run: |
+          HSIZE="$(stat --printf="%s" lidm-aarch64 | numfmt --to=iec-i)B"
+          WARNS="$(cat /tmp/stderr | grep '^[^ ]*\.[ch]:' | wc -l)"
+
+          echo "DESCR='$HSIZE, $WARNS warnings'" >> "$GITHUB_OUTPUT"
+
+      - uses: myrotvorets/set-commit-status-action@master
+        if: inputs.set-statuses
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          description: ${{ steps.status.outputs.DESCR }}
+          context: Build for aarch64
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-aarch64
+          path: lidm-aarch64
           retention-days: 1

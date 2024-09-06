@@ -6,7 +6,7 @@ ODIR=dist
 PREFIX=/usr
 
 CC?=gcc
-CFLAGS?=-O3
+CFLAGS?=-O3 -Wall
 _CFLAGS=-I$(DIR)
 ALLFLAGS=$(CFLAGS) -I$(IDIR)
 
