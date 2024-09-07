@@ -1,4 +1,3 @@
-#include <errno.h>
 #include <grp.h>
 #include <pwd.h>
 #include <security/pam_misc.h>
@@ -61,10 +60,9 @@ void *shmalloc(size_t size) {
 }
 
 void moarEnv(char *user, struct session session, struct passwd *pw) {
-  if (chdir(pw->pw_dir) == -1) {
-    fprintf(stderr, "can't change directory to %s: %s\n", pw->pw_dir,
-            strerror(errno));
-  }
+  if (chdir(pw->pw_dir) == -1)
+    print_errno("can't chdir to user home");
+
   setenv("HOME", pw->pw_dir, true);
   setenv("USER", pw->pw_name, true);
   setenv("SHELL", pw->pw_shell, true);
