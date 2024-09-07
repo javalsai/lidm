@@ -39,22 +39,20 @@ LiDM is like any [X Display Manager](https://en.wikipedia.org/wiki/X_display_man
 
 # Index
 
-* [LiDM](#lidm)
-  * [Features](#features)
-  * [WIP](#wip)
-* [Index](#index)
-* [Ideology](#ideology)
-* [Usage](#usage)
-  * [Arguments](#arguments)
-  * [Program](#program)
-* [Requirements](#requirements)
-* [Installation](#installation)
-  * [Manually](#manually)
-  * [AUR](#aur)
-* [Configuring](#configuring)
-* [Contributing](#contributing)
-* [Backstory](#backstory)
-* [Contributors](#contributors)
+- [LiDM](#lidm)
+  - [Features](#features)
+  - [WIP](#wip)
+- [Index](#index)
+- [Ideology](#ideology)
+- [Usage](#usage)
+    - [Arguments](#arguments)
+    - [Program](#program)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Configuring](#configuring)
+- [Contributing](#contributing)
+- [Backstory](#backstory)
+- [Contributors](#contributors)
 
 # Ideology
 
@@ -100,7 +98,7 @@ Configured colors are just gonna be put inside `\x1b[...m`, ofc you can add an '
 
 The default fg style should disable decorators set up in other elements (cursive, underline... it's just adding 20 to the number btw, so if cursive is 4 (iirc), disabling it is 24).
 
-> \[!TIP]
+> [!TIP]
 > If you don't like seeing an element, you can change the fg color of it to be the same as the bg, making it invisible.
 
 # Contributing

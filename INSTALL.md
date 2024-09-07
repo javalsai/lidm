@@ -1,11 +1,11 @@
 # Index
 
-* [Index](#index)
-* [Installing from Source](#installing-from-source)
-* [AUR](#aur)
-* [Nix Flake](#nix-flake)
+- [Index](#index)
+- [Installing from Source](#installing-from-source)
+- [AUR](#aur)
+- [Nix Flake](#nix-flake)
 
-> \[!CAUTION]
+> [!CAUTION]
 > I encourage you to read the manual installation steps to understand what will get installed in your computer by this package.
 
 # Installing from Source
@@ -20,7 +20,7 @@ cd lidm
 make # 👍
 ```
 
-> \[!NOTE]
+> [!NOTE]
 > There's pre-built binaries on the [releases tab](https://github.com/javalsai/lidm/releases) too.
 
 Then you can install the files onto your filesystem with:
@@ -48,7 +48,7 @@ make install-service-s6 # s6
 
 [AUR packages](https://aur.archlinux.org/packages?K=lidm\&SeB=n) will automatically install most files.
 
-> \[!CAUTION]
+> [!CAUTION]
 > [service files](./assets/pkg/aur#services) have to be manually installed by now.
 
 # Nix Flake
@@ -65,5 +65,5 @@ or try it out without installing by:
 nix run github:javalsai/lidm
 ```
 
-> \[!CAUTION]
+> [!CAUTION]
 > This doesn't include [service files](./assets/pkg/aur#services) neither
