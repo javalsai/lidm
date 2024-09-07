@@ -78,9 +78,9 @@ void moarEnv(char *user, struct session session, struct passwd *pw) {
   if (session.type == SHELL)
     xdg_session_type = "tty";
   if (session.type == XORG)
-    xdg_session_type = "wayland";
-  if (session.type == WAYLAND)
     xdg_session_type = "x11";
+  if (session.type == WAYLAND)
+    xdg_session_type = "wayland";
   setenv("XDG_SESSION_TYPE", xdg_session_type, true);
 
   /*char *buf;*/
