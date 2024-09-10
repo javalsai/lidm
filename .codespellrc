@@ -1,0 +1,2 @@
+[codespell]
+skip = ./assets/pkg/aur/*/src

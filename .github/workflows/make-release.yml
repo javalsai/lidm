@@ -1,0 +1,39 @@
+name: Check and Build Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        default: ''
+        type: string
+
+jobs:
+  build:
+    name: Check and Build
+    uses: ./.github/workflows/check-and-build.yml
+    permissions: write-all
+    with:
+      set-statuses: false
+
+  release:
+    name: Make Release v${{ inputs.version }}
+    runs-on: ubuntu-24.04
+    permissions: write-all
+    needs: build
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: builds
+          pattern: build-*
+          merge-multiple: true
+
+      - uses: ncipollo/release-action@v1
+        with:
+          tag: v${{ inputs.version }}
+          commit: ${{ github.sha }}
+          artifacts: builds/lidm-*
+          artifactsErrorsFailBuild: true
+          body: Release notes not generated yet.
+
+        # TODO: get checksums and commit new AUR pkgbuilds

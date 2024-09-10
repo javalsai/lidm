@@ -1,0 +1,31 @@
+#!/usr/bin/openrc-run
+description="start agetty on a terminal line"
+supervisor=supervise-daemon
+port=tty7
+respawn_period="${respawn_period:-60}"
+term_type="${term_type:-linux}"
+command=/sbin/agetty
+command_args_foreground="${agetty_options} ${port} ${baud} ${term_type} -nl /bin/lidm -o 7"
+pidfile="/run/${RC_SVCNAME}.pid"
+
+depend() {
+        after local
+        keyword -prefix
+        provide getty
+}
+
+start_pre() {
+        if [ "$port" = "$RC_SVCNAME" ]; then
+                eerror "${RC_SVCNAME} cannot be started directly. You must create"
+                eerror "symbolic links to it for the ports you want to start"
+                eerror "agetty on and add those to the appropriate runlevels."
+                return 1
+        else
+                export EINFO_QUIET="${quiet:-yes}"
+        fi
+}
+
+stop_pre()
+{
+        export EINFO_QUIET="${quiet:-yes}"
+}

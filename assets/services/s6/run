@@ -1,0 +1,8 @@
+#!/bin/execlineb -P
+if { pipeline { s6-rc -ba list } grep -qFx mount-filesystems }
+importas -uD "yes" SPAWN SPAWN
+importas -sCuD "" ARGS ARGS
+importas -sCuD "agetty" GETTY GETTY
+if -t { test -e /dev/tty7 }
+if -t { test ${SPAWN} = "yes" }
+	exec agetty -8 tty7 115200 ${ARGS} -nl /bin/lidm -o 7

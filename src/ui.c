@@ -2,12 +2,14 @@
 // really sorry
 
 #include <errno.h>
+#include <pwd.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/reboot.h>
 #include <sys/types.h>
 #include <termios.h>
 #include <time.h>
@@ -104,7 +106,7 @@ static char *fmt_time() {
 // cursor pos...) should just overlap for now
 
 // ugh, this represent a field which might have options
-// opts is the ammount of other options possible (0 will behave as a passwd)
+// opts is the amount of other options possible (0 will behave as a passwd)
 // aaaand (it's an abstract idea, letme think), also holds the status of a
 // custom content, like custom launch command or user or smth
 struct opt_field {
@@ -226,8 +228,8 @@ struct user get_current_user() {
 
 struct session get_current_session() {
   if (of_session.current_opt != 0) {
-    // this is for the default user shell :P, not the greatest implementation
-    // but I want to get his done
+    // this is for the default user shell :P, not the greatest
+    // implementation but I want to get his done
     if (behavior.include_defshell &&
         of_session.current_opt == gsessions->length + 1) {
       struct session shell_session;
@@ -374,11 +376,11 @@ int load(struct users_list *users, struct sessions_list *sessions) {
           return 0;
         } else if (ansi_code == functions.reboot) {
           restore_all();
-          system("reboot");
+          reboot(RB_AUTOBOOT);
           exit(0);
         } else if (ansi_code == functions.poweroff) {
           restore_all();
-          system("poweroff");
+          reboot(RB_POWER_OFF);
           exit(0);
         } else if (ansi_code == A_UP || ansi_code == A_DOWN) {
           ffield_move(ansi_code == A_DOWN);
@@ -408,12 +410,12 @@ int load(struct users_list *users, struct sessions_list *sessions) {
 static char *line_cleaner = NULL;
 static void clean_line(struct uint_point origin, uint line) {
   if (line_cleaner == NULL) {
-    line_cleaner = malloc((boxw - 2) * sizeof(char));
+    line_cleaner = malloc((boxw - 2) * sizeof(char) + 1);
     memset(line_cleaner, 32, boxw - 2);
+    line_cleaner[boxw - 2] = 0;
   }
   printf("\x1b[%d;%dH", origin.y + line, origin.x + 1);
-  fflush(stdout);
-  write(STDOUT_FILENO, line_cleaner, boxw - 2);
+  printf("%s", line_cleaner);
 }
 
 // TODO: session_len > 32
@@ -425,18 +427,19 @@ static void print_session(struct uint_point origin, struct session session,
     session_type = strings.s_xorg;
   } else if (session.type == WAYLAND) {
     session_type = strings.s_wayland;
-  } else if (session.type == SHELL) {
+  } else {
     session_type = strings.s_shell;
   }
-  printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm", origin.x + 11 - strlen(session_type),
-         theme.colors.e_header, session_type, theme.colors.fg);
+  printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm",
+         (ulong)(origin.x + 11 - strlen(session_type)), theme.colors.e_header,
+         session_type, theme.colors.fg);
 
   char *session_color;
   if (session.type == XORG) {
     session_color = theme.colors.s_xorg;
   } else if (session.type == WAYLAND) {
-    session_color = theme.colors.s_wl;
-  } else if (session.type == SHELL) {
+    session_color = theme.colors.s_wayland;
+  } else {
     session_color = theme.colors.s_shell;
   }
 
@@ -454,7 +457,7 @@ static void print_user(struct uint_point origin, struct user user,
                        bool multiple) {
   clean_line(origin, 7);
   printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm",
-         origin.x + 11 - strlen(strings.e_user), theme.colors.e_header,
+         (ulong)(origin.x + 11 - strlen(strings.e_user)), theme.colors.e_header,
          strings.e_user, theme.colors.fg);
 
   char *user_color = theme.colors.e_user;
@@ -468,13 +471,13 @@ static void print_user(struct uint_point origin, struct user user,
   }
 }
 
-static char *passwd_prompt[32];
+static char passwd_prompt[33];
 // TODO: passwd_len > 32
 static void print_passwd(struct uint_point origin, uint length, bool err) {
   clean_line(origin, 9);
   printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm",
-         origin.x + 11 - strlen(strings.e_passwd), theme.colors.e_header,
-         strings.e_passwd, theme.colors.fg);
+         (ulong)(origin.x + 11 - strlen(strings.e_passwd)),
+         theme.colors.e_header, strings.e_passwd, theme.colors.fg);
 
   char *pass_color;
   if (err)
@@ -482,48 +485,32 @@ static void print_passwd(struct uint_point origin, uint length, bool err) {
   else
     pass_color = theme.colors.e_passwd;
 
-  memset(passwd_prompt, 32, 32);
-  memset(passwd_prompt, '*', length);
+  ulong prompt_len = sizeof(passwd_prompt);
+  ulong actual_len = length > prompt_len ? prompt_len : length;
+  memset(passwd_prompt, ' ', prompt_len);
+  memset(passwd_prompt, '*', actual_len);
+  passwd_prompt[32] = 0;
 
   printf("\r\x1b[%dC\x1b[%sm", origin.x + 14, pass_color);
-  fflush(stdout);
-  write(STDOUT_FILENO, passwd_prompt, 32);
+  printf("%s", passwd_prompt);
+
   printf("\x1b[%sm", theme.colors.fg);
 }
 
-// ik this code is... *quirky*
-// w just accounts for filler
-// if filler == NULL, it will just move cursor
-static void print_row(uint w, uint n, char *edge1, char *edge2, char **filler) {
-  char *row;
-  size_t row_size;
-
-  uint size;
-  if (filler == NULL) {
-    row_size = snprintf(NULL, 0, "%s\x1b[%dC%s\x1b[%dD\x1b[1B", edge1, w, edge2,
-                        w + 2) +
-               1;
-    row = malloc(row_size);
-    snprintf(row, row_size, "%s\x1b[%dC%s\x1b[%dD\x1b[1B", edge1, w, edge2,
-             w + 2);
-  } else {
-    size_t fillersize = strlen(*filler) * w;
-    size_t nbytes1 = snprintf(NULL, 0, "%s", edge1) + 1;
-    size_t nbytes2 = snprintf(NULL, 0, "%s\x1b[%dD\x1b[1B", edge2, w + 2) + 1;
-    row_size = nbytes1 + fillersize + nbytes2;
-    row = malloc(row_size);
-    snprintf(row, nbytes1, "%s", edge1);
-    for (uint i = 0; i < fillersize; i += strlen(*filler)) {
-      strcpy(&row[nbytes1 + i], *filler);
-    }
-    snprintf(&row[nbytes1 + fillersize], nbytes2, "%s\x1b[%dD\x1b[1B", edge2,
-             w + 2);
-  }
-
+static void print_empty_row(uint w, uint n, char *edge1, char *edge2) {
   for (uint i = 0; i < n; i++) {
-    write(STDOUT_FILENO, row, row_size);
+    printf("%s\x1b[%dC%s\x1b[%dD\x1b[1B", edge1, w, edge2, w + 2);
   }
-  free(row);
+}
+
+static void print_row(uint w, uint n, char *edge1, char *edge2, char *filler) {
+  for (uint i = 0; i < n; i++) {
+    printf("%s", edge1);
+    for (uint i = 0; i < w; i++) {
+      printf("%s", filler);
+    }
+    printf("%s\x1b[%dD\x1b[1B", edge2, w + 2);
+  }
 }
 
 static void print_box() {
@@ -532,9 +519,9 @@ static void print_box() {
 
   printf("\x1b[%d;%dH\x1b[%sm", bstart.y, bstart.x, theme.colors.e_box);
   fflush(stdout);
-  print_row(boxw - 2, 1, theme.chars.ctl, theme.chars.ctr, &theme.chars.hb);
-  print_row(boxw - 2, boxh - 2, theme.chars.vb, theme.chars.vb, NULL);
-  print_row(boxw - 2, 1, theme.chars.cbl, theme.chars.cbr, &theme.chars.hb);
+  print_row(boxw - 2, 1, theme.chars.ctl, theme.chars.ctr, theme.chars.hb);
+  print_empty_row(boxw - 2, boxh - 2, theme.chars.vb, theme.chars.vb);
+  print_row(boxw - 2, 1, theme.chars.cbl, theme.chars.cbr, theme.chars.hb);
   printf("\x1b[%sm", theme.colors.fg);
   fflush(stdout);
 }

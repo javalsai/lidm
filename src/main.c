@@ -14,7 +14,9 @@ int main(int argc, char *argv[]) {
   if (argc == 2)
     chvt_str(argv[1]);
 
-  struct config *config = parse_config("/etc/lidm.ini");
+  char *conf_override = getenv("LIDM_CONF");
+  struct config *config =
+      parse_config(conf_override == NULL ? "/etc/lidm.ini" : conf_override);
   if (config == NULL) {
     fprintf(stderr, "error parsing config\n");
     return 1;

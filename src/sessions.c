@@ -40,7 +40,8 @@ static u_int16_t used_size = 0;
 static struct session *sessions = NULL;
 static struct sessions_list *__sessions_list = NULL;
 
-// NOTE: commented printf's here would be nice to have debug logs if I ever implement it
+// NOTE: commented printf's here would be nice to have debug logs if I ever
+// implement it
 static enum session_type session_type;
 static int fn(const char *fpath, const struct stat *sb, int typeflag) {
   // practically impossible to reach this

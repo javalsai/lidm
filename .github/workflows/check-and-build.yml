@@ -1,0 +1,259 @@
+name: Check and Build
+
+on:
+  workflow_call:
+    inputs:
+      set-statuses:
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  spellcheck:
+    name: Check Grammar
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: "codespell"
+          version: 1.0
+      - run: codespell
+
+  shellcheck:
+    name: Shell Check
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: "shellcheck"
+          version: 1.0
+      - run: find . -type f -name '*.sh' -not -path './assets/pkg/aur/*/src/*' | xargs shellcheck
+
+  clangcheck:
+    name: Chang Check
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: "clang-format clang-tidy"
+          version: 1.0
+      - run: clang-format -ni src/*.c include/*.h
+      # TODO: include when the errors/warnings are bearable
+      #- run: clang-tidy src/*.c include/*.h
+
+  build-linux-amd64:
+    name: Build for amd64
+    runs-on: ubuntu-24.04
+    permissions: write-all
+    needs: [spellcheck, shellcheck, clangcheck]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: "libpam0g-dev"
+          version: 1.0
+      - id: build
+        run: |
+          make -j$(nproc) 2> /tmp/stderr
+          cat /tmp/stderr >&2
+
+          HSIZE="$(stat --printf="%s" lidm | numfmt --to=iec-i)B"
+          WARNS="$(cat /tmp/stderr | grep '^[^ ]*\.[ch]:' | wc -l)"
+          mv lidm lidm-amd64
+
+          echo "DESCR='$HSIZE, $WARNS warnings'" >> "$GITHUB_OUTPUT"
+
+      - uses: myrotvorets/set-commit-status-action@master
+        if: inputs.set-statuses
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          description: ${{ steps.build.outputs.DESCR }}
+          context: Build for amd64
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-amd64
+          path: lidm-amd64
+          retention-days: 1
+
+  build-linux-i386:
+    name: Build for i386
+    runs-on: ubuntu-24.04
+    permissions: write-all
+    needs: [spellcheck, shellcheck, clangcheck]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: "libpam0g-dev gcc-multilib"
+          version: 1.0
+      - run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update -y
+          sudo apt-get install -y libpam0g-dev:i386
+
+      - id: build
+        run: |
+          make -j$(nproc) CFLAGS="-O3 -Wall -m32" 2> /tmp/stderr
+          cat /tmp/stderr >&2
+
+          HSIZE="$(stat --printf="%s" lidm | numfmt --to=iec-i)B"
+          WARNS="$(cat /tmp/stderr | grep '^[^ ]*\.[ch]:' | wc -l)"
+          mv lidm lidm-i386
+
+          echo "DESCR='$HSIZE, $WARNS warnings'" >> "$GITHUB_OUTPUT"
+
+      - uses: myrotvorets/set-commit-status-action@master
+        if: inputs.set-statuses
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          description: ${{ steps.build.outputs.DESCR }}
+          context: Build for i386
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-i386
+          path: lidm-i386
+          retention-days: 1
+
+  build-linux-aarch64:
+    name: Build for aarch64
+    runs-on: ubuntu-24.04
+    permissions: write-all
+    needs: [spellcheck, shellcheck, clangcheck]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: aarch64
+          distro: ubuntu22.04
+          githubToken: ${{ github.token }}
+          install: |
+            apt-get update && \
+            apt-get install -y make gcc libpam0g-dev
+          run: |
+            make -j$(nproc) 2> /tmp/stderr
+
+            cat /tmp/stderr >&2
+            mv lidm lidm-aarch64
+
+      - if: inputs.set-statuses
+        id: status
+        run: |
+          HSIZE="$(stat --printf="%s" lidm-aarch64 | numfmt --to=iec-i)B"
+          WARNS="$(cat /tmp/stderr | grep '^[^ ]*\.[ch]:' | wc -l)"
+
+          echo "DESCR='$HSIZE, $WARNS warnings'" >> "$GITHUB_OUTPUT"
+
+      - uses: myrotvorets/set-commit-status-action@master
+        if: inputs.set-statuses
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          description: ${{ steps.status.outputs.DESCR }}
+          context: Build for aarch64
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-aarch64
+          path: lidm-aarch64
+          retention-days: 1
+
+  build-linux-armv7:
+    name: Build for armv7
+    runs-on: ubuntu-24.04
+    permissions: write-all
+    needs: [spellcheck, shellcheck, clangcheck]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: armv7
+          distro: ubuntu22.04
+          githubToken: ${{ github.token }}
+          install: |
+            apt-get update && \
+            apt-get install -y make gcc libpam0g-dev
+          run: |
+            make -j$(nproc) 2> /tmp/stderr
+
+            cat /tmp/stderr >&2
+            mv lidm lidm-armv7
+
+      - if: inputs.set-statuses
+        id: status
+        run: |
+          HSIZE="$(stat --printf="%s" lidm-armv7 | numfmt --to=iec-i)B"
+          WARNS="$(cat /tmp/stderr | grep '^[^ ]*\.[ch]:' | wc -l)"
+
+          echo "DESCR='$HSIZE, $WARNS warnings'" >> "$GITHUB_OUTPUT"
+
+      - uses: myrotvorets/set-commit-status-action@master
+        if: inputs.set-statuses
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          description: ${{ steps.status.outputs.DESCR }}
+          context: Build for armv7
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-armv7
+          path: lidm-armv7
+          retention-days: 1
+
+  build-linux-riscv64:
+    name: Build for riscv64
+    runs-on: ubuntu-24.04
+    permissions: write-all
+    needs: [spellcheck, shellcheck, clangcheck]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: riscv64
+          distro: ubuntu22.04
+          githubToken: ${{ github.token }}
+          install: |
+            apt-get update && \
+            apt-get install -y make gcc libpam0g-dev
+          run: |
+            make -j$(nproc) 2> /tmp/stderr
+
+            cat /tmp/stderr >&2
+            mv lidm lidm-riscv64
+
+      - if: inputs.set-statuses
+        id: status
+        run: |
+          HSIZE="$(stat --printf="%s" lidm-riscv64 | numfmt --to=iec-i)B"
+          WARNS="$(cat /tmp/stderr | grep '^[^ ]*\.[ch]:' | wc -l)"
+
+          echo "DESCR='$HSIZE, $WARNS warnings'" >> "$GITHUB_OUTPUT"
+
+      - uses: myrotvorets/set-commit-status-action@master
+        if: inputs.set-statuses
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          description: ${{ steps.status.outputs.DESCR }}
+          context: Build for riscv64
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-riscv64
+          path: lidm-riscv64
+          retention-days: 1

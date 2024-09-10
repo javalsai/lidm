@@ -5,9 +5,9 @@
 #include <stdbool.h>
 #include <sys/types.h>
 
-enum keys find_keyname(char*);
-enum keys find_ansi(char*);
-void read_press(u_char*, char*);
+enum keys find_keyname(char *);
+enum keys find_ansi(char *);
+void read_press(u_char *, char *);
 void strcln(char **dest, const char *source);
 
 #endif

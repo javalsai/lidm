@@ -1,7 +1,5 @@
 #include <grp.h>
 #include <pwd.h>
-#include <security/_pam_types.h>
-#include <security/pam_appl.h>
 #include <security/pam_misc.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,6 +35,9 @@ int pam_conversation(int num_msg, const struct pam_message **msg,
     pam_end(pamh, ret);                                                        \
     return NULL;                                                               \
   }
+
+void clear_screen() { printf("\x1b[H\x1b[J"); }
+
 pam_handle_t *get_pamh(char *user, char *passwd) {
   pam_handle_t *pamh = NULL;
   struct pam_conv pamc = {pam_conversation, (void *)passwd};
@@ -59,7 +60,9 @@ void *shmalloc(size_t size) {
 }
 
 void moarEnv(char *user, struct session session, struct passwd *pw) {
-  chdir(pw->pw_dir);
+  if (chdir(pw->pw_dir) == -1)
+    print_errno("can't chdir to user home");
+
   setenv("HOME", pw->pw_dir, true);
   setenv("USER", pw->pw_name, true);
   setenv("SHELL", pw->pw_shell, true);
@@ -73,9 +76,9 @@ void moarEnv(char *user, struct session session, struct passwd *pw) {
   if (session.type == SHELL)
     xdg_session_type = "tty";
   if (session.type == XORG)
-    xdg_session_type = "wayland";
-  if (session.type == WAYLAND)
     xdg_session_type = "x11";
+  if (session.type == WAYLAND)
+    xdg_session_type = "wayland";
   setenv("XDG_SESSION_TYPE", xdg_session_type, true);
 
   /*char *buf;*/
@@ -166,10 +169,10 @@ bool launch(char *user, char *passwd, struct session session,
     // TODO: these will be different due to TryExec
     // and, Exec/TryExec might contain spaces as args
     if (session.type == SHELL) {
-      system("clear");
+      clear_screen();
       execlp(session.exec, session.exec, NULL);
     } else if (session.type == XORG || session.type == WAYLAND) {
-      system("clear");
+      clear_screen();
       execlp(session.exec, session.exec, NULL);
     }
     perror("execl error");

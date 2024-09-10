@@ -15,9 +15,9 @@ void strcln(char **dest, const char *source) {
   strcpy(*dest, source);
 }
 
-enum keys find_keyname(char* name) {
+enum keys find_keyname(char *name) {
   for (size_t i = 0; i < sizeof(key_mappings) / sizeof(key_mappings[0]); i++) {
-    if(strcmp(key_names[i], name) == 0)
+    if (strcmp(key_names[i], name) == 0)
       return (enum keys)i;
   }
 
