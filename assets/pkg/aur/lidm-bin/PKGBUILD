@@ -12,7 +12,7 @@ license=('GPL')
 provides=('lidm')
 conflicts=('lidm')
 source=(
-    "lidm::$url/releases/download/v$pkgver/lidm-$arch"
+    "lidm::$url/releases/download/v$pkgver/lidm-amd64"
     "default-theme.ini::https://raw.githubusercontent.com/javalsai/lidm/v$pkgver/themes/default.ini"
     "lidm.1::https://raw.githubusercontent.com/javalsai/lidm/v$pkgver/assets/man/lidm.1"
     "lidm-config.5::https://raw.githubusercontent.com/javalsai/lidm/v$pkgver/assets/man/lidm-config.5"
