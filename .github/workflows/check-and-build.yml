@@ -136,8 +136,9 @@ jobs:
 
       - uses: uraimo/run-on-arch-action@v2
         with:
-          arch: aarch64
-          distro: ubuntu22.04
+          arch: none
+          distro: none
+          base_image: '--platform=linux/aarch64 aarch64/ubuntu22.04'
           githubToken: ${{ github.token }}
           install: |
             apt-get update && \
@@ -180,8 +181,9 @@ jobs:
 
       - uses: uraimo/run-on-arch-action@v2
         with:
-          arch: armv7
-          distro: ubuntu22.04
+          arch: none
+          distro: none
+          base_image: '--platform=linux/armv7 armv7/ubuntu22.04'
           githubToken: ${{ github.token }}
           install: |
             apt-get update && \
@@ -224,8 +226,9 @@ jobs:
 
       - uses: uraimo/run-on-arch-action@v2
         with:
-          arch: riscv64
-          distro: ubuntu22.04
+          arch: none
+          distro: none
+          base_imgae: '--platform=linux/riscv64 riscv64/ubuntu22.04'
           githubToken: ${{ github.token }}
           install: |
             apt-get update && \
