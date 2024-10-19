@@ -228,7 +228,7 @@ jobs:
         with:
           arch: none
           distro: none
-          base_imgae: '--platform=linux/riscv64 riscv64/ubuntu22.04'
+          base_image: '--platform=linux/riscv64 riscv64/ubuntu22.04'
           githubToken: ${{ github.token }}
           install: |
             apt-get update && \
