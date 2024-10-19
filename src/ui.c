@@ -179,8 +179,8 @@ struct opt_field of_session;
 struct opt_field of_user;
 struct opt_field of_passwd;
 
-struct users_list *gusers;
-struct sessions_list *gsessions;
+struct Vector *gusers;
+struct Vector *gsessions;
 
 // not *that* OF tho
 struct opt_field *get_of(enum input from) {
@@ -217,7 +217,7 @@ void ffield_cursor_focus() {
 
 struct user get_current_user() {
   if (of_user.current_opt != 0)
-    return gusers->users[of_user.current_opt - 1];
+    return *(struct user*)vec_get(gusers, of_user.current_opt - 1);
   else {
     struct user custom_user;
     custom_user.shell = "/usr/bin/bash";
@@ -237,7 +237,7 @@ struct session get_current_session() {
       shell_session.exec = shell_session.name = get_current_user().shell;
       return shell_session;
     } else
-      return gsessions->sessions[of_session.current_opt - 1];
+      return *(struct session*)vec_get(gsessions, of_session.current_opt - 1);
   } else {
     struct session custom_session;
     custom_session.type = SHELL;
@@ -320,7 +320,7 @@ void ffield_type(char *text) {
   print_ffield();
 }
 
-int load(struct users_list *users, struct sessions_list *sessions) {
+int load(struct Vector *users, struct Vector *sessions) {
   /// SETUP
   gusers = users;
   gsessions = sessions;

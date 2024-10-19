@@ -3,17 +3,14 @@
 
 #include <sys/types.h>
 
+#include <util.h>
+
 struct user {
   char *shell;
   char *username;
   char *display_name;
 };
 
-struct users_list {
-  u_int16_t length;
-  struct user *users;
-};
-
-struct users_list *get_human_users();
+struct Vector get_human_users();
 
 #endif

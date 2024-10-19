@@ -20,43 +20,19 @@ static struct user __new_user(struct passwd *p) {
   return __user;
 }
 
-static const u_int8_t bs = 16;
-static const u_int8_t unit_size = sizeof(struct user);
-
-static u_int16_t alloc_size = bs;
-static u_int16_t used_size = 0;
-
-static struct user *users = NULL;
-static struct users_list *__users_list = NULL;
-
-struct users_list __list;
 // This code is designed to be run purely single threaded
-struct users_list *get_human_users() {
-  if (users != NULL)
-    return __users_list;
-  else
-    users = malloc(alloc_size * unit_size);
+struct Vector get_human_users() {
+  struct Vector users = vec_new();
 
   struct passwd *pwd;
   while ((pwd = getpwent()) != NULL) {
-    // practically impossible to reach this (== 0xffff)
-    // but will prevent break
-    if (used_size == 0xffff ||
-        !(pwd->pw_dir && strncmp(pwd->pw_dir, "/home/", 6) == 0))
+    if (!(pwd->pw_dir && strncmp(pwd->pw_dir, "/home/", 6) == 0))
       continue;
 
-    if (used_size >= alloc_size) {
-      alloc_size += bs;
-      users = realloc(users, alloc_size * unit_size);
-    }
-
-    users[used_size] = __new_user(pwd);
-    used_size++;
+    struct user *user_i = malloc(sizeof(struct user));
+    *user_i = __new_user(pwd);
+    vec_push(&users, user_i);
   }
 
-  users = realloc(users, used_size * unit_size);
-
-  __list.length = used_size;
-  __list.users = users;
-  return __users_list = &__list;
+  return users;
 }

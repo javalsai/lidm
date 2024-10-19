@@ -3,6 +3,8 @@
 
 #include <sys/types.h>
 
+#include <util.h>
+
 enum session_type {
   XORG,
   WAYLAND,
@@ -16,11 +18,6 @@ struct session {
   enum session_type type;
 };
 
-struct sessions_list {
-  u_int16_t length;
-  struct session *sessions;
-};
-
-struct sessions_list *get_avaliable_sessions();
+struct Vector get_avaliable_sessions();
 
 #endif
