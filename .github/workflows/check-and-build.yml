@@ -138,7 +138,7 @@ jobs:
         with:
           arch: none
           distro: none
-          base_image: '--platform=linux/aarch64 aarch64/ubuntu22.04'
+          base_image: '--platform=linux/aarch64 aarch64/ubuntu:22.04'
           githubToken: ${{ github.token }}
           install: |
             apt-get update && \
@@ -183,7 +183,7 @@ jobs:
         with:
           arch: none
           distro: none
-          base_image: '--platform=linux/armv7 armv7/ubuntu22.04'
+          base_image: '--platform=linux/armv7 armv7/ubuntu:22.04'
           githubToken: ${{ github.token }}
           install: |
             apt-get update && \
@@ -228,7 +228,7 @@ jobs:
         with:
           arch: none
           distro: none
-          base_image: '--platform=linux/riscv64 riscv64/ubuntu22.04'
+          base_image: '--platform=linux/riscv64 riscv64/ubuntu:22.04'
           githubToken: ${{ github.token }}
           install: |
             apt-get update && \
