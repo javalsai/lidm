@@ -121,5 +121,8 @@ void* vec_pop(struct Vector* vec) {
 }
 
 void* vec_get(struct Vector* vec, uint32_t index) {
+  if (index >= vec->length)
+    return NULL;
+
   return vec->pages[index];
 }
