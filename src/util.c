@@ -116,8 +116,7 @@ void* vec_pop(struct Vector* vec) {
   if (vec->length == 0)
     return NULL;
 
-  vec->length--;
-  return vec->pages[vec->length];
+  return vec->pages[--vec->length];
 }
 
 void* vec_get(struct Vector* vec, uint32_t index) {
