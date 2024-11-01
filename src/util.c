@@ -94,7 +94,7 @@ int vec_push(struct Vector* vec, void* item) {
 }
 
 void vec_free(struct Vector* vec) {
-  for(; vec->length > 0; vec->length--)
+  while(vec->length > 0)
     free(vec->pages[--vec->length]);
 
   vec_clear(vec);
