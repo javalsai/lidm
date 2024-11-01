@@ -9,6 +9,7 @@
 #include <sessions.h>
 #include <ui.h>
 #include <users.h>
+#include <util.h>
 
 int main(int argc, char *argv[]) {
   if (argc == 2)
@@ -23,10 +24,10 @@ int main(int argc, char *argv[]) {
   }
   setup(*config);
 
-  struct users_list *users = get_human_users();
-  struct sessions_list *sessions = get_avaliable_sessions();
+  struct Vector users = get_human_users();
+  struct Vector sessions = get_avaliable_sessions();
 
-  int ret = load(users, sessions);
+  int ret = load(&users, &sessions);
   if (ret == 0)
     execl(argv[0], argv[0], NULL);
 }
