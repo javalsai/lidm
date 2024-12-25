@@ -21,6 +21,7 @@
 #include "keys.h"
 #include "sessions.h"
 #include "ui.h"
+#include "users.h"
 #include "util.h"
 
 static void print_box();
