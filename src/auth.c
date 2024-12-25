@@ -19,7 +19,7 @@ int pam_conversation(int num_msg, const struct pam_message **msg,
                      struct pam_response **resp, void *appdata_ptr) {
   struct pam_response *reply =
       (struct pam_response *)malloc(sizeof(struct pam_response) * num_msg);
-  for (int i = 0; i < num_msg; i++) {
+  for (size_t i = 0; i < num_msg; i++) {
     reply[i].resp = NULL;
     reply[i].resp_retcode = 0;
     if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF ||
@@ -79,7 +79,7 @@ void sourceFileTry(char *file) {
 
     /* printf("Retrieved line of length %zu:\n", read); */
     /* printf("%s\n", line); */
-    for (uint i = 1; i < read; i++) {
+    for (size_t i = 1; i < read; i++) {
       if (line[i] == '=') {
         /* printf("FOUND '='!\n"); */
         line[i] = '\0';
@@ -118,7 +118,7 @@ void moarEnv(char *user, struct session session, struct passwd *pw,
   setenv("XDG_SESSION_TYPE", xdg_session_type, true);
 
   printf("\n\n\n\n\x1b[1m");
-  for (uint32_t i = 0; i < behavior->source.length; i++) {
+  for (size_t i = 0; i < behavior->source.length; i++) {
     /* printf("DEBUG(source)!!!! %d %s\n", i, (char*)vec_get(&behavior->source,
      * i)); */
     sourceFileTry((char *)vec_get(&behavior->source, i));
@@ -126,7 +126,7 @@ void moarEnv(char *user, struct session session, struct passwd *pw,
   /* printf("\n"); */
   if (pw->pw_dir) {
     uint home_len = strlen(pw->pw_dir);
-    for (uint32_t i = 0; i < behavior->user_source.length; i++) {
+    for (size_t i = 0; i < behavior->user_source.length; i++) {
       char *file2sourcepath = (char *)vec_get(&behavior->user_source, i);
       char *newbuf =
           malloc(home_len + strlen(file2sourcepath) + 2); // nullbyte and slash
@@ -190,7 +190,7 @@ bool launch(char *user, char *passwd, struct session session, void (*cb)(void),
       print_errno("pam_getenvlist");
       _exit(EXIT_FAILURE);
     }
-    for (uint i = 0; envlist[i] != NULL; i++) {
+    for (size_t i = 0; envlist[i] != NULL; i++) {
       putenv(envlist[i]);
     }
     // FIXME: path hotfix

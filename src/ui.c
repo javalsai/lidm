@@ -500,15 +500,15 @@ static void print_passwd(struct uint_point origin, uint length, bool err) {
 }
 
 static void print_empty_row(uint w, uint n, char *edge1, char *edge2) {
-  for (uint i = 0; i < n; i++) {
+  for (size_t i = 0; i < n; i++) {
     printf("%s\x1b[%dC%s\x1b[%dD\x1b[1B", edge1, w, edge2, w + 2);
   }
 }
 
 static void print_row(uint w, uint n, char *edge1, char *edge2, char *filler) {
-  for (uint i = 0; i < n; i++) {
+  for (size_t i = 0; i < n; i++) {
     printf("%s", edge1);
-    for (uint i = 0; i < w; i++) {
+    for (size_t i = 0; i < w; i++) {
       printf("%s", filler);
     }
     printf("%s\x1b[%dD\x1b[1B", edge2, w + 2);

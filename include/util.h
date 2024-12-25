@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <sys/types.h>
 
 #include "keys.h"
@@ -25,6 +26,6 @@ void vec_free(struct Vector*);
 void vec_clear(struct Vector*);
 void vec_reset(struct Vector*);
 void* vec_pop(struct Vector*); // won't free it, nor shrink vec list space
-void* vec_get(struct Vector*, uint32_t index);
+void* vec_get(struct Vector*, size_t index);
 
 #endif
