@@ -1,8 +1,8 @@
-#include "util.h"
 #include <string.h>
 #include <sys/stat.h>
 
-#include <config.h>
+#include "config.h"
+#include "util.h"
 
 bool line_parser(FILE *fd, ssize_t *blksize,
                  u_char (*cb)(char *key, char *value)) {
@@ -109,6 +109,10 @@ u_char config_line_handler(char *k, char *v) {
     __config->strings.s_shell = v;
   else if (strcmp(k, "behavior.include_defshell") == 0)
     __config->behavior.include_defshell = strcmp(v, "true") == 0;
+  else if (strcmp(k, "behavior.source") == 0)
+    vec_push(&__config->behavior.source, v);
+  else if (strcmp(k, "behavior.user_source") == 0)
+    vec_push(&__config->behavior.user_source, v);
   else
     return 0b1111;
 
@@ -124,6 +128,9 @@ struct config *parse_config(char *path) {
   }
 
   __config = malloc(sizeof(struct config));
+  __config->behavior.source = vec_new();
+  __config->behavior.user_source = vec_new();
+
   if (__config == NULL)
     return NULL;
   bool ret = line_parser(fd, (ssize_t *)&sb.st_blksize, config_line_handler);

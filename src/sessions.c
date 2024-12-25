@@ -7,8 +7,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <sessions.h>
-#include <util.h>
+#include "sessions.h"
+#include "util.h"
 
 struct source_dir {
   enum session_type type;
@@ -110,7 +110,7 @@ struct Vector get_avaliable_sessions() {
   struct Vector sessions = vec_new();
 
   cb_sessions = &sessions;
-  for (uint i = 0; i < (sizeof(sources) / sizeof(sources[0])); i++) {
+  for (size_t i = 0; i < (sizeof(sources) / sizeof(sources[0])); i++) {
     /*printf("recurring into %s\n", sources[i].dir);*/
     session_type = sources[i].type;
     ftw(sources[i].dir, &fn, 1);

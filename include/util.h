@@ -1,10 +1,12 @@
 #ifndef _UTILH_
 #define _UTILH_
 
-#include <keys.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <sys/types.h>
+
+#include "keys.h"
 
 enum keys find_keyname(char *);
 enum keys find_ansi(char *);
@@ -24,6 +26,6 @@ void vec_free(struct Vector*);
 void vec_clear(struct Vector*);
 void vec_reset(struct Vector*);
 void* vec_pop(struct Vector*); // won't free it, nor shrink vec list space
-void* vec_get(struct Vector*, uint32_t index);
+void* vec_get(struct Vector*, size_t index);
 
 #endif

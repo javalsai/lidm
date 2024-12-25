@@ -73,6 +73,12 @@ Text to display as the header for such sessions.
 .TP
 \fBbehavior.include_defshell\fP
 "true"/"false" (invalid input defaults to false), if true, includes the user default shell as a session to launch
+.TP
+\fBbehavior.source\fP
+Specify paths to source on login, simple KEY=VALUE format with comments (#) or empty'ish lines, quoting or escape sequences not supported yet. It is NOT an array, but you rather assign to it multiple times.
+.TP
+\fBbehavior.user_source\fP
+Same as \fIbehavior.source\fP but relative to user home (if present).
 
 
 .SH "SEE ALSO"

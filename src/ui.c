@@ -10,17 +10,19 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/reboot.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <termios.h>
 #include <time.h>
 #include <unistd.h>
 
-#include <auth.h>
-#include <efield.h>
-#include <keys.h>
-#include <sessions.h>
-#include <ui.h>
-#include <util.h>
+#include "auth.h"
+#include "efield.h"
+#include "keys.h"
+#include "sessions.h"
+#include "ui.h"
+#include "users.h"
+#include "util.h"
 
 static void print_box();
 static void print_footer();
@@ -394,7 +396,7 @@ int load(struct Vector *users, struct Vector *sessions) {
     } else {
       if (len == 1 && *seq == '\n') {
         if (!launch(get_current_user().username, of_passwd.efield.content,
-                    get_current_session(), &restore_all)) {
+                    get_current_session(), &restore_all, &behavior)) {
           print_passwd(box_start(), of_passwd.efield.length, true);
           ffield_cursor_focus();
         }
@@ -498,15 +500,15 @@ static void print_passwd(struct uint_point origin, uint length, bool err) {
 }
 
 static void print_empty_row(uint w, uint n, char *edge1, char *edge2) {
-  for (uint i = 0; i < n; i++) {
+  for (size_t i = 0; i < n; i++) {
     printf("%s\x1b[%dC%s\x1b[%dD\x1b[1B", edge1, w, edge2, w + 2);
   }
 }
 
 static void print_row(uint w, uint n, char *edge1, char *edge2, char *filler) {
-  for (uint i = 0; i < n; i++) {
+  for (size_t i = 0; i < n; i++) {
     printf("%s", edge1);
-    for (uint i = 0; i < w; i++) {
+    for (size_t i = 0; i < w; i++) {
       printf("%s", filler);
     }
     printf("%s\x1b[%dD\x1b[1B", edge2, w + 2);

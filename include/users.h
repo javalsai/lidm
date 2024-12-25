@@ -3,7 +3,7 @@
 
 #include <sys/types.h>
 
-#include <util.h>
+#include "util.h"
 
 struct user {
   char *shell;

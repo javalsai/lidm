@@ -1,7 +1,7 @@
 #include <string.h>
 
-#include <efield.h>
-#include <ui.h>
+#include "efield.h"
+#include "ui.h"
 
 struct editable_field field_new(char *content) {
   struct editable_field __efield;

@@ -4,9 +4,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include <keys.h>
-#include <sessions.h>
-#include <users.h>
+#include "keys.h"
+#include "util.h"
 
 // should be ansi escape codes under \x1b[...m
 // if not prepared accordingly, it might break
@@ -63,6 +62,8 @@ struct strings {
 
 struct behavior {
   bool include_defshell;
+  struct Vector source;
+  struct Vector user_source;
 };
 
 struct config {

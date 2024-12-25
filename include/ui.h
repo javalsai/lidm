@@ -1,8 +1,8 @@
 #ifndef _UIH_
 #define _UIH_
 
-#include <config.h>
-#include <util.h>
+#include "config.h"
+#include "util.h"
 
 void setup(struct config);
 int load(struct Vector * users, struct Vector * sessions);
