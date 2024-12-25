@@ -1,6 +1,7 @@
 #ifndef _CONFIGH_
 #define _CONFIGH_
 
+#include "util.h"
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -63,6 +64,8 @@ struct strings {
 
 struct behavior {
   bool include_defshell;
+  struct Vector source;
+  struct Vector user_source;
 };
 
 struct config {

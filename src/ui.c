@@ -10,6 +10,7 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/reboot.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <termios.h>
 #include <time.h>
@@ -394,7 +395,7 @@ int load(struct Vector *users, struct Vector *sessions) {
     } else {
       if (len == 1 && *seq == '\n') {
         if (!launch(get_current_user().username, of_passwd.efield.content,
-                    get_current_session(), &restore_all)) {
+                    get_current_session(), &restore_all, &behavior)) {
           print_passwd(box_start(), of_passwd.efield.length, true);
           ffield_cursor_focus();
         }

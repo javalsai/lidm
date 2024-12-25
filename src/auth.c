@@ -1,8 +1,11 @@
+#include "config.h"
 #include <grp.h>
 #include <pwd.h>
 #include <security/pam_misc.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/mman.h>
 #include <sys/wait.h>
 
@@ -59,7 +62,40 @@ void *shmalloc(size_t size) {
               -1, 0);
 }
 
-void moarEnv(char *user, struct session session, struct passwd *pw) {
+void sourceFileTry(char *file) {
+  FILE *file2source = fopen(file, "r");
+  if (file2source == NULL)
+    return;
+
+  char *line = NULL;
+  size_t len = 0;
+  ssize_t read;
+
+  while ((read = getline(&line, &len, file2source)) != -1) {
+    if (read == 0 || (read > 0 && *line == '#'))
+      continue;
+    if (line[read - 1] == '\n')
+      line[read - 1] = '\0';
+
+    /* printf("Retrieved line of length %zu:\n", read); */
+    /* printf("%s\n", line); */
+    for (uint i = 1; i < read; i++) {
+      if (line[i] == '=') {
+        /* printf("FOUND '='!\n"); */
+        line[i] = '\0';
+        setenv(line, &line[i + 1], 1);
+        break;
+      }
+    }
+  }
+
+  if (line)
+    free(line);
+  fclose(file2source);
+}
+
+void moarEnv(char *user, struct session session, struct passwd *pw,
+             struct behavior *behavior) {
   if (chdir(pw->pw_dir) == -1)
     print_errno("can't chdir to user home");
 
@@ -81,6 +117,31 @@ void moarEnv(char *user, struct session session, struct passwd *pw) {
     xdg_session_type = "wayland";
   setenv("XDG_SESSION_TYPE", xdg_session_type, true);
 
+  printf("\n\n\n\n\x1b[1m");
+  for (uint32_t i = 0; i < behavior->source.length; i++) {
+    /* printf("DEBUG(source)!!!! %d %s\n", i, (char*)vec_get(&behavior->source,
+     * i)); */
+    sourceFileTry((char *)vec_get(&behavior->source, i));
+  }
+  /* printf("\n"); */
+  if (pw->pw_dir) {
+    uint home_len = strlen(pw->pw_dir);
+    for (uint32_t i = 0; i < behavior->user_source.length; i++) {
+      char *file2sourcepath = (char *)vec_get(&behavior->user_source, i);
+      char *newbuf =
+          malloc(home_len + strlen(file2sourcepath) + 2); // nullbyte and slash
+      if (newbuf == NULL)
+        continue; // cant bother
+      strcpy(newbuf, pw->pw_dir);
+      newbuf[home_len] = '/'; // assume pw_dir doesnt start with '/' :P
+      strcpy(&newbuf[home_len + 1], file2sourcepath);
+
+      /* printf("DEBUG(user_source)!!!! %d %s\n", i, newbuf); */
+      sourceFileTry(newbuf);
+      free(newbuf);
+    }
+  }
+
   /*char *buf;*/
   /*size_t bsize = snprintf(NULL, 0, "/run/user/%d", pw->pw_uid) + 1;*/
   /*buf = malloc(bsize);*/
@@ -92,8 +153,8 @@ void moarEnv(char *user, struct session session, struct passwd *pw) {
   /*setenv("XDG_SEAT", "seat0", true);*/
 }
 
-bool launch(char *user, char *passwd, struct session session,
-            void (*cb)(void)) {
+bool launch(char *user, char *passwd, struct session session, void (*cb)(void),
+            struct behavior *behavior) {
   struct passwd *pw = getpwnam(user);
   if (pw == NULL) {
     print_err("could not get user info");
@@ -140,7 +201,7 @@ bool launch(char *user, char *passwd, struct session session,
     }
 
     free(envlist);
-    moarEnv(user, session, pw);
+    moarEnv(user, session, pw, behavior);
 
     // TODO: chown stdin to user
     // does it inherit stdin from parent and
@@ -168,11 +229,14 @@ bool launch(char *user, char *passwd, struct session session,
 
     // TODO: these will be different due to TryExec
     // and, Exec/TryExec might contain spaces as args
+    printf("\x1b[0m");
     if (session.type == SHELL) {
       clear_screen();
+      fflush(stdout);
       execlp(session.exec, session.exec, NULL);
     } else if (session.type == XORG || session.type == WAYLAND) {
       clear_screen();
+      fflush(stdout);
       execlp(session.exec, session.exec, NULL);
     }
     perror("execl error");
