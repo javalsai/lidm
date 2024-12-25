@@ -123,3 +123,9 @@ The name is just ly but changing "y" with "i", that had a reason but forgot it, 
 * cerealexperiments\_, found a missing newline (had the guts to read the source code, crazy ik)
 * ChatGPT, in times of slow laptops where pages take ages to load, a single tab connected to a bunch of burning cloud GPUs feeding corporate hype is all you need to get quick answers for your questions, as long as you know how to filter AI crap ofc.
 * [My lack of gf](https://www.instagram.com/reel/C8sa3Gltmtq), can't imagine this project being possible if somebody actually cared about me daily.
+
+---
+
+🌟 Finally, consider starring this repo or... 🔪
+
+![star-history](https://api.star-history.com/svg?repos=javalsai/lidm&type=Date)
