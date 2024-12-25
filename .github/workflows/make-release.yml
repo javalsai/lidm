@@ -48,6 +48,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - run: |
+          chage -E -1 nobody
+          passwd -u nobody
+
           cd "assets/pkg/aur"
           chown nobody:nobody . -R
           su - -s /bin/bash nobody -c "$PWD/update-pkgs.sh ${{ inputs.version }}"
