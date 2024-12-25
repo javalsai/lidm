@@ -131,9 +131,9 @@ void moarEnv(char *user, struct session session, struct passwd *pw,
       char *newbuf =
           malloc(home_len + strlen(file2sourcepath) + 2); // nullbyte and slash
       if (newbuf == NULL)
-        continue; // cant bother
+        continue; // can't bother
       strcpy(newbuf, pw->pw_dir);
-      newbuf[home_len] = '/'; // assume pw_dir doesnt start with '/' :P
+      newbuf[home_len] = '/'; // assume pw_dir doesn't start with '/' :P
       strcpy(&newbuf[home_len + 1], file2sourcepath);
 
       /* printf("DEBUG(user_source)!!!! %d %s\n", i, newbuf); */
