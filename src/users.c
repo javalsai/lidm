@@ -5,8 +5,8 @@
 #include <string.h>
 #include <sys/types.h>
 
-#include <users.h>
-#include <util.h>
+#include "users.h"
+#include "util.h"
 
 static struct user __new_user(struct passwd *p) {
   struct user __user;

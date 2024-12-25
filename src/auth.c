@@ -1,4 +1,3 @@
-#include "config.h"
 #include <grp.h>
 #include <pwd.h>
 #include <security/pam_misc.h>
@@ -9,11 +8,12 @@
 #include <sys/mman.h>
 #include <sys/wait.h>
 
-#include <auth.h>
-#include <sessions.h>
-#include <ui.h>
-#include <unistd.h>
-#include <util.h>
+#include "auth.h"
+#include "config.h"
+#include "sessions.h"
+#include "ui.h"
+#include "unistd.h"
+#include "util.h"
 
 int pam_conversation(int num_msg, const struct pam_message **msg,
                      struct pam_response **resp, void *appdata_ptr) {

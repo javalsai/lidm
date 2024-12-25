@@ -7,8 +7,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <sessions.h>
-#include <util.h>
+#include "sessions.h"
+#include "util.h"
 
 struct source_dir {
   enum session_type type;

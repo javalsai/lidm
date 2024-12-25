@@ -5,9 +5,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <keys.h>
-#include <ui.h>
-#include <util.h>
+#include "keys.h"
+#include "ui.h"
+#include "util.h"
 
 static int selret_magic();
 

@@ -4,12 +4,12 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <chvt.h>
-#include <config.h>
-#include <sessions.h>
-#include <ui.h>
-#include <users.h>
-#include <util.h>
+#include "chvt.h"
+#include "config.h"
+#include "sessions.h"
+#include "ui.h"
+#include "users.h"
+#include "util.h"
 
 int main(int argc, char *argv[]) {
   if (argc == 2)

@@ -1,13 +1,11 @@
 #ifndef _CONFIGH_
 #define _CONFIGH_
 
-#include "util.h"
 #include <stdbool.h>
 #include <stdio.h>
 
-#include <keys.h>
-#include <sessions.h>
-#include <users.h>
+#include "keys.h"
+#include "util.h"
 
 // should be ansi escape codes under \x1b[...m
 // if not prepared accordingly, it might break

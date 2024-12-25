@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <chvt.h>
+#include "chvt.h"
 
 static char *vterms[] = {"/dev/tty", "/dev/tty0", "/dev/vc/0", "/dev/systty",
                          "/dev/console"};

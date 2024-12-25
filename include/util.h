@@ -1,10 +1,10 @@
 #ifndef _UTILH_
 #define _UTILH_
 
-#include <keys.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <sys/types.h>
+#include "keys.h"
+#include "stdbool.h"
+#include "stdint.h"
+#include "sys/types.h"
 
 enum keys find_keyname(char *);
 enum keys find_ansi(char *);

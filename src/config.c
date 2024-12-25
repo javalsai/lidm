@@ -1,8 +1,8 @@
-#include "util.h"
 #include <string.h>
 #include <sys/stat.h>
 
-#include <config.h>
+#include "config.h"
+#include "util.h"
 
 bool line_parser(FILE *fd, ssize_t *blksize,
                  u_char (*cb)(char *key, char *value)) {
