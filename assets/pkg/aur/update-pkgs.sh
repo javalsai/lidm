@@ -16,6 +16,13 @@ for pkg in "$MYDIR"/lidm{,-bin}/; do
     printf "\x1b[1mEntering '%s'\x1b[0m\n" "$pkg"
     sed -i "s/pkgver=.*/pkgver=$1/" PKGBUILD
     sed -i "s/pkgrel=.*/pkgrel=1/" PKGBUILD
+
+    grep 'source = ' <.SRCINFO | awk -F'= |::' '{print $2}' | \
+    while read -r srcfile; do
+        printf "\x1b[31mDeleting '%s'\x1b[0m\n" "$srcfile"
+        rm -f "$srcfile"
+    done
+
     updpkgsums
     makepkg --printsrcinfo | tee .SRCINFO
     echo
