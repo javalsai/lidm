@@ -5,7 +5,6 @@ pkgbase = lidm-bin
 	url = https://github.com/javalsai/lidm
 	arch = x86_64
 	license = GPL
-	makedepends = gzip
 	depends = pam
 	provides = lidm
 	conflicts = lidm

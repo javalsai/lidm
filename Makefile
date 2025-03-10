@@ -36,7 +36,6 @@ install: lidm
 	install -Dm644 ./themes/default.ini ${DESTDIR}/etc/lidm.ini
 	install -Dm644 ./assets/man/lidm.1 ${DESTDIR}${PREFIX}/share/man/man1/
 	install -Dm644 ./assets/man/lidm-config.5 ${DESTDIR}${PREFIX}/share/man/man5/
-	gzip -f ${DESTDIR}${PREFIX}/share/man/man{1/lidm.1,5/lidm-config.5}
 
 uninstall:
 	rm -rf ${DESTDIR}${PREFIX}/bin/lidm ${DESTDIR}/etc/lidm.ini
