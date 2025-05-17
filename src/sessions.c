@@ -89,7 +89,7 @@ static int fn(const char *fpath, const struct stat *sb, int typeflag) {
 
   // just add this to the list
   if (name_buf != NULL && exec_buf != NULL) {
-    struct session *session_i = malloc(sizeof (struct session));
+    struct session *session_i = malloc(sizeof(struct session));
     *session_i = __new_session(session_type, name_buf, exec_buf,
                                tryexec_buf == NULL ? "" : tryexec_buf);
     vec_push(cb_sessions, session_i);

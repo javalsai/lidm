@@ -68,7 +68,6 @@ static int selret_magic() {
   return select(1, &set, NULL, NULL, &timeout);
 }
 
-
 // Vector shii
 struct Vector vec_new() {
   struct Vector vec;
@@ -76,7 +75,7 @@ struct Vector vec_new() {
   return vec;
 }
 
-int vec_push(struct Vector* vec, void* item) {
+int vec_push(struct Vector *vec, void *item) {
   if (vec->length >= vec->alloc_len) {
     uint32_t new_size = vec->alloc_len + vec->alloc_size;
     void **new_location = realloc(vec->pages, vec->alloc_size);
@@ -93,33 +92,33 @@ int vec_push(struct Vector* vec, void* item) {
   return 0;
 }
 
-void vec_free(struct Vector* vec) {
-  while(vec->length > 0)
+void vec_free(struct Vector *vec) {
+  while (vec->length > 0)
     free(vec->pages[--vec->length]);
 
   vec_clear(vec);
 }
 
-void vec_clear(struct Vector* vec) {
+void vec_clear(struct Vector *vec) {
   free(vec->pages);
   vec_reset(vec);
 }
 
-void vec_reset(struct Vector* vec) {
+void vec_reset(struct Vector *vec) {
   vec->length = 0;
   vec->alloc_len = 0;
   vec->alloc_size = 4096; // 4KiB page size?
   vec->pages = NULL;
 }
 
-void* vec_pop(struct Vector* vec) {
+void *vec_pop(struct Vector *vec) {
   if (vec->length == 0)
     return NULL;
 
   return vec->pages[--vec->length];
 }
 
-void* vec_get(struct Vector* vec, size_t index) {
+void *vec_get(struct Vector *vec, size_t index) {
   if (index >= vec->length)
     return NULL;
 
