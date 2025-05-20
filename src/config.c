@@ -27,17 +27,27 @@ bool line_parser(FILE *fd, ssize_t *blksize,
       free(buf);
       return false;
     }
-    if ((read = sscanf(buf, "%[^ ] = %[^\n]\n", key, buf)) != 0) {
-      u_char ret = cb(key, buf);
+    char *value = malloc(read_size);
+    if (value == NULL) {
+      free(buf);
+      return false;
+    }
+    if ((read = sscanf(buf, "%[^ ] = %[^\n]\n", key, value)) != 0) {
+      u_char ret = cb(key, value);
       if (ret & 0b0100)
         free(key);
       if (ret & 0b0010)
+        free(value);
+      if (ret & 0b1000) {
         free(buf);
-      if (ret & 0b1000)
         return false;
-      if (ret & 0b0001)
+	    }
+	    if (ret & 0b0001) {
+		    free(buf);
         break;
+	    }
     }
+	  free(buf);
   }
 
   return true;
@@ -85,12 +95,18 @@ u_char config_line_handler(char *k, char *v) {
     __config->theme.chars.cbl = v;
   else if (strcmp(k, "chars.cbr") == 0)
     __config->theme.chars.cbr = v;
-  else if (strcmp(k, "functions.poweroff") == 0)
+  else if (strcmp(k, "functions.poweroff") == 0) {
     __config->functions.poweroff = find_keyname(v);
-  else if (strcmp(k, "functions.reboot") == 0)
+    return 0b0110;
+  }
+  else if (strcmp(k, "functions.reboot") == 0) {
     __config->functions.reboot = find_keyname(v);
-  else if (strcmp(k, "functions.refresh") == 0)
+    return 0b0110;
+  }
+  else if (strcmp(k, "functions.refresh") == 0) {
     __config->functions.refresh = find_keyname(v);
+    return 0b0110;
+  }
   else if (strcmp(k, "strings.f_poweroff") == 0)
     __config->strings.f_poweroff = v;
   else if (strcmp(k, "strings.f_reboot") == 0)
@@ -107,8 +123,10 @@ u_char config_line_handler(char *k, char *v) {
     __config->strings.s_xorg = v;
   else if (strcmp(k, "strings.s_shell") == 0)
     __config->strings.s_shell = v;
-  else if (strcmp(k, "behavior.include_defshell") == 0)
+  else if (strcmp(k, "behavior.include_defshell") == 0) {
     __config->behavior.include_defshell = strcmp(v, "true") == 0;
+    return 0b0110;
+  }
   else if (strcmp(k, "behavior.source") == 0)
     vec_push(&__config->behavior.source, v);
   else if (strcmp(k, "behavior.user_source") == 0)
