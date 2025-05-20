@@ -72,7 +72,7 @@ static int selret_magic() {
 // Vector shii
 struct Vector vec_new() {
   struct Vector vec;
-  vec_clear(&vec);
+  vec_reset(&vec);
   return vec;
 }
 

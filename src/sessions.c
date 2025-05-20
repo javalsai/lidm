@@ -63,25 +63,25 @@ static int fn(const char *fpath, const struct stat *sb, int typeflag) {
     }
 
     uint read;
-    char *key = malloc(read_size);
-    if ((read = sscanf(buf, "%[^=]=%[^\n]\n", key, buf)) != 0) {
+    char *key = malloc(read_size + sizeof(char));
+    char *value = malloc(read_size + sizeof(char));
+    if ((read = sscanf(buf, "%[^=]=%[^\n]\n", key, value)) != 0) {
       if (strcmp(key, "Name") == 0) {
         found &= 0b001;
-        name_buf = realloc(buf, read);
+        name_buf = realloc(value, strlen(value) + sizeof(char));
       } else if (strcmp(key, "Exec") == 0) {
         found &= 0b010;
-        exec_buf = realloc(buf, read);
+        exec_buf = realloc(value, strlen(value) + sizeof(char));
       } else if (strcmp(key, "TryExec") == 0) {
         found &= 0b100;
-        tryexec_buf = realloc(buf, read);
-      } else
-        free(buf);
-    } else
-      free(buf);
+        tryexec_buf = realloc(value, strlen(value) + sizeof(char));
+      } else {
+        free(value);
+      }
+	}
     free(key);
-
-    if (found == 0b111)
-      break;
+	  free(buf);
+    if (found == 0b111) break;
   }
   /*printf("\nend parsing...\n");*/
 
