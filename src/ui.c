@@ -26,6 +26,7 @@
 #include "ui_state.h"
 #include "users.h"
 #include "util.h"
+#include "launch_state.h"
 
 const u_char INPUTS_N = 3;
 
@@ -198,6 +199,14 @@ int load(struct Vector* users, struct Vector* sessions) {
   of_user = ofield_new(users->length);
   of_passwd = ofield_new(0);
 
+  struct LaunchState initial_state = read_launch_state();
+  if(initial_state.user_opt > users->length || initial_state.session_opt > sessions->length + behavior.include_defshell) {
+	  initial_state.user_opt = 1;
+	  initial_state.session_opt = 1;
+  }
+  of_user.current_opt = initial_state.user_opt;
+  of_session.current_opt = initial_state.session_opt;
+
   /// PRINTING
   const struct uint_point BOXSTART = box_start();
 
@@ -254,6 +263,11 @@ int load(struct Vector* users, struct Vector* sessions) {
       }
     } else {
       if (len == 1 && *seq == '\n') {
+        struct LaunchState ls;
+		ls.user_opt = of_user.current_opt;
+		ls.session_opt = of_session.current_opt;
+		write_launch_state(ls);
+
         if (!launch(st_user().username, of_passwd.efield.content,
                     st_session(g_config->behavior.include_defshell),
                     &restore_all, g_config)) {
