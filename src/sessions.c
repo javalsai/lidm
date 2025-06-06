@@ -54,6 +54,7 @@ static int fn(const char *fpath, const struct stat *sb, int typeflag) {
   char *exec_buf = NULL;
   char *tryexec_buf = NULL;
   // This should be made a specific function
+  // Emm, if anything goes wrong just free the inner loop and `break;` fd and the rest is handled after
   while (true) {
     char *buf = malloc(sb->st_blksize);
     ssize_t read_size = getline(&buf, &alloc_size, fd);
@@ -64,7 +65,19 @@ static int fn(const char *fpath, const struct stat *sb, int typeflag) {
 
     uint read;
     char *key = malloc(read_size + sizeof(char));
+    if(key == NULL) {
+      free(buf);
+      // TODO: more sophisticated error handling??
+      break;
+    }
     char *value = malloc(read_size + sizeof(char));
+    if(value == NULL) {
+      free(buf);
+      free(key);
+      // TODO: more sophisticated error handling??
+      break;
+    }
+    value[0] = '\0'; // I'm not sure if sscanf would null this string out
     if ((read = sscanf(buf, "%[^=]=%[^\n]\n", key, value)) != 0) {
       if (strcmp(key, "Name") == 0) {
         found &= 0b001;
@@ -78,12 +91,16 @@ static int fn(const char *fpath, const struct stat *sb, int typeflag) {
       } else {
         free(value);
       }
-	}
+    } else {
+      free(value);
+    }
     free(key);
-	  free(buf);
+    free(buf);
     if (found == 0b111) break;
   }
   /*printf("\nend parsing...\n");*/
+
+  // Generic handling of exit
 
   fclose(fd);
 

@@ -4,6 +4,14 @@
 #include "config.h"
 #include "util.h"
 
+// Alr so ima explain the bitfield returned by `cb` a bit
+// 4 bits:
+//  0b0001: break out of parsing (returning true)
+//  0b0010: free the value
+//  0b0100: free the key
+//  0b1000: break out of parsing (returning false)
+//
+// This would return true if everything goes fine, false otherwise (malloc error, broke parsing, etc)
 bool line_parser(FILE *fd, ssize_t *blksize,
                  u_char (*cb)(char *key, char *value)) {
   size_t opt_size = 4096;
@@ -41,19 +49,20 @@ bool line_parser(FILE *fd, ssize_t *blksize,
       if (ret & 0b1000) {
         free(buf);
         return false;
-	    }
-	    if (ret & 0b0001) {
-		    free(buf);
+      }
+      if (ret & 0b0001) {
+        free(buf);
         break;
-	    }
+      }
     }
-	  free(buf);
+    free(buf);
   }
 
   return true;
 }
 
 struct config *__config;
+// Yanderedev code (wanna fix this with a table or smth)
 u_char config_line_handler(char *k, char *v) {
   if (strcmp(k, "colors.bg") == 0)
     __config->theme.colors.bg = v;
@@ -98,16 +107,13 @@ u_char config_line_handler(char *k, char *v) {
   else if (strcmp(k, "functions.poweroff") == 0) {
     __config->functions.poweroff = find_keyname(v);
     return 0b0110;
-  }
-  else if (strcmp(k, "functions.reboot") == 0) {
+  } else if (strcmp(k, "functions.reboot") == 0) {
     __config->functions.reboot = find_keyname(v);
     return 0b0110;
-  }
-  else if (strcmp(k, "functions.refresh") == 0) {
+  } else if (strcmp(k, "functions.refresh") == 0) {
     __config->functions.refresh = find_keyname(v);
     return 0b0110;
-  }
-  else if (strcmp(k, "strings.f_poweroff") == 0)
+  } else if (strcmp(k, "strings.f_poweroff") == 0)
     __config->strings.f_poweroff = v;
   else if (strcmp(k, "strings.f_reboot") == 0)
     __config->strings.f_reboot = v;
@@ -126,15 +132,14 @@ u_char config_line_handler(char *k, char *v) {
   else if (strcmp(k, "behavior.include_defshell") == 0) {
     __config->behavior.include_defshell = strcmp(v, "true") == 0;
     return 0b0110;
-  }
-  else if (strcmp(k, "behavior.source") == 0)
+  } else if (strcmp(k, "behavior.source") == 0)
     vec_push(&__config->behavior.source, v);
   else if (strcmp(k, "behavior.user_source") == 0)
     vec_push(&__config->behavior.user_source, v);
   else
     return 0b1111;
 
-  return 0b100;
+  return 0b0100;
 }
 
 struct config *parse_config(char *path) {
