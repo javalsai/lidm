@@ -322,6 +322,7 @@ void ffield_type(char *text) {
   print_ffield();
 }
 
+static char* unknown_str = "unknown";
 int load(struct Vector *users, struct Vector *sessions) {
   /// SETUP
   gusers = users;
@@ -331,9 +332,9 @@ int load(struct Vector *users, struct Vector *sessions) {
   char *hostname = malloc(16);
   if (gethostname(hostname, 16) != 0) {
     free(hostname);
-    hostname = "unknown";
+    hostname = unknown_str;
   } else {
-    hostname = realloc(hostname, strlen(hostname) + 1);
+    hostname[15] = '\0';
   }
 
   of_session = ofield_new(sessions->length + behavior.include_defshell);
@@ -350,12 +351,14 @@ int load(struct Vector *users, struct Vector *sessions) {
   printf("\x1b[%d;%dH\x1b[%sm%s\x1b[%sm", boxstart.y + 2,
          boxstart.x + 12 - (uint)strlen(hostname), theme.colors.e_hostname,
          hostname, theme.colors.fg);
+  if(hostname != unknown_str) free(hostname);
 
   // put date
   char *fmtd_time = fmt_time();
   printf("\x1b[%d;%dH\x1b[%sm%s\x1b[%sm", boxstart.y + 2,
          boxstart.x + boxw - 3 - (uint)strlen(fmtd_time), theme.colors.e_date,
          fmtd_time, theme.colors.fg);
+  free(fmtd_time);
 
   print_field(SESSION);
   print_field(USER);

@@ -125,6 +125,7 @@ static int fn(const char *fpath, const struct stat *sb, int typeflag) {
 // This code is designed to be run purely single threaded
 struct Vector get_avaliable_sessions() {
   struct Vector sessions = vec_new();
+  vec_reserve(&sessions, 8);
 
   cb_sessions = &sessions;
   for (size_t i = 0; i < (sizeof(sources) / sizeof(sources[0])); i++) {
