@@ -23,6 +23,7 @@ static struct user __new_user(struct passwd *p) {
 // This code is designed to be run purely single threaded
 struct Vector get_human_users() {
   struct Vector users = vec_new();
+  vec_reserve(&users, 4);
 
   struct passwd *pwd;
   while ((pwd = getpwent()) != NULL) {

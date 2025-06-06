@@ -75,20 +75,41 @@ struct Vector vec_new() {
   return vec;
 }
 
-int vec_push(struct Vector *vec, void *item) {
-  if (vec->length >= vec->alloc_len) {
-    uint32_t new_size = vec->alloc_len + vec->alloc_size;
-    void **new_location = realloc(vec->pages, vec->alloc_size);
-    if (new_location != NULL) {
-      vec->alloc_size = new_size;
-      vec->pages = new_location;
-    } else {
-      return -1;
-    }
+int vec_resize(struct Vector *vec, size_t size) {
+  void **new_location = realloc(vec->pages, size * sizeof(void*));
+  if (new_location != NULL) {
+    if (vec->length > size)
+      vec->length = size;
+    vec->capacity = size;
+    vec->pages = new_location;
+  } else {
+    return -1;
   }
+  return 0;
+}
 
-  vec->pages[vec->length] = item;
-  vec->length++;
+int vec_reserve(struct Vector *vec, size_t size) {
+  uint32_t new_capacity = vec->capacity;
+  while (vec->length + size > new_capacity) {
+    new_capacity = new_capacity + (new_capacity >> 1) + 1; // cap * 1.5 + 1; 0 1 2 4 7 11...
+  }
+  return vec_resize(vec, new_capacity);
+}
+
+int vec_reserve_exact(struct Vector *vec, size_t size) {
+  uint32_t needed_capacity = vec->length + size;
+  if (vec->capacity < needed_capacity) {
+    return vec_resize(vec, needed_capacity);
+  } else {
+    return 0;
+  }
+}
+
+int vec_push(struct Vector *vec, void *item) {
+  int res_ret = vec_reserve(vec, 1);
+  if(res_ret != 0) return res_ret;
+
+  vec->pages[vec->length++] = item;
   return 0;
 }
 
@@ -106,8 +127,7 @@ void vec_clear(struct Vector *vec) {
 
 void vec_reset(struct Vector *vec) {
   vec->length = 0;
-  vec->alloc_len = 0;
-  vec->alloc_size = 4096; // 4KiB page size?
+  vec->capacity = 0;
   vec->pages = NULL;
 }
 

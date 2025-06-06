@@ -15,12 +15,14 @@ void strcln(char **dest, const char *source);
 
 struct Vector {
   uint32_t length;
-  uint32_t alloc_len;
-  uint16_t alloc_size;
+  uint32_t capacity;
   void **pages;
 };
 
 struct Vector vec_new();
+int vec_resize(struct Vector *, size_t size);
+int vec_reserve(struct Vector *, size_t size);
+int vec_reserve_exact(struct Vector *, size_t size);
 int vec_push(struct Vector *, void *item);
 void vec_free(struct Vector *);
 void vec_clear(struct Vector *);
