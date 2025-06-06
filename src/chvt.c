@@ -5,11 +5,11 @@
 
 #include "chvt.h"
 
-static char *vterms[] = {"/dev/tty", "/dev/tty0", "/dev/vc/0", "/dev/systty",
+static char* vterms[] = {"/dev/tty", "/dev/tty0", "/dev/vc/0", "/dev/systty",
                          "/dev/console"};
 
-int chvt_str(char *str) {
-  char *err;
+int chvt_str(char* str) {
+  char* err;
   errno = 0;
   long i = strtol(str, &err, 10);
   if (errno) {
@@ -17,8 +17,7 @@ int chvt_str(char *str) {
     return -1;
   }
   // I'm not gonna elaborate on this....
-  if (i > INT_MAX || i < INT_MIN || *err)
-    return -1;
+  if (i > INT_MAX || i < INT_MIN || *err) return -1;
 
   return chvt((int)i);
 }

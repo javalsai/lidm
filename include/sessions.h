@@ -12,9 +12,9 @@ enum session_type {
 };
 
 struct session {
-  char *name;
-  char *exec;
-  char *tryexec;
+  char* name;
+  char* exec;
+  char* tryexec;
   enum session_type type;
 };
 

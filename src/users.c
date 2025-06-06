@@ -8,7 +8,7 @@
 #include "users.h"
 #include "util.h"
 
-static struct user __new_user(struct passwd *p) {
+static struct user __new_user(struct passwd* p) {
   struct user __user;
   strcln(&__user.shell, p->pw_shell);
   strcln(&__user.username, p->pw_name);
@@ -25,12 +25,11 @@ struct Vector get_human_users() {
   struct Vector users = vec_new();
   vec_reserve(&users, 4);
 
-  struct passwd *pwd;
+  struct passwd* pwd;
   while ((pwd = getpwent()) != NULL) {
-    if (!(pwd->pw_dir && strncmp(pwd->pw_dir, "/home/", 6) == 0))
-      continue;
+    if (!(pwd->pw_dir && strncmp(pwd->pw_dir, "/home/", 6) == 0)) continue;
 
-    struct user *user_i = malloc(sizeof(struct user));
+    struct user* user_i = malloc(sizeof(struct user));
     *user_i = __new_user(pwd);
     vec_push(&users, user_i);
   }

@@ -12,15 +12,17 @@
 
 struct source_dir {
   enum session_type type;
-  char *dir;
+  char* dir;
 };
 static const struct source_dir sources[] = {
     {XORG, "/usr/share/xsessions"},
     {WAYLAND, "/usr/share/wayland-sessions"},
 };
 
-static struct session __new_session(enum session_type type, char *name,
-                                    const char *exec, const char *tryexec) {
+static struct session __new_session(enum session_type type,
+                                    char* name,
+                                    const char* exec,
+                                    const char* tryexec) {
   struct session __session;
   __session.type = type;
   strcln(&__session.name, name);
@@ -30,17 +32,16 @@ static struct session __new_session(enum session_type type, char *name,
   return __session;
 }
 
-static struct Vector *cb_sessions = NULL;
+static struct Vector* cb_sessions = NULL;
 
 // NOTE: commented printf's here would be nice to have debug logs if I ever
 // implement it
 static enum session_type session_type;
-static int fn(const char *fpath, const struct stat *sb, int typeflag) {
-  if (sb == NULL || !S_ISREG(sb->st_mode))
-    return 0;
+static int fn(const char* fpath, const struct stat* sb, int typeflag) {
+  if (sb == NULL || !S_ISREG(sb->st_mode)) return 0;
 
   /*printf("gonna open %s\n", fpath);*/
-  FILE *fd = fopen(fpath, "r");
+  FILE* fd = fopen(fpath, "r");
   if (fd == NULL) {
     perror("fopen");
     fprintf(stderr, "error opening file (r) '%s'\n", fpath);
@@ -50,13 +51,14 @@ static int fn(const char *fpath, const struct stat *sb, int typeflag) {
   u_char found = 0;
   size_t alloc_size = sb->st_blksize;
 
-  char *name_buf = NULL;
-  char *exec_buf = NULL;
-  char *tryexec_buf = NULL;
+  char* name_buf = NULL;
+  char* exec_buf = NULL;
+  char* tryexec_buf = NULL;
   // This should be made a specific function
-  // Emm, if anything goes wrong just free the inner loop and `break;` fd and the rest is handled after
+  // Emm, if anything goes wrong just free the inner loop and `break;` fd and
+  // the rest is handled after
   while (true) {
-    char *buf = malloc(sb->st_blksize);
+    char* buf = malloc(sb->st_blksize);
     ssize_t read_size = getline(&buf, &alloc_size, fd);
     if (read_size == -1) {
       free(buf);
@@ -64,14 +66,14 @@ static int fn(const char *fpath, const struct stat *sb, int typeflag) {
     }
 
     uint read;
-    char *key = malloc(read_size + sizeof(char));
-    if(key == NULL) {
+    char* key = malloc(read_size + sizeof(char));
+    if (key == NULL) {
       free(buf);
       // TODO: more sophisticated error handling??
       break;
     }
-    char *value = malloc(read_size + sizeof(char));
-    if(value == NULL) {
+    char* value = malloc(read_size + sizeof(char));
+    if (value == NULL) {
       free(buf);
       free(key);
       // TODO: more sophisticated error handling??
@@ -106,18 +108,15 @@ static int fn(const char *fpath, const struct stat *sb, int typeflag) {
 
   // just add this to the list
   if (name_buf != NULL && exec_buf != NULL) {
-    struct session *session_i = malloc(sizeof(struct session));
+    struct session* session_i = malloc(sizeof(struct session));
     *session_i = __new_session(session_type, name_buf, exec_buf,
                                tryexec_buf == NULL ? "" : tryexec_buf);
     vec_push(cb_sessions, session_i);
   }
 
-  if (name_buf != NULL)
-    free(name_buf);
-  if (exec_buf != NULL)
-    free(exec_buf);
-  if (tryexec_buf != NULL)
-    free(tryexec_buf);
+  if (name_buf != NULL) free(name_buf);
+  if (exec_buf != NULL) free(exec_buf);
+  if (tryexec_buf != NULL) free(tryexec_buf);
 
   return 0;
 }

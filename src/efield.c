@@ -3,7 +3,7 @@
 #include "efield.h"
 #include "ui.h"
 
-struct editable_field field_new(char *content) {
+struct editable_field field_new(char* content) {
   struct editable_field __efield;
   if (content != NULL) {
     __efield.length = __efield.pos = strlen(content);
@@ -15,23 +15,20 @@ struct editable_field field_new(char *content) {
   return __efield;
 }
 
-void field_trim(struct editable_field *field, u_char pos) {
+void field_trim(struct editable_field* field, u_char pos) {
   field->length = field->pos = pos;
   field->content[field->length] = '\0';
 }
 
-void field_update(struct editable_field *field, char *update) {
+void field_update(struct editable_field* field, char* update) {
   u_char insert_len = strlen(update);
-  if (insert_len == 0)
-    return;
+  if (insert_len == 0) return;
 
-  if (field->pos > field->length)
-    field->pos = field->length; // WTF
+  if (field->pos > field->length) field->pos = field->length; // WTF
   if (insert_len == 1) {
     // backspace
     if (*update == 127) {
-      if (field->pos == 0)
-        return;
+      if (field->pos == 0) return;
       if (field->pos < field->length) {
         memmove(&field->content[field->pos - 1], &field->content[field->pos],
                 field->length - field->pos);
@@ -60,9 +57,8 @@ void field_update(struct editable_field *field, char *update) {
 }
 
 // returns bool depending if it was able to "use" the seek
-bool field_seek(struct editable_field *field, char seek) {
-  if (field->length == 0)
-    return false;
+bool field_seek(struct editable_field* field, char seek) {
+  if (field->length == 0) return false;
 
   if (seek < 0 && -seek > field->pos)
     field->pos = 0;
@@ -71,8 +67,7 @@ bool field_seek(struct editable_field *field, char seek) {
   else
     field->pos += seek;
 
-  if (field->pos > field->length)
-    field->pos = field->length;
+  if (field->pos > field->length) field->pos = field->length;
 
   return true;
 }
