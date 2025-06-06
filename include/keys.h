@@ -34,7 +34,7 @@ enum keys {
   PAGE_DOWN,
 };
 
-static const char *const key_names[] = {
+static const char* const key_names[] = {
     [ESC] = "ESC",
     [F1] = "F1",
     [F2] = "F2",
@@ -67,7 +67,7 @@ static const char *const key_names[] = {
 
 struct key_mapping {
   enum keys key;
-  const char *sequences[3];
+  const char* sequences[3];
 };
 
 static const struct key_mapping key_mappings[] = {

@@ -11,18 +11,18 @@
 //  0b0100: free the key
 //  0b1000: break out of parsing (returning false)
 //
-// This would return true if everything goes fine, false otherwise (malloc error, broke parsing, etc)
-bool line_parser(FILE *fd, ssize_t *blksize,
-                 u_char (*cb)(char *key, char *value)) {
+// This would return true if everything goes fine, false otherwise (malloc
+// error, broke parsing, etc)
+bool line_parser(FILE* fd,
+                 ssize_t* blksize,
+                 u_char (*cb)(char* key, char* value)) {
   size_t opt_size = 4096;
-  if (blksize != NULL)
-    opt_size = *blksize;
+  if (blksize != NULL) opt_size = *blksize;
 
   while (true) {
     size_t alloc_size = opt_size;
-    char *buf = malloc(alloc_size);
-    if (buf == NULL)
-      return false;
+    char* buf = malloc(alloc_size);
+    if (buf == NULL) return false;
     ssize_t read_size = getline(&buf, &alloc_size, fd);
     if (read_size == -1) {
       free(buf);
@@ -30,22 +30,20 @@ bool line_parser(FILE *fd, ssize_t *blksize,
     }
 
     uint read;
-    char *key = malloc(read_size);
+    char* key = malloc(read_size);
     if (key == NULL) {
       free(buf);
       return false;
     }
-    char *value = malloc(read_size);
+    char* value = malloc(read_size);
     if (value == NULL) {
       free(buf);
       return false;
     }
     if ((read = sscanf(buf, "%[^ ] = %[^\n]\n", key, value)) != 0) {
       u_char ret = cb(key, value);
-      if (ret & 0b0100)
-        free(key);
-      if (ret & 0b0010)
-        free(value);
+      if (ret & 0b0100) free(key);
+      if (ret & 0b0010) free(value);
       if (ret & 0b1000) {
         free(buf);
         return false;
@@ -61,9 +59,9 @@ bool line_parser(FILE *fd, ssize_t *blksize,
   return true;
 }
 
-struct config *__config;
+struct config* __config;
 // Yanderedev code (wanna fix this with a table or smth)
-u_char config_line_handler(char *k, char *v) {
+u_char config_line_handler(char* k, char* v) {
   if (strcmp(k, "colors.bg") == 0)
     __config->theme.colors.bg = v;
   else if (strcmp(k, "colors.fg") == 0)
@@ -142,9 +140,9 @@ u_char config_line_handler(char *k, char *v) {
   return 0b0100;
 }
 
-struct config *parse_config(char *path) {
+struct config* parse_config(char* path) {
   struct stat sb;
-  FILE *fd = fopen(path, "r");
+  FILE* fd = fopen(path, "r");
   if (fd == NULL || (stat(path, &sb) == -1)) {
     perror("fopen");
     return NULL;
@@ -154,9 +152,8 @@ struct config *parse_config(char *path) {
   __config->behavior.source = vec_new();
   __config->behavior.user_source = vec_new();
 
-  if (__config == NULL)
-    return NULL;
-  bool ret = line_parser(fd, (ssize_t *)&sb.st_blksize, config_line_handler);
+  if (__config == NULL) return NULL;
+  bool ret = line_parser(fd, (ssize_t*)&sb.st_blksize, config_line_handler);
   if (!ret) {
     free(__config);
     return NULL;

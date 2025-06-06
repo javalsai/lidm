@@ -14,7 +14,7 @@ For small fixes or incremental improvements simply fork the repo and follow the 
     - Configure clangd LSP by generating `compile_commands.json` (e.g. `bear -- make` or `compiledb make`)
     - Implement your feature.
     - Check your code works as expected.
-    - Run the code formatter: `clang-format -i $(git ls-files "*.cpp" "*.h")`
+    - Run the code formatter: `clang-format -i $(git ls-files "*.c" "*.h")`
 
 3. Commit your changes to a new branch (not `master`, one change per branch) and push it:
     - Commit messages should:

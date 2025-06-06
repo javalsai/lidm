@@ -90,7 +90,7 @@ static struct uint_point box_start() {
   return __start;
 }
 
-static char *fmt_time() {
+static char* fmt_time() {
   time_t t = time(NULL);
   struct tm tm = *localtime(&t);
 
@@ -98,7 +98,7 @@ static char *fmt_time() {
       snprintf(NULL, 0, "%d-%02d-%02d %02d:%02d:%02d", tm.tm_year + 1900,
                tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec) +
       1;
-  char *buf = malloc(bsize);
+  char* buf = malloc(bsize);
   snprintf(buf, bsize, "%d-%02d-%02d %02d:%02d:%02d", tm.tm_year + 1900,
            tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
   return buf;
@@ -116,7 +116,7 @@ struct opt_field {
   uint current_opt; // 0 is edit mode btw
   struct editable_field efield;
 };
-void print_ofield(struct opt_field *focused_input);
+void print_ofield(struct opt_field* focused_input);
 
 static struct opt_field ofield_new(uint opts) {
   struct opt_field __field;
@@ -128,17 +128,16 @@ static struct opt_field ofield_new(uint opts) {
   }
   return __field;
 }
-static void ofield_toedit(struct opt_field *ofield, char *init) {
+static void ofield_toedit(struct opt_field* ofield, char* init) {
   ofield->current_opt = 0;
   ofield->efield = field_new(init);
 }
-static void ofield_type(struct opt_field *ofield, char *new, char *startstr) {
-  if (ofield->current_opt != 0)
-    ofield_toedit(ofield, startstr);
+static void ofield_type(struct opt_field* ofield, char* new, char* startstr) {
+  if (ofield->current_opt != 0) ofield_toedit(ofield, startstr);
   field_update(&ofield->efield, new);
 }
 // true if it changed anything, single opt fields return false
-static bool ofield_opt_seek(struct opt_field *ofield, char seek) {
+static bool ofield_opt_seek(struct opt_field* ofield, char seek) {
   // TODO: think this
   if (ofield->opts == 0 || (ofield->opts == 1 && ofield->current_opt != 0))
     return false;
@@ -151,22 +150,21 @@ static bool ofield_opt_seek(struct opt_field *ofield, char seek) {
 }
 // true in case it was able to "use" the seek (a empty only editable field
 // wouldn't)
-static bool ofield_seek(struct opt_field *ofield, char seek) {
+static bool ofield_seek(struct opt_field* ofield, char seek) {
   if (ofield->current_opt == 0) {
     if (field_seek(&ofield->efield, seek)) {
       return true;
     }
   }
 
-  if (ofield->opts == 0)
-    return false;
+  if (ofield->opts == 0) return false;
 
   ofield_opt_seek(ofield, seek);
 
   return true;
 }
 
-static u_char ofield_max_displ_pos(struct opt_field *ofield) {
+static u_char ofield_max_displ_pos(struct opt_field* ofield) {
   // TODO: set max cursor pos too
   // keep in mind that also have to keep in mind scrolling and ughhh, mentally
   // blocked, but this is complex
@@ -181,17 +179,14 @@ struct opt_field of_session;
 struct opt_field of_user;
 struct opt_field of_passwd;
 
-struct Vector *gusers;
-struct Vector *gsessions;
+struct Vector* gusers;
+struct Vector* gsessions;
 
 // not *that* OF tho
-struct opt_field *get_of(enum input from) {
-  if (from == SESSION)
-    return &of_session;
-  if (from == USER)
-    return &of_user;
-  if (from == PASSWD)
-    return &of_passwd;
+struct opt_field* get_of(enum input from) {
+  if (from == SESSION) return &of_session;
+  if (from == USER) return &of_user;
+  if (from == PASSWD) return &of_passwd;
   return NULL;
 }
 
@@ -210,7 +205,7 @@ void ffield_cursor_focus() {
   } else if (focused_input == PASSWD)
     line += 9;
 
-  struct opt_field *ofield = get_of(focused_input);
+  struct opt_field* ofield = get_of(focused_input);
   row += ofield->current_opt == 0 ? ofield_max_displ_pos(ofield) : 0;
 
   printf("\x1b[%d;%dH", line, row);
@@ -219,7 +214,7 @@ void ffield_cursor_focus() {
 
 struct user get_current_user() {
   if (of_user.current_opt != 0)
-    return *(struct user*)vec_get(gusers, of_user.current_opt - 1);
+    return *(struct user *)vec_get(gusers, of_user.current_opt - 1);
   else {
     struct user custom_user;
     custom_user.shell = "/usr/bin/bash";
@@ -239,7 +234,7 @@ struct session get_current_session() {
       shell_session.exec = shell_session.name = get_current_user().shell;
       return shell_session;
     } else
-      return *(struct session*)vec_get(gsessions, of_session.current_opt - 1);
+      return *(struct session *)vec_get(gsessions, of_session.current_opt - 1);
   } else {
     struct session custom_session;
     custom_session.type = SHELL;
@@ -263,8 +258,10 @@ void print_field(enum input focused_input) {
   ffield_cursor_focus();
 }
 
-void print_ffield() { print_field(focused_input); }
-void print_ofield(struct opt_field *ofield) {
+void print_ffield() {
+  print_field(focused_input);
+}
+void print_ofield(struct opt_field* ofield) {
   enum input input;
   if (ofield == &of_session)
     input = SESSION;
@@ -290,9 +287,8 @@ void ffield_move(bool direction) {
 
 // tf I'm doing
 void ffield_change_opt(bool direction) {
-  struct opt_field *ffield = get_of(focused_input);
-  if (focused_input == PASSWD)
-    ffield = &of_session;
+  struct opt_field* ffield = get_of(focused_input);
+  if (focused_input == PASSWD) ffield = &of_session;
   if (!ofield_opt_seek(ffield, direction ? 1 : -1)) {
     if (focused_input == PASSWD || focused_input == SESSION)
       ofield_opt_seek(&of_user, direction ? 1 : -1);
@@ -301,7 +297,7 @@ void ffield_change_opt(bool direction) {
   }
 }
 void ffield_change_pos(bool direction) {
-  struct opt_field *ffield = get_of(focused_input);
+  struct opt_field* ffield = get_of(focused_input);
   if (!ofield_seek(ffield, direction ? 1 : -1))
     if (!ofield_opt_seek(&of_session, direction ? 1 : -1))
       ofield_opt_seek(&of_user, direction ? 1 : -1);
@@ -309,9 +305,9 @@ void ffield_change_pos(bool direction) {
   ffield_cursor_focus();
 }
 
-void ffield_type(char *text) {
-  struct opt_field *field = get_of(focused_input);
-  char *start = "";
+void ffield_type(char* text) {
+  struct opt_field* field = get_of(focused_input);
+  char* start = "";
   if (focused_input == USER && of_user.current_opt != 0)
     start = get_current_user().username;
   if (focused_input == SESSION && of_session.current_opt != 0 &&
@@ -323,13 +319,13 @@ void ffield_type(char *text) {
 }
 
 static char* unknown_str = "unknown";
-int load(struct Vector *users, struct Vector *sessions) {
+int load(struct Vector* users, struct Vector* sessions) {
   /// SETUP
   gusers = users;
   gsessions = sessions;
 
   // hostnames larger won't render properly
-  char *hostname = malloc(16);
+  char* hostname = malloc(16);
   if (gethostname(hostname, 16) != 0) {
     free(hostname);
     hostname = unknown_str;
@@ -351,10 +347,10 @@ int load(struct Vector *users, struct Vector *sessions) {
   printf("\x1b[%d;%dH\x1b[%sm%s\x1b[%sm", boxstart.y + 2,
          boxstart.x + 12 - (uint)strlen(hostname), theme.colors.e_hostname,
          hostname, theme.colors.fg);
-  if(hostname != unknown_str) free(hostname);
+  if (hostname != unknown_str) free(hostname);
 
   // put date
-  char *fmtd_time = fmt_time();
+  char* fmtd_time = fmt_time();
   printf("\x1b[%d;%dH\x1b[%sm%s\x1b[%sm", boxstart.y + 2,
          boxstart.x + boxw - 3 - (uint)strlen(fmtd_time), theme.colors.e_date,
          fmtd_time, theme.colors.fg);
@@ -407,12 +403,11 @@ int load(struct Vector *users, struct Vector *sessions) {
         ffield_type(seq);
     }
 
-    if (esc != 0)
-      esc--;
+    if (esc != 0) esc--;
   }
 }
 
-static char *line_cleaner = NULL;
+static char* line_cleaner = NULL;
 static void clean_line(struct uint_point origin, uint line) {
   if (line_cleaner == NULL) {
     line_cleaner = malloc((boxw - 2) * sizeof(char) + 1);
@@ -424,10 +419,11 @@ static void clean_line(struct uint_point origin, uint line) {
 }
 
 // TODO: session_len > 32
-static void print_session(struct uint_point origin, struct session session,
+static void print_session(struct uint_point origin,
+                          struct session session,
                           bool multiple) {
   clean_line(origin, 5);
-  const char *session_type;
+  const char* session_type;
   if (session.type == XORG) {
     session_type = strings.s_xorg;
   } else if (session.type == WAYLAND) {
@@ -439,7 +435,7 @@ static void print_session(struct uint_point origin, struct session session,
          (ulong)(origin.x + 11 - strlen(session_type)), theme.colors.e_header,
          session_type, theme.colors.fg);
 
-  char *session_color;
+  char* session_color;
   if (session.type == XORG) {
     session_color = theme.colors.s_xorg;
   } else if (session.type == WAYLAND) {
@@ -458,14 +454,15 @@ static void print_session(struct uint_point origin, struct session session,
 }
 
 // TODO: user_len > 32
-static void print_user(struct uint_point origin, struct user user,
+static void print_user(struct uint_point origin,
+                       struct user user,
                        bool multiple) {
   clean_line(origin, 7);
   printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm",
          (ulong)(origin.x + 11 - strlen(strings.e_user)), theme.colors.e_header,
          strings.e_user, theme.colors.fg);
 
-  char *user_color = theme.colors.e_user;
+  char* user_color = theme.colors.e_user;
 
   if (multiple) {
     printf("\r\x1b[%dC< \x1b[%sm%s\x1b[%sm >", origin.x + 14, user_color,
@@ -484,7 +481,7 @@ static void print_passwd(struct uint_point origin, uint length, bool err) {
          (ulong)(origin.x + 11 - strlen(strings.e_passwd)),
          theme.colors.e_header, strings.e_passwd, theme.colors.fg);
 
-  char *pass_color;
+  char* pass_color;
   if (err)
     pass_color = theme.colors.e_badpasswd;
   else
@@ -502,13 +499,13 @@ static void print_passwd(struct uint_point origin, uint length, bool err) {
   printf("\x1b[%sm", theme.colors.fg);
 }
 
-static void print_empty_row(uint w, uint n, char *edge1, char *edge2) {
+static void print_empty_row(uint w, uint n, char* edge1, char* edge2) {
   for (size_t i = 0; i < n; i++) {
     printf("%s\x1b[%dC%s\x1b[%dD\x1b[1B", edge1, w, edge2, w + 2);
   }
 }
 
-static void print_row(uint w, uint n, char *edge1, char *edge2, char *filler) {
+static void print_row(uint w, uint n, char* edge1, char* edge2, char* filler) {
   for (size_t i = 0; i < n; i++) {
     printf("%s", edge1);
     for (size_t i = 0; i < w; i++) {
@@ -539,22 +536,23 @@ static void print_footer() {
 
   uint row = window.ws_row - 1;
   uint col = window.ws_col - 2 - bsize;
-  printf("\x1b[%3$d;%4$dH%8$s \x1b[%1$sm%5$s\x1b[%2$sm  %9$s "
-         "\x1b[%1$sm%6$s\x1b[%2$sm  %10$s \x1b[%1$sm%7$s\x1b[%2$sm",
-         theme.colors.e_key, theme.colors.fg, row, col,
-         key_names[functions.poweroff], key_names[functions.reboot],
-         key_names[functions.refresh], strings.f_poweroff, strings.f_reboot,
-         strings.f_refresh);
+  printf(
+      "\x1b[%3$d;%4$dH%8$s \x1b[%1$sm%5$s\x1b[%2$sm  %9$s "
+      "\x1b[%1$sm%6$s\x1b[%2$sm  %10$s \x1b[%1$sm%7$s\x1b[%2$sm",
+      theme.colors.e_key, theme.colors.fg, row, col,
+      key_names[functions.poweroff], key_names[functions.reboot],
+      key_names[functions.refresh], strings.f_poweroff, strings.f_reboot,
+      strings.f_refresh);
   fflush(stdout);
 }
 
-void print_err(const char *msg) {
+void print_err(const char* msg) {
   struct uint_point origin = box_start();
   fprintf(stderr, "\x1b[%d;%dH%s(%d): %s", origin.y - 1, origin.x, msg, errno,
           strerror(errno));
 }
 
-void print_errno(const char *descr) {
+void print_errno(const char* descr) {
   struct uint_point origin = box_start();
   if (descr == NULL)
     fprintf(stderr, "\x1b[%d;%dH\x1b[%smunknown error(%d): %s", origin.y - 1,

@@ -11,12 +11,11 @@
 #include "users.h"
 #include "util.h"
 
-int main(int argc, char *argv[]) {
-  if (argc == 2)
-    chvt_str(argv[1]);
+int main(int argc, char* argv[]) {
+  if (argc == 2) chvt_str(argv[1]);
 
-  char *conf_override = getenv("LIDM_CONF");
-  struct config *config =
+  char* conf_override = getenv("LIDM_CONF");
+  struct config* config =
       parse_config(conf_override == NULL ? "/etc/lidm.ini" : conf_override);
   if (config == NULL) {
     fprintf(stderr, "error parsing config\n");
@@ -28,6 +27,5 @@ int main(int argc, char *argv[]) {
   struct Vector sessions = get_avaliable_sessions();
 
   int ret = load(&users, &sessions);
-  if (ret == 0)
-    execl(argv[0], argv[0], NULL);
+  if (ret == 0) execl(argv[0], argv[0], NULL);
 }

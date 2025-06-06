@@ -1,2 +1,4 @@
-BasedOnStyle: LLVM
+BasedOnStyle: Chromium
 IndentWidth: 2
+SpacesBeforeTrailingComments: 1
+AllowShortIfStatementsOnASingleLine: WithoutElse

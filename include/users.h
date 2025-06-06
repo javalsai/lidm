@@ -6,9 +6,9 @@
 #include "util.h"
 
 struct user {
-  char *shell;
-  char *username;
-  char *display_name;
+  char* shell;
+  char* username;
+  char* display_name;
 };
 
 struct Vector get_human_users();
