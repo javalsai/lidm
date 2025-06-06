@@ -1,7 +1,9 @@
 name: Push Checks
 
 on:
-  push
+  push:
+  pull_request:
+    - opened
 
 jobs:
   check-and-build:
