@@ -10,7 +10,7 @@ CFLAGS?=-O3 -Wall
 _CFLAGS=-I$(DIR)
 ALLFLAGS=$(CFLAGS) -I$(IDIR)
 
-LIBS=-lm -lpam -lpam_misc
+LIBS=-lpam
 
 _DEPS = util.h ui.h config.h auth.h efield.h keys.h users.h sessions.h chvt.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
