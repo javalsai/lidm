@@ -145,6 +145,9 @@ struct config* parse_config(char* path) {
   FILE* fd = fopen(path, "r");
   if (fd == NULL || (stat(path, &sb) == -1)) {
     perror("fopen");
+    fprintf(stderr,
+            "Please place a config file at /etc/lidm.ini or set the LIDM_CONF "
+            "env variable");
     return NULL;
   }
 
