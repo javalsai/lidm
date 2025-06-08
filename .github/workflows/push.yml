@@ -1,10 +1,12 @@
+# Kinda based by https://github.com/myrotvorets/set-commit-status-action/actions/runs/12344741285/workflow
 name: Push Checks
 
 on:
   push:
+    branches:
+      - master
   pull_request:
-    types:
-      - opened
+  workflow_dispatch:
 
 jobs:
   check-and-build:

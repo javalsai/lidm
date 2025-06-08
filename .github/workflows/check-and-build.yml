@@ -55,6 +55,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: myrotvorets/set-commit-status-action@master
+        if: inputs.set-statuses
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: pending
+          description: ${{ steps.build.outputs.DESCR }}
+          context: Build for amd64
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: "libpam0g-dev"
@@ -92,6 +99,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: myrotvorets/set-commit-status-action@master
+        if: inputs.set-statuses
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: pending
+          description: ${{ steps.build.outputs.DESCR }}
+          context: Build for i386
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: "libpam0g-dev gcc-multilib"
@@ -133,7 +147,13 @@ jobs:
     needs: [spellcheck, shellcheck, clangcheck]
     steps:
       - uses: actions/checkout@v4
-
+      - uses: myrotvorets/set-commit-status-action@master
+        if: inputs.set-statuses
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: pending
+          description: ${{ steps.status.outputs.DESCR }}
+          context: Build for aarch64
       - uses: uraimo/run-on-arch-action@v2
         with:
           arch: none
@@ -178,7 +198,13 @@ jobs:
     needs: [spellcheck, shellcheck, clangcheck]
     steps:
       - uses: actions/checkout@v4
-
+      - uses: myrotvorets/set-commit-status-action@master
+        if: inputs.set-statuses
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: pending
+          description: ${{ steps.status.outputs.DESCR }}
+          context: Build for armv7
       - uses: uraimo/run-on-arch-action@v2
         with:
           arch: none
@@ -223,7 +249,13 @@ jobs:
     needs: [spellcheck, shellcheck, clangcheck]
     steps:
       - uses: actions/checkout@v4
-
+      - uses: myrotvorets/set-commit-status-action@master
+        if: inputs.set-statuses
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: pending
+          description: ${{ steps.status.outputs.DESCR }}
+          context: Build for riscv64
       - uses: uraimo/run-on-arch-action@v2
         with:
           arch: none
