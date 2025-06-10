@@ -419,8 +419,7 @@ static void clean_line(struct uint_point origin, uint line) {
 }
 
 // TODO: session_len > 32
-static void print_session(struct uint_point origin,
-                          struct session session,
+static void print_session(struct uint_point origin, struct session session,
                           bool multiple) {
   clean_line(origin, 5);
   const char* session_type;
@@ -454,8 +453,7 @@ static void print_session(struct uint_point origin,
 }
 
 // TODO: user_len > 32
-static void print_user(struct uint_point origin,
-                       struct user user,
+static void print_user(struct uint_point origin, struct user user,
                        bool multiple) {
   clean_line(origin, 7);
   printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm",

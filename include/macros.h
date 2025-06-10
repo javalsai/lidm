@@ -1,12 +1,12 @@
 // Do we just replace the compiler with clang??
 #if defined(__clang__)
-  #define NULLABLE _Nullable
+#define NULLABLE _Nullable
 #else
-  #define NULLABLE
+#define NULLABLE
 #endif
 
 #if defined(__clang__)
-  #define NNULLABLE _Nonnull
+#define NNULLABLE _Nonnull
 #else
-  #define NNULLABLE
+#define NNULLABLE
 #endif

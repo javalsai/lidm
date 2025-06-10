@@ -15,10 +15,8 @@
 #include "unistd.h"
 #include "util.h"
 
-int pam_conversation(int num_msg,
-                     const struct pam_message** msg,
-                     struct pam_response** resp,
-                     void* appdata_ptr) {
+int pam_conversation(int num_msg, const struct pam_message** msg,
+                     struct pam_response** resp, void* appdata_ptr) {
   struct pam_response* reply =
       (struct pam_response*)malloc(sizeof(struct pam_response) * num_msg);
   for (size_t i = 0; i < num_msg; i++) {
@@ -95,9 +93,7 @@ void sourceFileTry(char* file) {
   (void)fclose(file2source);
 }
 
-void moarEnv(char* user,
-             struct session session,
-             struct passwd* pw,
+void moarEnv(char* user, struct session session, struct passwd* pw,
              struct behavior* behavior) {
   if (chdir(pw->pw_dir) == -1) print_errno("can't chdir to user home");
 
@@ -153,10 +149,7 @@ void moarEnv(char* user,
 }
 
 // NOLINTBEGIN(readability-function-cognitive-complexity)
-bool launch(char* user,
-            char* passwd,
-            struct session session,
-            void (*cb)(void),
+bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
             struct behavior* behavior) {
   struct passwd* pw = getpwnam(user);
   if (pw == NULL) {

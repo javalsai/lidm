@@ -52,8 +52,8 @@ int read_desktop(FILE* fd, void* ctx,
       // Key & Value
       char* key = buf;
       buf[eq_idx] = '\0'; // the equal
-      char* value = &buf[eq_idx+1];
-      buf[read_size-1] = '\0'; // the newline
+      char* value = &buf[eq_idx + 1];
+      buf[read_size - 1] = '\0'; // the newline
 
       // Callback
       struct status cb_ret = cb(ctx, table_name, key, value);
