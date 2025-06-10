@@ -1,5 +1,5 @@
-#ifndef _AUTHH_
-#define _AUTHH_
+#ifndef AUTHH_
+#define AUTHH_
 
 #include <stdbool.h>
 

@@ -18,7 +18,8 @@ int main(int argc, char* argv[]) {
   struct config* config =
       parse_config(conf_override == NULL ? "/etc/lidm.ini" : conf_override);
   if (config == NULL) {
-    fprintf(stderr, "error parsing config\n");
+    // NOLINT(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
+    (void)fputs("error parsing config\n", stderr);
     return 1;
   }
   setup(*config);

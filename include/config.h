@@ -1,5 +1,5 @@
-#ifndef _CONFIGH_
-#define _CONFIGH_
+#ifndef CONFIGH_
+#define CONFIGH_
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -73,11 +73,6 @@ struct config {
   struct behavior behavior;
 };
 
-bool line_parser(
-    FILE* fd,
-    ssize_t* blksize,
-    u_char (*cb)(char* key,
-                 char* value)); // might use this for parsing .desktop files too
 struct config* parse_config(char* path);
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef _SESSIONSH_
-#define _SESSIONSH_
+#ifndef SESSIONSH_
+#define SESSIONSH_
 
 #include <sys/types.h>
 

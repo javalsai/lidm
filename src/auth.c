@@ -45,6 +45,7 @@ void clear_screen() {
   printf("\x1b[H\x1b[J");
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 pam_handle_t* get_pamh(char* user, char* passwd) {
   pam_handle_t* pamh = NULL;
   struct pam_conv pamc = {pam_conversation, (void*)passwd};
@@ -91,7 +92,7 @@ void sourceFileTry(char* file) {
   }
 
   if (line) free(line);
-  fclose(file2source);
+  (void)fclose(file2source);
 }
 
 void moarEnv(char* user,
@@ -109,7 +110,7 @@ void moarEnv(char* user,
 
   // PATH?
 
-  char* xdg_session_type;
+  char* xdg_session_type = "unknown";
   if (session.type == SHELL) xdg_session_type = "tty";
   if (session.type == XORG) xdg_session_type = "x11";
   if (session.type == WAYLAND) xdg_session_type = "wayland";
@@ -126,12 +127,12 @@ void moarEnv(char* user,
     uint home_len = strlen(pw->pw_dir);
     for (size_t i = 0; i < behavior->user_source.length; i++) {
       char* file2sourcepath = (char*)vec_get(&behavior->user_source, i);
-      char* newbuf =
-          malloc(home_len + strlen(file2sourcepath) + 2); // nullbyte and slash
-      if (newbuf == NULL) continue;                       // can't bother
-      strcpy(newbuf, pw->pw_dir);
+      size_t newbuf_len = home_len + strlen(file2sourcepath) + 2;
+      char* newbuf = malloc(newbuf_len); // nullbyte and slash
+      if (newbuf == NULL) continue;      // can't bother
+      strlcpy(newbuf, pw->pw_dir, newbuf_len);
       newbuf[home_len] = '/'; // assume pw_dir doesn't start with '/' :P
-      strcpy(&newbuf[home_len + 1], file2sourcepath);
+      strlcpy(&newbuf[home_len + 1], file2sourcepath, newbuf_len - home_len - 1);
 
       /* printf("DEBUG(user_source)!!!! %d %s\n", i, newbuf); */
       sourceFileTry(newbuf);
@@ -150,6 +151,7 @@ void moarEnv(char* user,
   /*setenv("XDG_SEAT", "seat0", true);*/
 }
 
+// NOLINTBEGIN(readability-function-cognitive-complexity)
 bool launch(char* user,
             char* passwd,
             struct session session,
@@ -176,9 +178,9 @@ bool launch(char* user,
 
   uint pid = fork();
   if (pid == 0) { // child
-    char* TERM = NULL;
-    char* _GETTERM = getenv("TERM");
-    if (_GETTERM != NULL) strcln(&TERM, _GETTERM);
+    char* term = NULL;
+    char* getterm = getenv("TERM");
+    if (getterm != NULL) strcln(&term, getterm);
     if (clearenv() != 0) {
       print_errno("clearenv");
       _exit(EXIT_FAILURE);
@@ -194,12 +196,12 @@ bool launch(char* user,
     }
     // FIXME: path hotfix
     putenv("PATH=/bin:/usr/bin");
-    if (TERM != NULL) {
-      setenv("TERM", TERM, true);
-      free(TERM);
+    if (term != NULL) {
+      setenv("TERM", term, true);
+      free(term);
     }
 
-    free(envlist);
+    free((void*)envlist);
     moarEnv(user, session, pw, behavior);
 
     // TODO: chown stdin to user
@@ -228,29 +230,31 @@ bool launch(char* user,
     // TODO: these will be different due to TryExec
     // and, Exec/TryExec might contain spaces as args
     printf("\x1b[0m");
+    // NOLINTNEXTLINE(bugprone-branch-clone)
     if (session.type == SHELL) {
       clear_screen();
-      fflush(stdout);
+      (void)fflush(stdout);
       execlp(session.exec, session.exec, NULL);
     } else if (session.type == XORG || session.type == WAYLAND) {
       clear_screen();
-      fflush(stdout);
+      (void)fflush(stdout);
       execlp(session.exec, session.exec, NULL);
     }
     perror("execl error");
-    fprintf(stderr, "failure calling session\n");
+    (void)fputs("failure calling session\n", stderr);
   } else {
-    waitpid(pid, NULL, 0);
+    __pid_t child_pid = (__pid_t)pid;
+    waitpid(child_pid, NULL, 0);
 
     pam_setcred(pamh, PAM_DELETE_CRED);
     pam_close_session(pamh, 0);
     pam_end(pamh, PAM_SUCCESS);
 
-    if (*reach_session == false) {
+    if (*reach_session == false)
       return false;
-    } else
-      exit(0);
+    exit(0);
   }
 
   return true;
 }
+// NOLINTEND(readability-function-cognitive-complexity)

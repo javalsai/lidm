@@ -1,5 +1,5 @@
-#ifndef _UIH_
-#define _UIH_
+#ifndef UIH_
+#define UIH_
 
 #include "config.h"
 #include "util.h"
