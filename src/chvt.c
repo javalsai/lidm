@@ -41,6 +41,7 @@ int chvt(int n) {
     close(fd);
   }
 
-  (void)fputs("Couldn't get a file descriptor referring to the console.\n", stderr);
+  (void)fputs("Couldn't get a file descriptor referring to the console.\n",
+              stderr);
   return -1;
 }

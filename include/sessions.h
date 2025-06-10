@@ -3,6 +3,7 @@
 
 #include <sys/types.h>
 
+#include "macros.h"
 #include "util.h"
 
 enum session_type {
@@ -12,9 +13,9 @@ enum session_type {
 };
 
 struct session {
-  char* name;
-  char* exec;
-  char* tryexec;
+  char* NNULLABLE name;
+  char* NNULLABLE exec;
+  char* NULLABLE tryexec;
   enum session_type type;
 };
 

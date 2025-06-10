@@ -214,7 +214,7 @@ void ffield_cursor_focus() {
 
 struct user get_current_user() {
   if (of_user.current_opt != 0)
-    return *(struct user *)vec_get(gusers, of_user.current_opt - 1);
+    return *(struct user*)vec_get(gusers, of_user.current_opt - 1);
   else {
     struct user custom_user;
     custom_user.shell = "/usr/bin/bash";
@@ -234,7 +234,7 @@ struct session get_current_session() {
       shell_session.exec = shell_session.name = get_current_user().shell;
       return shell_session;
     } else
-      return *(struct session *)vec_get(gsessions, of_session.current_opt - 1);
+      return *(struct session*)vec_get(gsessions, of_session.current_opt - 1);
   } else {
     struct session custom_session;
     custom_session.type = SHELL;

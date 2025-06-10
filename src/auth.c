@@ -132,7 +132,8 @@ void moarEnv(char* user,
       if (newbuf == NULL) continue;      // can't bother
       strlcpy(newbuf, pw->pw_dir, newbuf_len);
       newbuf[home_len] = '/'; // assume pw_dir doesn't start with '/' :P
-      strlcpy(&newbuf[home_len + 1], file2sourcepath, newbuf_len - home_len - 1);
+      strlcpy(&newbuf[home_len + 1], file2sourcepath,
+              newbuf_len - home_len - 1);
 
       /* printf("DEBUG(user_source)!!!! %d %s\n", i, newbuf); */
       sourceFileTry(newbuf);
@@ -250,8 +251,7 @@ bool launch(char* user,
     pam_close_session(pamh, 0);
     pam_end(pamh, PAM_SUCCESS);
 
-    if (*reach_session == false)
-      return false;
+    if (*reach_session == false) return false;
     exit(0);
   }
 

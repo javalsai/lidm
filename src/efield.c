@@ -50,8 +50,8 @@ void field_update(struct editable_field* self, char* update) {
   }
   if (self->pos < self->length) {
     // move with immediate buffer
-    memmove(&self->content[self->pos + insert_len],
-            &self->content[self->pos], self->length - self->pos);
+    memmove(&self->content[self->pos + insert_len], &self->content[self->pos],
+            self->length - self->pos);
   }
   memcpy(&self->content[self->pos], update, insert_len);
 

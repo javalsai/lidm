@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include "desktop.h"
 #include "sessions.h"
 #include "util.h"
 
@@ -19,104 +20,88 @@ static const struct source_dir sources[] = {
     {WAYLAND, "/usr/share/wayland-sessions"},
 };
 
-static struct session new_session(enum session_type type,
-                                    char* name,
-                                    const char* exec,
-                                    const char* tryexec) {
-  struct session session;
-  session.type = type;
-  strcln(&session.name, name);
-  strcln(&session.exec, exec);
-  strcln(&session.tryexec, tryexec);
+// static struct session new_session(enum session_type type, char* name,
+//                                   const char* exec, const char* tryexec) {
+//   struct session session;
+//   session.type = type;
+//   strcln(&session.name, name);
+//   strcln(&session.exec, exec);
+//   strcln(&session.tryexec, tryexec);
 
-  return session;
-}
+//   return session;
+// }
 
 static struct Vector* cb_sessions = NULL;
 
-// NOTE: commented printf's here would be nice to have debug logs if I ever
-// implement it
-#define LN_NAME 0b0001
-#define LN_EXEC 0b0010
-#define LN_TEXEC 0b0100
-#define LN_ALL (LN_NAME | LN_EXEC | LN_TEXEC)
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+struct status cb(void* _ctx, char* NULLABLE table, char* key, char* value) {
+  struct session* ctx = (struct session*)_ctx;
+  struct status ret;
+  ret.finish = false;
+
+  if (table == NULL) return ret;
+  if (strcmp(table, "[Desktop Entry]") != 0) return ret;
+
+  char** NULLABLE copy_at = NULL;
+  if (strcmp(key, "Name") == 0) {
+    if (ctx->name == NULL) copy_at = &ctx->name;
+  } else if (strcmp(key, "Exec") == 0) {
+    if (ctx->exec == NULL) copy_at = &ctx->exec;
+  } else if (strcmp(key, "TryExec") == 0) {
+    if (ctx->tryexec == NULL) copy_at = &ctx->tryexec;
+  }
+
+  if (copy_at != NULL) {
+    *copy_at = malloc((strlen(value) + 1) * sizeof(char));
+    if (*copy_at == NULL) {
+      ret.finish = true;
+      ret.ret = -1; // malloc error
+    }
+
+    strcpy(*copy_at, value);
+  }
+
+  if (ctx->name != NULL && ctx->exec != NULL && ctx->tryexec != NULL) {
+    ret.finish = true;
+    ret.ret = 0;
+  }
+
+  return ret;
+}
+
 static enum session_type session_type;
 // NOLINTNEXTLINE(readability-function-cognitive-complexity)
 static int fn(const char* fpath, const struct stat* sb, int typeflag) {
   if (!S_ISREG(sb->st_mode)) return 0;
 
-  // printf("gonna open %s\n", fpath);
+  struct session* ctx = malloc(sizeof(struct session));
+  if (ctx == NULL) return 0;
+  ctx->name = NULL;
+  ctx->exec = NULL;
+  ctx->tryexec = NULL;
+
   FILE* fd = fopen(fpath, "r");
   if (fd == NULL) {
+    free(ctx);
     perror("fopen");
     // NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
     (void)fprintf(stderr, "error opening file (r) '%s'\n", fpath);
     return 0;
   }
 
-  u_char found = 0;
-
-  char* name_buf = NULL;
-  char* exec_buf = NULL;
-  char* tryexec_buf = NULL;
-  // This should be made a specific function
-  // Emm, if anything goes wrong just free the inner loop and `break;` fd and
-  // the rest is handled after
-  char* buf = NULL;
-  size_t alloc_size = 0;
-  size_t read_size;
-  while ((read_size = getline(&buf, &alloc_size, fd)) != -1) {
-    char* key = malloc(read_size + sizeof(char));
-    if (key == NULL) {
-      free(buf);
-      break;
-    }
-    char* value = malloc(read_size + sizeof(char));
-    if (value == NULL) {
-      free(buf);
-      free(key);
-      break;
-    }
-    value[0] = '\0'; // I'm not sure if sscanf would null this string out
-    // NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
-    if (sscanf(buf, "%[^=]=%[^\n]\n", key, value) == 2) {
-      if (strcmp(key, "Name") == 0) {
-        found &= LN_EXEC;
-        if(name_buf != NULL) free(name_buf);
-        name_buf = realloc(value, strlen(value) + sizeof(char));
-      } else if (strcmp(key, "Exec") == 0) {
-        found &= LN_EXEC;
-        if(exec_buf != NULL) free(exec_buf);
-        exec_buf = realloc(value, strlen(value) + sizeof(char));
-      } else if (strcmp(key, "TryExec") == 0) {
-        found &= LN_TEXEC;
-        if(tryexec_buf != NULL) free(tryexec_buf);
-        tryexec_buf = realloc(value, strlen(value) + sizeof(char));
-      } else {
-        free(value);
-      }
-    } else {
-      free(value);
-    }
-    free(key);
-    // if (found == LN_ALL) break;
+  int ret = read_desktop(fd, ctx, &cb);
+  if (ret < 0) { // any error
+    free(ctx);
+    return 0;
   }
 
-  if(buf != NULL) free(buf);
   (void)fclose(fd);
-  // printf("\nend parsing...\n");
 
   // just add this to the list
-  if (name_buf != NULL && exec_buf != NULL) {
-    struct session* session_i = malloc(sizeof(struct session));
-    *session_i = new_session(session_type, name_buf, exec_buf,
-                               tryexec_buf == NULL ? "" : tryexec_buf);
-    vec_push(cb_sessions, session_i);
+  if (ctx->name != NULL && ctx->exec != NULL) {
+    ctx->type = session_type;
+    vec_push(cb_sessions, ctx);
   }
-
-  if (name_buf != NULL) free(name_buf);
-  if (exec_buf != NULL) free(exec_buf);
-  if (tryexec_buf != NULL) free(tryexec_buf);
 
   return 0;
 }
