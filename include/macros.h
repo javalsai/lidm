@@ -1,3 +1,6 @@
+#ifndef MACROSH_
+#define MACROSH_
+
 // Do we just replace the compiler with clang??
 #if defined(__clang__)
 #define NULLABLE _Nullable
@@ -15,4 +18,6 @@
 #define UNULLABLE _Null_unspecified
 #else
 #define UNULLABLE
+#endif
+
 #endif

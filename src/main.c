@@ -1,11 +1,13 @@
 #include <pwd.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <unistd.h>
 
 #include "chvt.h"
 #include "config.h"
+#include "log.h"
 #include "sessions.h"
 #include "ui.h"
 #include "users.h"
@@ -13,6 +15,18 @@
 
 int main(int argc, char* argv[]) {
   if (argc == 2) chvt_str(argv[1]);
+
+  char* log_output = getenv("LIDM_LOG");
+  if (log_output) {
+    FILE* log_fd = fopen(log_output, "w");
+    if (!log_fd) {
+      perror("fopen");
+      (void)fputs("failed to open logfile in write mode", stderr);
+      return -1;
+    }
+
+    log_init(log_fd);
+  }
 
   char* conf_override = getenv("LIDM_CONF");
   struct config* config =

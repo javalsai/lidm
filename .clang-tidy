@@ -2,6 +2,7 @@ Checks: >
   clang-analyzer-*,
   -clang-analyzer-security.insecureAPI.str*,
   -clang-analyzer-security.insecureAPI.mem*,
+  -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
   bugprone-*,
   cert-*,
   modernize-*,
