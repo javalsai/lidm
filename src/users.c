@@ -5,32 +5,55 @@
 #include <string.h>
 #include <sys/types.h>
 
+#include "macros.h"
 #include "users.h"
 #include "util.h"
 
-static struct user __new_user(struct passwd* p) {
-  struct user __user;
-  strcln(&__user.shell, p->pw_shell);
-  strcln(&__user.username, p->pw_name);
-  if (p->pw_gecos[0] == '\0')
-    __user.display_name = __user.username;
-  else
-    strcln(&__user.display_name, p->pw_gecos);
+// NOLINTNEXTLINE(readability-identifier-length)
+int build_user(struct user* NNULLABLE user, struct passwd* p) {
+  char* shell = strdup(p->pw_shell);
+  char* username = strdup(p->pw_name);
+  char* displayname;
+  if (strlen(p->pw_gecos) == 0)
+    displayname = username;
+  else {
+    displayname = strdup(p->pw_gecos);
+  }
+  if (!shell || !username || !displayname) {
+    free(shell);
+    free(username);
+    if (displayname != username) free(displayname);
+    // actually tidy struggles with the line i have avobe
+    // NOLINTNEXTLINE(clang-analyzer-unix.Malloc)
+    return -1;
+  }
 
-  return __user;
+  *user = (struct user){
+      .shell = shell,
+      .username = username,
+      .display_name = displayname,
+  };
+
+  return 0;
 }
 
 // This code is designed to be run purely single threaded
+// NOLINTNEXTLINE(modernize-macro-to-enum)
+#define LIKELY_BOUND_USERS 4
 struct Vector get_human_users() {
   struct Vector users = vec_new();
-  vec_reserve(&users, 4);
+  vec_reserve(&users, LIKELY_BOUND_USERS);
 
-  struct passwd* pwd;
+  struct passwd* NULLABLE pwd;
   while ((pwd = getpwent()) != NULL) {
-    if (!(pwd->pw_dir && strncmp(pwd->pw_dir, "/home/", 6) == 0)) continue;
+    if (strcmp(pwd->pw_dir, "/home/") != 0) continue;
 
     struct user* user_i = malloc(sizeof(struct user));
-    *user_i = __new_user(pwd);
+    if (user_i == NULL) continue; // malloc error
+
+    if (build_user(user_i, pwd) != 0) {
+      // ...
+    }
     vec_push(&users, user_i);
   }
 
