@@ -174,7 +174,8 @@ bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
   if (pid == 0) { // child
     char* term = NULL;
     char* getterm = getenv("TERM");
-    if (getterm != NULL) strcln(&term, getterm);
+    // TODO: handle malloc error
+    if (getterm != NULL) term = strdup(getterm);
     if (clearenv() != 0) {
       print_errno("clearenv");
       _exit(EXIT_FAILURE);

@@ -11,11 +11,6 @@
 
 static int selret_magic();
 
-void strcln(char** dest, const char* source) {
-  *dest = malloc(strlen(source) + sizeof(char));
-  strcpy(*dest, source);
-}
-
 enum keys find_keyname(char* name) {
   for (size_t i = 0; i < sizeof(key_mappings) / sizeof(key_mappings[0]); i++) {
     if (strcmp(key_names[i], name) == 0) return (enum keys)i;

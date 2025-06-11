@@ -46,7 +46,7 @@ struct Vector get_human_users() {
 
   struct passwd* NULLABLE pwd;
   while ((pwd = getpwent()) != NULL) {
-    if (strcmp(pwd->pw_dir, "/home/") != 0) continue;
+    if (!pwd->pw_dir || strcmp(pwd->pw_dir, "/home/") != 0) continue;
 
     struct user* user_i = malloc(sizeof(struct user));
     if (user_i == NULL) continue; // malloc error
