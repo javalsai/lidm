@@ -11,8 +11,9 @@ struct status {
   int ret;
 };
 
-int read_desktop(FILE* fd, void* ctx,
-                 struct status (*cb)(void* ctx, char* NULLABLE table, char* key,
-                                     char* value));
+int read_desktop(FILE* NNULLABLE fd, void* UNULLABLE ctx,
+                 struct status (*NNULLABLE cb)(void* UNULLABLE ctx, char* NULLABLE table,
+                                     char* NNULLABLE key,
+                                     char* NNULLABLE value));
 
 #endif

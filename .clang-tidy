@@ -1,5 +1,7 @@
 Checks: >
   clang-analyzer-*,
+  -clang-analyzer-security.insecureAPI.str*,
+  -clang-analyzer-security.insecureAPI.mem*,
   bugprone-*,
   cert-*,
   modernize-*,

@@ -7,18 +7,8 @@
 #include "desktop.h"
 #include "macros.h"
 
-#define NOK   \
-  {           \
-    ret = -1; \
-    break;    \
-  }
-#define NOKFKEY \
-  {             \
-    free(key);  \
-    NOK         \
-  }
 int read_desktop(FILE* fd, void* ctx,
-                 struct status (*cb)(void* ctx, char* NULLABLE table, char* key,
+                 struct status (*cb)(void* ctx, char* table, char* key,
                                      char* value)) {
   char* table_name = NULL;
 
@@ -47,7 +37,10 @@ int read_desktop(FILE* fd, void* ctx,
       // impossible with a min len of 1 (empty line)
       if (eq_idx == 0) continue;
       // Check its not end
-      if (buf[eq_idx] != '=') NOK;
+      if (buf[eq_idx] != '=') {
+        ret = -1;
+        break;
+      }
 
       // Key & Value
       char* key = buf;
@@ -64,11 +57,8 @@ int read_desktop(FILE* fd, void* ctx,
     }
   }
 
-  free(table_name);
-
+  if (table_name != NULL) free(table_name);
   if (buf != NULL) free(buf);
   return ret;
 }
-#undef NOK
-#undef NOKFKEY
 // NOLINTEND(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,readability-function-cognitive-complexity)

@@ -20,22 +20,16 @@ static const struct source_dir sources[] = {
     {WAYLAND, "/usr/share/wayland-sessions"},
 };
 
-// static struct session new_session(enum session_type type, char* name,
-//                                   const char* exec, const char* tryexec) {
-//   struct session session;
-//   session.type = type;
-//   strcln(&session.name, name);
-//   strcln(&session.exec, exec);
-//   strcln(&session.tryexec, tryexec);
-
-//   return session;
-// }
-
 static struct Vector* cb_sessions = NULL;
 
+struct ctx_typ {
+  char* NULLABLE name;
+  char* NULLABLE exec;
+  char* NULLABLE tryexec;
+};
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 struct status cb(void* _ctx, char* NULLABLE table, char* key, char* value) {
-  struct session* ctx = (struct session*)_ctx;
+  struct ctx_typ* ctx = (struct ctx_typ*)_ctx;
   struct status ret;
   ret.finish = false;
 
@@ -52,13 +46,11 @@ struct status cb(void* _ctx, char* NULLABLE table, char* key, char* value) {
   }
 
   if (copy_at != NULL) {
-    *copy_at = malloc((strlen(value) + 1) * sizeof(char));
+    *copy_at = strdup(value);
     if (*copy_at == NULL) {
       ret.finish = true;
       ret.ret = -1; // malloc error
     }
-
-    strcpy(*copy_at, value);
   }
 
   if (ctx->name != NULL && ctx->exec != NULL && ctx->tryexec != NULL) {
@@ -69,38 +61,50 @@ struct status cb(void* _ctx, char* NULLABLE table, char* key, char* value) {
   return ret;
 }
 
+// also, always return 0 or we will break parsing and we don't want a bad
+// desktop file to break all possible sessions
 static enum session_type session_type;
 // NOLINTNEXTLINE(readability-function-cognitive-complexity)
 static int fn(const char* fpath, const struct stat* sb, int typeflag) {
-  if (!S_ISREG(sb->st_mode)) return 0;
+  // guessing symlink behavior
+  //  - FTW_PHYS if set doesn't follow symlinks, so ftw() has no flags and it
+  //  follows symlinks, we should never get to handle that
+  if (typeflag != FTW_F) return 0;
 
-  struct session* ctx = malloc(sizeof(struct session));
-  if (ctx == NULL) return 0;
-  ctx->name = NULL;
-  ctx->exec = NULL;
-  ctx->tryexec = NULL;
+  struct ctx_typ ctx = {
+      .name = NULL,
+      .exec = NULL,
+      .tryexec = NULL,
+  };
 
   FILE* fd = fopen(fpath, "r");
   if (fd == NULL) {
-    free(ctx);
     perror("fopen");
     // NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
-    (void)fprintf(stderr, "error opening file (r) '%s'\n", fpath);
+    (void)fprintf(stderr, "error opening file '%s' for read\n", fpath);
     return 0;
   }
 
-  int ret = read_desktop(fd, ctx, &cb);
+  int ret = read_desktop(fd, &ctx, &cb);
   if (ret < 0) { // any error
-    free(ctx);
     return 0;
   }
 
   (void)fclose(fd);
 
   // just add this to the list
-  if (ctx->name != NULL && ctx->exec != NULL) {
-    ctx->type = session_type;
-    vec_push(cb_sessions, ctx);
+  if (ctx.name != NULL && ctx.exec != NULL) {
+    struct session* this_session = malloc(sizeof(struct session));
+    if (this_session == NULL) return 0;
+
+    *this_session = (struct session){
+        .name = ctx.name,
+        .exec = ctx.exec,
+        .tryexec = ctx.tryexec,
+        .type = session_type,
+    };
+
+    vec_push(cb_sessions, this_session);
   }
 
   return 0;

@@ -10,3 +10,9 @@
 #else
 #define NNULLABLE
 #endif
+
+#if defined(__clang__)
+#define UNULLABLE _Null_unspecified
+#else
+#define UNULLABLE
+#endif
