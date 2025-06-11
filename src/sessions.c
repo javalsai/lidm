@@ -8,6 +8,7 @@
 #include <sys/types.h>
 
 #include "desktop.h"
+#include "log.h"
 #include "sessions.h"
 #include "util.h"
 
@@ -48,8 +49,10 @@ struct status cb(void* _ctx, char* NULLABLE table, char* key, char* value) {
   if (copy_at != NULL) {
     *copy_at = strdup(value);
     if (*copy_at == NULL) {
+      log_perror("strdup");
+      log_puts("[E] failed to allocate memory");
       ret.finish = true;
-      ret.ret = -1; // malloc error
+      ret.ret = -1;
     }
   }
 
@@ -70,6 +73,7 @@ static int fn(const char* fpath, const struct stat* sb, int typeflag) {
   //  - FTW_PHYS if set doesn't follow symlinks, so ftw() has no flags and it
   //  follows symlinks, we should never get to handle that
   if (typeflag != FTW_F) return 0;
+  log_printf("[I]  found file %s\n", fpath);
 
   struct ctx_typ ctx = {
       .name = NULL,
@@ -79,14 +83,14 @@ static int fn(const char* fpath, const struct stat* sb, int typeflag) {
 
   FILE* fd = fopen(fpath, "r");
   if (fd == NULL) {
-    perror("fopen");
-    // NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
-    (void)fprintf(stderr, "error opening file '%s' for read\n", fpath);
+    log_perror("fopen");
+    log_printf("[E] error opening file '%s' for read\n", fpath);
     return 0;
   }
 
   int ret = read_desktop(fd, &ctx, &cb);
   if (ret < 0) { // any error
+    log_printf("[E] format error parsing %s", fpath);
     return 0;
   }
 
@@ -118,7 +122,7 @@ struct Vector get_avaliable_sessions() {
 
   cb_sessions = &sessions;
   for (size_t i = 0; i < (sizeof(sources) / sizeof(sources[0])); i++) {
-    /*printf("recurring into %s\n", sources[i].dir);*/
+    log_printf("[I] parsing into %s\n", sources[i].dir);
     session_type = sources[i].type;
     ftw(sources[i].dir, &fn, 1);
   }

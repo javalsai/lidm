@@ -14,8 +14,6 @@
 #include "util.h"
 
 int main(int argc, char* argv[]) {
-  if (argc == 2) chvt_str(argv[1]);
-
   char* log_output = getenv("LIDM_LOG");
   if (log_output) {
     FILE* log_fd = fopen(log_output, "w");
@@ -27,6 +25,8 @@ int main(int argc, char* argv[]) {
 
     log_init(log_fd);
   }
+
+  if (argc == 2) chvt_str(argv[1]);
 
   char* conf_override = getenv("LIDM_CONF");
   struct config* config =

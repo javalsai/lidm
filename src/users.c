@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sys/types.h>
 
+#include "log.h"
 #include "macros.h"
 #include "users.h"
 #include "util.h"
@@ -46,15 +47,19 @@ struct Vector get_human_users() {
 
   struct passwd* NULLABLE pwd;
   while ((pwd = getpwent()) != NULL) {
+    log_printf("[I] handling user %s\n", pwd->pw_name);
     // `- 1` bcs sizeof counts the nullbyte
-    if (pwd->pw_dir && strncmp(pwd->pw_dir, "/home/", sizeof("/home/") - 1) != 0)
+    if (pwd->pw_dir &&
+        strncmp(pwd->pw_dir, "/home/", sizeof("/home/") - 1) != 0)
       continue;
+    log_printf("[I]  found %s\n", pwd->pw_name);
 
     struct user* user_i = malloc(sizeof(struct user));
     if (user_i == NULL) continue; // malloc error
 
     if (build_user(user_i, pwd) != 0) {
-      // ...
+      log_printf("[E] failed to allocate allocate memory for %s\n",
+                 pwd->pw_name);
     }
     vec_push(&users, user_i);
   }
