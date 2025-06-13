@@ -1,5 +1,5 @@
-#ifndef _KEYSH_
-#define _KEYSH_
+#ifndef KEYSH_
+#define KEYSH_
 
 #include <stdlib.h>
 

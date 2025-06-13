@@ -1,17 +1,17 @@
-#ifndef _UTILH_
-#define _UTILH_
+#ifndef UTILH_
+#define UTILH_
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <sys/types.h>
 
 #include "keys.h"
 
-enum keys find_keyname(char*);
+int find_keyname(enum keys* at, char* name);
 enum keys find_ansi(char*);
 void read_press(u_char*, char*);
-void strcln(char** dest, const char* source);
 
 struct Vector {
   uint32_t length;
@@ -19,7 +19,7 @@ struct Vector {
   void** pages;
 };
 
-struct Vector vec_new();
+extern const struct Vector VEC_NEW;
 int vec_resize(struct Vector*, size_t size);
 int vec_reserve(struct Vector*, size_t size);
 int vec_reserve_exact(struct Vector*, size_t size);
