@@ -34,7 +34,7 @@ jobs:
       - run: find . -type f -name '*.sh' -not -path './assets/pkg/aur/*/src/*' | xargs shellcheck
 
   clangcheck:
-    name: Chang Check
+    name: Clang Check
     runs-on: ubuntu-24.04
 
     steps:
