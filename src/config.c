@@ -66,7 +66,7 @@ struct parser_error parse_str_inplace(char* raw) {
         raw[i] = '\0';
         NOFAIL;
       }
-      FAIL("String finished but theres content after");
+      FAIL("String finished but there's content after");
     }
     if (*p == '\\') {
       p++;

@@ -24,7 +24,7 @@ echo "Using '$LIDM_PATH'"
 echo "Press enter when the window is clearly visible and nothing in the way"
 echo "ONLY use this script if you are on hyprland and a \"normal\" kitty config"
 echo "AND make sure you have rg, jq, grim, gifski and maybe a few more"
-read
+read -r
 
 BG=$(rg '^background ' ~/.config/kitty/kitty.conf | cut -d'#' -f2)
 printf '\033]4;0;rgb:%s\007' "${BG:0:2}/${BG:2:2}/${BG:4:2}"
