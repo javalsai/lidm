@@ -11,13 +11,15 @@
 
 static int selret_magic();
 
-enum keys find_keyname(char* name) {
+int find_keyname(enum keys* at, char* name) {
   for (size_t i = 0; i < sizeof(key_mappings) / sizeof(key_mappings[0]); i++) {
-    if (strcmp(key_names[i], name) == 0) return (enum keys)i;
+    if (strcmp(key_names[i], name) == 0) {
+      *at = (enum keys)i;
+      return 0;
+    }
   }
 
-  perror("key not found");
-  exit(1);
+  return -1;
 }
 
 enum keys find_ansi(char* seq) {
@@ -63,11 +65,11 @@ static int selret_magic() {
 }
 
 // Vector shii
-struct Vector vec_new() {
-  struct Vector vec;
-  vec_reset(&vec);
-  return vec;
-}
+const struct Vector VEC_NEW = {
+    .length = 0,
+    .capacity = 0,
+    .pages = NULL,
+};
 
 int vec_resize(struct Vector* vec, size_t size) {
   void** new_location = realloc(vec->pages, size * sizeof(void*));
@@ -120,9 +122,11 @@ void vec_clear(struct Vector* vec) {
 }
 
 void vec_reset(struct Vector* vec) {
-  vec->length = 0;
-  vec->capacity = 0;
-  vec->pages = NULL;
+  *vec = (struct Vector){
+      .length = 0,
+      .capacity = 0,
+      .pages = NULL,
+  };
 }
 
 void* vec_pop(struct Vector* vec) {

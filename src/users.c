@@ -42,7 +42,7 @@ int build_user(struct user* NNULLABLE user, struct passwd* p) {
 // NOLINTNEXTLINE(modernize-macro-to-enum)
 #define LIKELY_BOUND_USERS 4
 struct Vector get_human_users() {
-  struct Vector users = vec_new();
+  struct Vector users = VEC_NEW;
   vec_reserve(&users, LIKELY_BOUND_USERS);
 
   struct passwd* NULLABLE pwd;

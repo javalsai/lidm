@@ -1,155 +1,221 @@
-#include <errno.h>
 #include <linux/fs.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #include "config.h"
+#include "desktop.h"
+#include "log.h"
 #include "util.h"
 
-// Alr so ima explain the bitfield returned by `cb` a bit
-// 4 bits:
-//  0b0001: break out of parsing (returning true)
-//  0b0010: free the value
-//  0b0100: free the key
-//  0b1000: break out of parsing (returning false)
-//
-// This would return true if everything goes fine, false otherwise (malloc
-// error, broke parsing, etc)
-// NOLINTBEGIN(modernize-macro-to-enum)
-#define LN_BREAK_OK 0b0001
-#define LN_FREE_VALUE 0b0010
-#define LN_FREE_KEY 0b0100
-#define LN_FREE_KV (LN_FREE_KEY | LN_FREE_VALUE)
-#define LN_BREAK_ERR 0b1000
-// NOLINTEND(modernize-macro-to-enum)
-bool line_parser(FILE* fd, u_char (*cb)(char* key, char* value)) {
-  bool ok = false;
+// NOLINTNEXTLINE(modernize-macro-to-enum)
+#define UPPER_HALF_BYTE 4
+int parse_hex(char* _at, char x1, char x2) {
+  // make linter happy
+  u_char* at = (u_char*)_at;
 
-  char* buf = NULL;
-  size_t alloc_size = 0;
-  size_t read_size;
-  while ((read_size = getline(&buf, &alloc_size, fd)) != -1) {
-    ok = true;
-    char* key = malloc(read_size);
-    if (key == NULL) {
-      ok = false;
-      break;
-    }
-    char* value = malloc(read_size);
-    if (value == NULL) {
-      free(key);
-      ok = false;
-      break;
-    }
-    // NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
-    if (sscanf(buf, "%[^ ] = %[^\n]\n", key, value) == 2) {
-      u_char ret = cb(key, value);
-      if (ret & LN_FREE_KEY) free(key);
-      if (ret & LN_FREE_VALUE) free(value);
-      if (ret & LN_BREAK_ERR) {
-        ok = false;
-        break;
-      }
-      if (ret & LN_BREAK_OK) {
-        break;
-      }
-    } else {
-      free(key);
-      free(value);
-    }
+  *at = 0;
+
+  if ('0' <= x1 && x1 <= '9') {
+    *at += (x1 - '0') << UPPER_HALF_BYTE;
+  } else if ('A' <= x1 && x1 <= 'F') {
+    *at += (x1 - 'A' + 10) << UPPER_HALF_BYTE;
+  } else if ('a' <= x1 && x1 <= 'f') {
+    *at += (x1 - 'a' + 10) << UPPER_HALF_BYTE;
+  } else {
+    return -1;
   }
 
-  if (buf != NULL) free(buf);
-  return ok;
+  if ('0' <= x2 && x2 <= '9') {
+    *at += (x2 - '0');
+  } else if ('A' <= x2 && x2 <= 'F') {
+    *at += (x2 - 'A' + 10);
+  } else if ('a' <= x2 && x2 <= 'f') {
+    *at += (x2 - 'a' + 10);
+  } else {
+    return -1;
+  }
+
+  return 0;
 }
 
-struct config* g_config;
-// Yanderedev code (wanna fix this with a table or smth)
-// NOLINTNEXTLINE(readability-identifier-length,readability-function-cognitive-complexity)
-u_char config_line_handler(char* k, char* v) {
-  // NOLINTNEXTLINE(readability-function-cognitive-complexity)
-  if (strcmp(k, "colors.bg") == 0)
-    g_config->theme.colors.bg = v;
-  else if (strcmp(k, "colors.fg") == 0)
-    g_config->theme.colors.fg = v;
-  else if (strcmp(k, "colors.err") == 0)
-    g_config->theme.colors.err = v;
-  else if (strcmp(k, "colors.s_wayland") == 0)
-    g_config->theme.colors.s_wayland = v;
-  else if (strcmp(k, "colors.s_xorg") == 0)
-    g_config->theme.colors.s_xorg = v;
-  else if (strcmp(k, "colors.s_shell") == 0)
-    g_config->theme.colors.s_shell = v;
-  else if (strcmp(k, "colors.e_hostname") == 0)
-    g_config->theme.colors.e_hostname = v;
-  else if (strcmp(k, "colors.e_date") == 0)
-    g_config->theme.colors.e_date = v;
-  else if (strcmp(k, "colors.e_box") == 0)
-    g_config->theme.colors.e_box = v;
-  else if (strcmp(k, "colors.e_header") == 0)
-    g_config->theme.colors.e_header = v;
-  else if (strcmp(k, "colors.e_user") == 0)
-    g_config->theme.colors.e_user = v;
-  else if (strcmp(k, "colors.e_passwd") == 0)
-    g_config->theme.colors.e_passwd = v;
-  else if (strcmp(k, "colors.e_badpasswd") == 0)
-    g_config->theme.colors.e_badpasswd = v;
-  else if (strcmp(k, "colors.e_key") == 0)
-    g_config->theme.colors.e_key = v;
-  else if (strcmp(k, "chars.hb") == 0)
-    g_config->theme.chars.hb = v;
-  else if (strcmp(k, "chars.vb") == 0)
-    g_config->theme.chars.vb = v;
-  else if (strcmp(k, "chars.ctl") == 0)
-    g_config->theme.chars.ctl = v;
-  else if (strcmp(k, "chars.ctr") == 0)
-    g_config->theme.chars.ctr = v;
-  else if (strcmp(k, "chars.cbl") == 0)
-    g_config->theme.chars.cbl = v;
-  else if (strcmp(k, "chars.cbr") == 0)
-    g_config->theme.chars.cbr = v;
-  else if (strcmp(k, "functions.poweroff") == 0) {
-    g_config->functions.poweroff = find_keyname(v);
-    return LN_FREE_KV;
-  } else if (strcmp(k, "functions.reboot") == 0) {
-    g_config->functions.reboot = find_keyname(v);
-    return LN_FREE_KV;
-  } else if (strcmp(k, "functions.refresh") == 0) {
-    g_config->functions.refresh = find_keyname(v);
-    return LN_FREE_KV;
-  } else if (strcmp(k, "strings.f_poweroff") == 0)
-    g_config->strings.f_poweroff = v;
-  else if (strcmp(k, "strings.f_reboot") == 0)
-    g_config->strings.f_reboot = v;
-  else if (strcmp(k, "strings.f_refresh") == 0)
-    g_config->strings.f_refresh = v;
-  else if (strcmp(k, "strings.e_user") == 0)
-    g_config->strings.e_user = v;
-  else if (strcmp(k, "strings.e_passwd") == 0)
-    g_config->strings.e_passwd = v;
-  else if (strcmp(k, "strings.s_wayland") == 0)
-    g_config->strings.s_wayland = v;
-  else if (strcmp(k, "strings.s_xorg") == 0)
-    g_config->strings.s_xorg = v;
-  else if (strcmp(k, "strings.s_shell") == 0)
-    g_config->strings.s_shell = v;
-  else if (strcmp(k, "behavior.include_defshell") == 0) {
-    g_config->behavior.include_defshell = strcmp(v, "true") == 0;
-    return LN_FREE_KV;
-  } else if (strcmp(k, "behavior.source") == 0)
-    vec_push(&g_config->behavior.source, v);
-  else if (strcmp(k, "behavior.user_source") == 0)
-    vec_push(&g_config->behavior.user_source, v);
-  else
-    return LN_BREAK_ERR | LN_FREE_KV;
+struct parser_error {
+  const char* NULLABLE msg;
+  size_t col;
+};
 
-  return LN_FREE_KEY;
+#define FAIL(str)                \
+  return (struct parser_error) { \
+    str, p - raw                 \
+  }
+#define NOFAIL return (struct parser_error){NULL, 0}
+struct parser_error parse_str_inplace(char* raw) {
+  // reader pointer
+  char* p = raw; // NOLINT(readability-identifier-length)
+  if (*p != '"') FAIL("Strign not quoted");
+  p++;
+
+  // writer iterator, by nature will always be under the reader
+  size_t i = 0; // NOLINT(readability-identifier-length)
+  while (*p != '\0') {
+    if (*p == '"') {
+      if (p[1] == '\0') {
+        raw[i] = '\0';
+        NOFAIL;
+      }
+      FAIL("String finished but theres content after");
+    }
+    if (*p == '\\') {
+      p++;
+      if (*p == '\0') break;
+      switch (*p) {
+        case '\\':
+          raw[i++] = '\\';
+          break;
+        case 't':
+          raw[i++] = '\t';
+          break;
+        case 'n':
+          raw[i++] = '\n';
+          break;
+        case '\"':
+          raw[i++] = '\"';
+          break;
+        case '\'':
+          raw[i++] = '\'';
+          break;
+        case 'x':
+          if (p[1] == '\0' || p[2] == '\0') goto unfinished;
+          if (parse_hex(&raw[i++], p[1], p[2]) != 0)
+            FAIL("Invalid hex escape sequence");
+          p += 2;
+          break;
+        default:
+          FAIL("Invalid escape variant");
+      }
+    } else
+      raw[i++] = *p;
+
+    p++;
+  }
+
+unfinished:
+  FAIL("Unfinished string");
 }
+#undef FAIL
+#undef NOFAIL
 
-struct config* parse_config(char* path) {
-  // struct stat sb;
-  errno = 0;
+#define FAIL(str) return (struct parser_error){str, 0}
+#define NOFAIL return (struct parser_error){NULL, 0}
+union typ_ptr {
+  char** string;
+  bool* boolean;
+  enum keys* key;
+  struct Vector* vec;
+  uintptr_t ptr;
+};
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+struct parser_error parse_key(enum introspection_type typ, union typ_ptr at,
+                              char* key, size_t offset) {
+  char* aux_str = NULL;
+  struct parser_error aux_err;
+
+  switch (typ) {
+    case STRING:
+      aux_str = strdup(key);
+      if (!aux_str) FAIL("allocation failure");
+      aux_err = parse_str_inplace(aux_str);
+      if (aux_err.msg != NULL) return aux_err;
+      // FIXME: it be broken, prob the ptr arithmetic or smth, we mem leak instead 😎
+      // If the ptr is not the default it means it was prev allocated, we should
+      // free
+      // if (*(char**)((uintptr_t)(&default_config) + offset) != *at.string) {
+      //   free(*at.string);
+      // }
+      *at.string = aux_str;
+      break;
+    case BOOL:
+      if (strcmp(key, "true") == 0)
+        *at.boolean = true;
+      else if (strcmp(key, "false") == 0)
+        *at.boolean = false;
+      else {
+        FAIL("Invalid key value, wasn't 'true' nor 'false'");
+      }
+      break;
+    case KEY:
+      // NOLINTNEXTLINE(performance-no-int-to-ptr)
+      if (find_keyname(at.key, key) != 0) {
+        FAIL("Keyboard KEY name not found");
+      }
+      break;
+    case STRING_ARRAY:
+      aux_str = strdup(key);
+      if (!aux_str) FAIL("allocation failure");
+      aux_err = parse_str_inplace(aux_str);
+      if (aux_err.msg != NULL) return aux_err;
+      vec_push(at.vec, aux_str);
+      break;
+  }
+
+  NOFAIL;
+}
+#undef FAIL
+#undef NOFAIL
+
+// NOLINTBEGIN(readability-identifier-length,readability-function-cognitive-complexity,readability-identifier-length)
+struct status config_line_handler(void* _config, char* table, char* k,
+                                  char* v) {
+  struct config* config = (struct config*)_config;
+  struct status ret = {.finish = false};
+
+  const struct introspection_table* this_intros_table = NULL;
+  for (size_t i = 0; i < LEN(config_instrospection); i++) {
+    if (table == NULL) {
+      if (table != config_instrospection[i].tname) continue;
+    } else if (strcmp(config_instrospection[i].tname, table) != 0)
+      continue;
+    this_intros_table = &config_instrospection[i];
+    break;
+  }
+  if (this_intros_table == NULL) {
+    log_printf("[E] table '%s' is not part of the config\n", table);
+    return ret;
+  }
+
+  const struct introspection_item* this_intros_key = NULL;
+  for (size_t i = 0; i < this_intros_table->len; i++) {
+    if (strcmp(this_intros_table->intros[i].name, k) != 0) continue;
+    this_intros_key = &this_intros_table->intros[i];
+    break;
+  }
+  if (this_intros_key == NULL) {
+    log_printf("[E] key '%s' is not part of the table '%s' in config\n", k,
+               table);
+    return ret;
+  }
+
+  size_t offset = this_intros_table->offset + this_intros_key->offset;
+  union typ_ptr k_addr = {.ptr = (uintptr_t)config + offset};
+
+  struct parser_error err = parse_key(this_intros_key->typ, k_addr, v, offset);
+  if (err.msg != NULL) {
+    log_printf("[E] cfg parser, failed to parse [%s.%s] (%s): %s\n", table, k,
+               intros_tys_names[this_intros_key->typ], err.msg);
+    log_printf("%s\n%*c^\n", v, err.col);
+    return ret;
+  }
+
+  log_printf("[I] cfg parsed [%s.%s]\n", table, k);
+
+  return ret;
+}
+// NOLINTEND(readability-identifier-length,readability-function-cognitive-complexity,readability-identifier-length)
+
+int parse_config(struct config* NNULLABLE config, char* NNULLABLE path) {
   FILE* fd = fopen(path, "r");
   if (fd == NULL) {
     perror("fopen");
@@ -157,23 +223,14 @@ struct config* parse_config(char* path) {
         "Please place a config file at /etc/lidm.ini or set the LIDM_CONF "
         "env variable",
         stderr);
-    return NULL;
+    return -1;
   }
-  // if(stat(path, &sb) != 0) {
-  //   perror("stat");
-  // }
 
-  g_config = malloc(sizeof(struct config));
-  g_config->behavior.source = vec_new();
-  g_config->behavior.user_source = vec_new();
-
-  if (g_config == NULL) return NULL;
-  bool ret = line_parser(fd, config_line_handler);
+  bool ret = read_desktop(fd, config, config_line_handler);
   (void)fclose(fd);
   if (!ret) {
-    free(g_config);
-    return NULL;
+    return -1;
   }
 
-  return g_config;
+  return 0;
 }

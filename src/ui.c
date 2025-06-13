@@ -49,11 +49,9 @@ static struct termios orig_term;
 static struct termios term;
 static struct winsize window;
 
-static struct theme theme;
-static struct functions functions;
-static struct strings strings;
-static struct behavior behavior;
-void setup(struct config __config) {
+struct config* g_config = NULL;
+void setup(struct config* config) {
+  g_config = config;
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &window);
 
   // 2 padding top and bottom for footer and vertical compensation
@@ -63,11 +61,6 @@ void setup(struct config __config) {
     exit(1);
   }
 
-  theme = __config.theme;
-  functions = __config.functions;
-  strings = __config.strings;
-  behavior = __config.behavior;
-
   tcgetattr(STDOUT_FILENO, &orig_term);
   term = orig_term; // save term
   // "stty" attrs
@@ -76,7 +69,8 @@ void setup(struct config __config) {
 
   // save cursor pos, save screen, set color and reset screen
   // (applying color to all screen)
-  printf("\x1b[s\x1b[?47h\x1b[%s;%sm\x1b[2J", theme.colors.bg, theme.colors.fg);
+  printf("\x1b[s\x1b[?47h\x1b[%s;%sm\x1b[2J", g_config->colors.bg,
+         g_config->colors.fg);
 
   print_footer();
   atexit(restore_all);
@@ -227,7 +221,7 @@ struct session get_current_session() {
   if (of_session.current_opt != 0) {
     // this is for the default user shell :P, not the greatest
     // implementation but I want to get his done
-    if (behavior.include_defshell &&
+    if (g_config->behavior.include_defshell &&
         of_session.current_opt == gsessions->length + 1) {
       struct session shell_session;
       shell_session.type = SHELL;
@@ -333,7 +327,8 @@ int load(struct Vector* users, struct Vector* sessions) {
     hostname[15] = '\0';
   }
 
-  of_session = ofield_new(sessions->length + behavior.include_defshell);
+  of_session =
+      ofield_new(sessions->length + g_config->behavior.include_defshell);
   of_user = ofield_new(users->length);
   of_passwd = ofield_new(0);
 
@@ -345,15 +340,15 @@ int load(struct Vector* users, struct Vector* sessions) {
 
   // put hostname
   printf("\x1b[%d;%dH\x1b[%sm%s\x1b[%sm", boxstart.y + 2,
-         boxstart.x + 12 - (uint)strlen(hostname), theme.colors.e_hostname,
-         hostname, theme.colors.fg);
+         boxstart.x + 12 - (uint)strlen(hostname), g_config->colors.e_hostname,
+         hostname, g_config->colors.fg);
   if (hostname != unknown_str) free(hostname);
 
   // put date
   char* fmtd_time = fmt_time();
   printf("\x1b[%d;%dH\x1b[%sm%s\x1b[%sm", boxstart.y + 2,
-         boxstart.x + boxw - 3 - (uint)strlen(fmtd_time), theme.colors.e_date,
-         fmtd_time, theme.colors.fg);
+         boxstart.x + boxw - 3 - (uint)strlen(fmtd_time),
+         g_config->colors.e_date, fmtd_time, g_config->colors.fg);
   free(fmtd_time);
 
   print_field(SESSION);
@@ -372,14 +367,14 @@ int load(struct Vector* users, struct Vector* sessions) {
       if (ansi_code != -1) {
         if (ansi_code == ESC) {
           esc = 2;
-        } else if (ansi_code == functions.refresh) {
+        } else if (ansi_code == g_config->functions.refresh) {
           restore_all();
           return 0;
-        } else if (ansi_code == functions.reboot) {
+        } else if (ansi_code == g_config->functions.reboot) {
           restore_all();
           reboot(RB_AUTOBOOT);
           exit(0);
-        } else if (ansi_code == functions.poweroff) {
+        } else if (ansi_code == g_config->functions.poweroff) {
           restore_all();
           reboot(RB_POWER_OFF);
           exit(0);
@@ -395,7 +390,7 @@ int load(struct Vector* users, struct Vector* sessions) {
     } else {
       if (len == 1 && *seq == '\n') {
         if (!launch(get_current_user().username, of_passwd.efield.content,
-                    get_current_session(), &restore_all, &behavior)) {
+                    get_current_session(), &restore_all, g_config)) {
           print_passwd(box_start(), of_passwd.efield.length, true);
           ffield_cursor_focus();
         }
@@ -424,31 +419,31 @@ static void print_session(struct uint_point origin, struct session session,
   clean_line(origin, 5);
   const char* session_type;
   if (session.type == XORG) {
-    session_type = strings.s_xorg;
+    session_type = g_config->strings.s_xorg;
   } else if (session.type == WAYLAND) {
-    session_type = strings.s_wayland;
+    session_type = g_config->strings.s_wayland;
   } else {
-    session_type = strings.s_shell;
+    session_type = g_config->strings.s_shell;
   }
   printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm",
-         (ulong)(origin.x + 11 - strlen(session_type)), theme.colors.e_header,
-         session_type, theme.colors.fg);
+         (ulong)(origin.x + 11 - strlen(session_type)),
+         g_config->colors.e_header, session_type, g_config->colors.fg);
 
   char* session_color;
   if (session.type == XORG) {
-    session_color = theme.colors.s_xorg;
+    session_color = g_config->colors.s_xorg;
   } else if (session.type == WAYLAND) {
-    session_color = theme.colors.s_wayland;
+    session_color = g_config->colors.s_wayland;
   } else {
-    session_color = theme.colors.s_shell;
+    session_color = g_config->colors.s_shell;
   }
 
   if (multiple) {
     printf("\r\x1b[%dC< \x1b[%sm%s\x1b[%sm >", origin.x + 14, session_color,
-           session.name, theme.colors.fg);
+           session.name, g_config->colors.fg);
   } else {
     printf("\r\x1b[%dC\x1b[%sm%s\x1b[%sm", origin.x + 14, session_color,
-           session.name, theme.colors.fg);
+           session.name, g_config->colors.fg);
   }
 }
 
@@ -457,17 +452,18 @@ static void print_user(struct uint_point origin, struct user user,
                        bool multiple) {
   clean_line(origin, 7);
   printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm",
-         (ulong)(origin.x + 11 - strlen(strings.e_user)), theme.colors.e_header,
-         strings.e_user, theme.colors.fg);
+         (ulong)(origin.x + 11 - strlen(g_config->strings.e_user)),
+         g_config->colors.e_header, g_config->strings.e_user,
+         g_config->colors.fg);
 
-  char* user_color = theme.colors.e_user;
+  char* user_color = g_config->colors.e_user;
 
   if (multiple) {
     printf("\r\x1b[%dC< \x1b[%sm%s\x1b[%sm >", origin.x + 14, user_color,
-           user.display_name, theme.colors.fg);
+           user.display_name, g_config->colors.fg);
   } else {
     printf("\r\x1b[%dC\x1b[%sm%s\x1b[%sm", origin.x + 14, user_color,
-           user.display_name, theme.colors.fg);
+           user.display_name, g_config->colors.fg);
   }
 }
 
@@ -476,14 +472,15 @@ static char passwd_prompt[33];
 static void print_passwd(struct uint_point origin, uint length, bool err) {
   clean_line(origin, 9);
   printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm",
-         (ulong)(origin.x + 11 - strlen(strings.e_passwd)),
-         theme.colors.e_header, strings.e_passwd, theme.colors.fg);
+         (ulong)(origin.x + 11 - strlen(g_config->strings.e_passwd)),
+         g_config->colors.e_header, g_config->strings.e_passwd,
+         g_config->colors.fg);
 
   char* pass_color;
   if (err)
-    pass_color = theme.colors.e_badpasswd;
+    pass_color = g_config->colors.e_badpasswd;
   else
-    pass_color = theme.colors.e_passwd;
+    pass_color = g_config->colors.e_passwd;
 
   ulong prompt_len = sizeof(passwd_prompt);
   ulong actual_len = length > prompt_len ? prompt_len : length;
@@ -494,7 +491,7 @@ static void print_passwd(struct uint_point origin, uint length, bool err) {
   printf("\r\x1b[%dC\x1b[%sm", origin.x + 14, pass_color);
   printf("%s", passwd_prompt);
 
-  printf("\x1b[%sm", theme.colors.fg);
+  printf("\x1b[%sm", g_config->colors.fg);
 }
 
 static void print_empty_row(uint w, uint n, char* edge1, char* edge2) {
@@ -517,30 +514,34 @@ static void print_box() {
   // TODO: check min sizes
   const struct uint_point bstart = box_start();
 
-  printf("\x1b[%d;%dH\x1b[%sm", bstart.y, bstart.x, theme.colors.e_box);
+  printf("\x1b[%d;%dH\x1b[%sm", bstart.y, bstart.x, g_config->colors.e_box);
   fflush(stdout);
-  print_row(boxw - 2, 1, theme.chars.ctl, theme.chars.ctr, theme.chars.hb);
-  print_empty_row(boxw - 2, boxh - 2, theme.chars.vb, theme.chars.vb);
-  print_row(boxw - 2, 1, theme.chars.cbl, theme.chars.cbr, theme.chars.hb);
-  printf("\x1b[%sm", theme.colors.fg);
+  print_row(boxw - 2, 1, g_config->chars.ctl, g_config->chars.ctr,
+            g_config->chars.hb);
+  print_empty_row(boxw - 2, boxh - 2, g_config->chars.vb, g_config->chars.vb);
+  print_row(boxw - 2, 1, g_config->chars.cbl, g_config->chars.cbr,
+            g_config->chars.hb);
+  printf("\x1b[%sm", g_config->colors.fg);
   fflush(stdout);
 }
 
 static void print_footer() {
-  size_t bsize = snprintf(NULL, 0, "%s %s  %s %s  %s %s", strings.f_poweroff,
-                          key_names[functions.poweroff], strings.f_reboot,
-                          key_names[functions.reboot], strings.f_refresh,
-                          key_names[functions.refresh]);
+  size_t bsize = snprintf(
+      NULL, 0, "%s %s  %s %s  %s %s", g_config->strings.f_poweroff,
+      key_names[g_config->functions.poweroff], g_config->strings.f_reboot,
+      key_names[g_config->functions.reboot], g_config->strings.f_refresh,
+      key_names[g_config->functions.refresh]);
 
   uint row = window.ws_row - 1;
   uint col = window.ws_col - 2 - bsize;
   printf(
       "\x1b[%3$d;%4$dH%8$s \x1b[%1$sm%5$s\x1b[%2$sm  %9$s "
       "\x1b[%1$sm%6$s\x1b[%2$sm  %10$s \x1b[%1$sm%7$s\x1b[%2$sm",
-      theme.colors.e_key, theme.colors.fg, row, col,
-      key_names[functions.poweroff], key_names[functions.reboot],
-      key_names[functions.refresh], strings.f_poweroff, strings.f_reboot,
-      strings.f_refresh);
+      g_config->colors.e_key, g_config->colors.fg, row, col,
+      key_names[g_config->functions.poweroff],
+      key_names[g_config->functions.reboot],
+      key_names[g_config->functions.refresh], g_config->strings.f_poweroff,
+      g_config->strings.f_reboot, g_config->strings.f_refresh);
   fflush(stdout);
 }
 
@@ -554,10 +555,10 @@ void print_errno(const char* descr) {
   struct uint_point origin = box_start();
   if (descr == NULL)
     fprintf(stderr, "\x1b[%d;%dH\x1b[%smunknown error(%d): %s", origin.y - 1,
-            origin.x, theme.colors.err, errno, strerror(errno));
+            origin.x, g_config->colors.err, errno, strerror(errno));
   else {
     fprintf(stderr, "\x1b[%d;%dH\x1b[%sm%s(%d): %s", origin.y - 1, origin.x,
-            theme.colors.err, descr, errno, strerror(errno));
+            g_config->colors.err, descr, errno, strerror(errno));
   }
 }
 

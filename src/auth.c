@@ -94,7 +94,7 @@ void sourceFileTry(char* file) {
 }
 
 void moarEnv(char* user, struct session session, struct passwd* pw,
-             struct behavior* behavior) {
+             struct config* config) {
   if (chdir(pw->pw_dir) == -1) print_errno("can't chdir to user home");
 
   setenv("HOME", pw->pw_dir, true);
@@ -113,16 +113,16 @@ void moarEnv(char* user, struct session session, struct passwd* pw,
   setenv("XDG_SESSION_TYPE", xdg_session_type, true);
 
   printf("\n\n\n\n\x1b[1m");
-  for (size_t i = 0; i < behavior->source.length; i++) {
+  for (size_t i = 0; i < config->behavior.source.length; i++) {
     /* printf("DEBUG(source)!!!! %d %s\n", i, (char*)vec_get(&behavior->source,
      * i)); */
-    sourceFileTry((char*)vec_get(&behavior->source, i));
+    sourceFileTry((char*)vec_get(&config->behavior.source, i));
   }
   /* printf("\n"); */
   if (pw->pw_dir) {
     uint home_len = strlen(pw->pw_dir);
-    for (size_t i = 0; i < behavior->user_source.length; i++) {
-      char* file2sourcepath = (char*)vec_get(&behavior->user_source, i);
+    for (size_t i = 0; i < config->behavior.user_source.length; i++) {
+      char* file2sourcepath = (char*)vec_get(&config->behavior.user_source, i);
       size_t newbuf_len = home_len + strlen(file2sourcepath) + 2;
       char* newbuf = malloc(newbuf_len); // nullbyte and slash
       if (newbuf == NULL) continue;      // can't bother
@@ -150,7 +150,7 @@ void moarEnv(char* user, struct session session, struct passwd* pw,
 
 // NOLINTBEGIN(readability-function-cognitive-complexity)
 bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
-            struct behavior* behavior) {
+            struct config* config) {
   struct passwd* pw = getpwnam(user);
   if (pw == NULL) {
     print_err("could not get user info");
@@ -197,7 +197,7 @@ bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
     }
 
     free((void*)envlist);
-    moarEnv(user, session, pw, behavior);
+    moarEnv(user, session, pw, config);
 
     // TODO: chown stdin to user
     // does it inherit stdin from parent and

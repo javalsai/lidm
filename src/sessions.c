@@ -35,7 +35,7 @@ struct status cb(void* _ctx, char* NULLABLE table, char* key, char* value) {
   ret.finish = false;
 
   if (table == NULL) return ret;
-  if (strcmp(table, "[Desktop Entry]") != 0) return ret;
+  if (strcmp(table, "Desktop Entry") != 0) return ret;
 
   char** NULLABLE copy_at = NULL;
   if (strcmp(key, "Name") == 0) {
@@ -117,7 +117,7 @@ static int fn(const char* fpath, const struct stat* sb, int typeflag) {
 // This code is designed to be run purely single threaded
 #define LIKELY_BOUND_SESSIONS 8
 struct Vector get_avaliable_sessions() {
-  struct Vector sessions = vec_new();
+  struct Vector sessions = VEC_NEW;
   vec_reserve(&sessions, LIKELY_BOUND_SESSIONS);
 
   cb_sessions = &sessions;

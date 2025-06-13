@@ -14,6 +14,7 @@
 #include "util.h"
 
 int main(int argc, char* argv[]) {
+  // Logger
   char* log_output = getenv("LIDM_LOG");
   if (log_output) {
     FILE* log_fd = fopen(log_output, "w");
@@ -26,17 +27,17 @@ int main(int argc, char* argv[]) {
     log_init(log_fd);
   }
 
+  // Chvt
   if (argc == 2) chvt_str(argv[1]);
 
+  struct config config = default_config;
   char* conf_override = getenv("LIDM_CONF");
-  struct config* config =
-      parse_config(conf_override == NULL ? "/etc/lidm.ini" : conf_override);
-  if (config == NULL) {
-    // NOLINT(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
+  char* conf_path = conf_override ? conf_override : "/etc/lidm.ini";
+  if (parse_config(&config, conf_path) != 0) {
     (void)fputs("error parsing config\n", stderr);
     return 1;
   }
-  setup(*config);
+  setup(&config);
 
   struct Vector users = get_human_users();
   struct Vector sessions = get_avaliable_sessions();

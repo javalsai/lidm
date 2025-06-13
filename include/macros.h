@@ -20,4 +20,6 @@
 #define UNULLABLE
 #endif
 
+#define LEN(X) (sizeof(X) / sizeof((X)[0]))
+
 #endif
