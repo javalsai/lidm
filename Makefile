@@ -72,3 +72,9 @@ install-service-openrc:
 install-service-s6:
 	rsync -a --no-owner --no-group ./assets/services/s6/. /etc/s6/sv/lidm
 	@printf '\x1b[1m%s\x1b[0m\n\n' " don't forget to run 's6-service add default lidm' and 's6-db-reload'"
+
+pre-commit:
+	codespell
+	find . -type f -name '*.sh' -not -path './assets/pkg/aur/*/src/*' | xargs shellcheck
+	clang-format -i $$(git ls-files "*.c" "*.h")
+	clang-tidy -p . $$(git ls-files "*.c" "*.h")
