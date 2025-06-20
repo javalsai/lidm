@@ -35,7 +35,6 @@ LiDM is like any [X Display Manager](https://en.wikipedia.org/wiki/X_display_man
 * Save last selection.
 * Show/hide passwd switch.
 * Long sessions, strings, usernames, passwords... they will just overflow or fuck your terminal, I know it and I don't know if I'll fix it.
-* UTF characters or any multi-byte character, not yet supported properly, everything treats characters as a single byte, some chars might work or not depending on the context, but it's not designed to.
 
 # Index
 

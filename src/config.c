@@ -117,7 +117,6 @@ union typ_ptr {
   struct Vector* vec;
   uintptr_t ptr;
 };
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 struct parser_error parse_key(enum introspection_type typ, union typ_ptr at,
                               char* key, size_t offset) {
   char* aux_str = NULL;

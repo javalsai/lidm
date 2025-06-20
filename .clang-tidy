@@ -4,6 +4,7 @@ Checks: >
   -clang-analyzer-security.insecureAPI.mem*,
   -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
   bugprone-*,
+  -bugprone-easily-swappable-parameters,
   cert-*,
   modernize-*,
   performance-*,

@@ -28,7 +28,6 @@ struct ctx_typ {
   char* NULLABLE exec;
   char* NULLABLE tryexec;
 };
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 struct status cb(void* _ctx, char* NULLABLE table, char* key, char* value) {
   struct ctx_typ* ctx = (struct ctx_typ*)_ctx;
   struct status ret;

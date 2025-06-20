@@ -64,6 +64,40 @@ static int selret_magic() {
   return select(1, &set, NULL, NULL, &timeout);
 }
 
+// UTF-8 shii+
+#define UTF8_CONT_MSK 0b11000000
+#define UTF8_CONT_VAL 0b10000000
+bool utf8_iscont(char byte) {
+  return (byte & UTF8_CONT_MSK) == UTF8_CONT_VAL;
+}
+
+size_t utf8len(char* str) {
+  size_t len = 0;
+  while (*str != '\0') {
+    if (!utf8_iscont(*(str++))) len++;
+  }
+
+  return len;
+}
+
+size_t utf8len_until(char* str, char* until) {
+  size_t len = 0;
+  while (str < until) {
+    if (!utf8_iscont(*(str++))) len++;
+  }
+
+  return len;
+}
+
+char* utf8back(char* str) {
+  while(utf8_iscont(*(--str))) {}
+  return str;
+}
+char* utf8seek(char* str) {
+  while(utf8_iscont(*(++str))) {}
+  return str;
+}
+
 // Vector shii
 const struct Vector VEC_NEW = {
     .length = 0,

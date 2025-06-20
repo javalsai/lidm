@@ -43,7 +43,6 @@ void clear_screen() {
   printf("\x1b[H\x1b[J");
 }
 
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 pam_handle_t* get_pamh(char* user, char* passwd) {
   pam_handle_t* pamh = NULL;
   struct pam_conv pamc = {pam_conversation, (void*)passwd};

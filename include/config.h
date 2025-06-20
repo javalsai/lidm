@@ -109,7 +109,9 @@ BUILD(functions, TABLE_FUNCTIONS);
   F(char*, e_passwd, STRING, "password", name)   \
   F(char*, s_wayland, STRING, "wayland", name)   \
   F(char*, s_xorg, STRING, "xorg", name)         \
-  F(char*, s_shell, STRING, "shell", name)
+  F(char*, s_shell, STRING, "shell", name)       \
+  F(char*, opts_pre, STRING, "< ", name)         \
+  F(char*, opts_post, STRING, " >", name)
 
 BUILD(strings, TABLE_STRINGS);
 
