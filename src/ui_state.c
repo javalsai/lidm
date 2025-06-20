@@ -54,7 +54,7 @@ struct session st_session(bool include_defshell) {
 }
 
 void st_ch_focus(char direction) {
-  focused_input = (focused_input + direction) % inputs_n;
+  focused_input = (focused_input + direction) % INPUTS_N;
   ui_update_cursor_focus();
 }
 

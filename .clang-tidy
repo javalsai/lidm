@@ -5,7 +5,10 @@ Checks: >
   -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
   bugprone-*,
   -bugprone-easily-swappable-parameters,
+  -bugprone-signal-handler,
   cert-*,
+  -cert-msc54-cpp,
+  -cert-sig30-c,
   modernize-*,
   -modernize-macro-to-enum,
   performance-*,
@@ -26,6 +29,9 @@ CheckOptions:
     value:            lower_case
   - key:              readability-identifier-naming.ConstantParameterCase
     value:            UPPER_CASE
+
+  - key: readability-identifier-naming.ConstantCase
+    value: "UPPER_CASE"
 
   - key: readability-identifier-length.VariableThreshold
     value: '2'

@@ -40,12 +40,12 @@
 #define VALUE_MAXLEN (BOX_WIDTH - VALUES_COL + 1 - BOX_HMARGIN - 2)
 
 enum input { SESSION, USER, PASSWD };
-extern const u_char inputs_n;
+extern const u_char INPUTS_N;
 
 void setup(struct config* config);
 int load(struct Vector* users, struct Vector* sessions);
-void print_err(const char*);
-void print_errno(const char*);
+void print_err(const char* /*msg*/);
+void print_errno(const char* /*descr*/);
 
 void ui_update_field(enum input focused_input);
 void ui_update_ffield();

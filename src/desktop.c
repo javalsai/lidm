@@ -10,7 +10,7 @@ char* trim_str(char* str) {
   while (*str == ' ' || *str == '\t')
     str++;
 
-  size_t i = strlen(str);
+  size_t i = strlen(str); // NOLINT(readability-identifier-length)
   while (i > 0) {
     if (str[i - 1] != ' ' && str[i - 1] != '\t' && str[i - 1] != '\n') break;
     i--;

@@ -36,7 +36,7 @@ void efield_update(struct editable_field* self, char* update) {
     if (*update == BACKSPACE_CODE) {
       if (self->pos == 0) return;
       char* curr = &self->content[self->pos];
-      char* prev = utf8back(curr);
+      char* prev = (char*)utf8back(curr);
       memmove(prev, curr, strlen(self->content) - self->pos + 1);
 
       self->pos -= curr - prev;

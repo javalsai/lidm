@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
   // Chvt
   if (argc == 2) chvt_str(argv[1]);
 
-  struct config config = default_config;
+  struct config config = DEFAULT_CONFIG;
   char* conf_override = getenv("LIDM_CONF");
   char* conf_path = conf_override ? conf_override : "/etc/lidm.ini";
   if (parse_config(&config, conf_path) != 0) {

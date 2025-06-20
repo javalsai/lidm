@@ -16,7 +16,7 @@ struct source_dir {
   enum session_type type;
   char* dir;
 };
-static const struct source_dir sources[] = {
+static const struct source_dir SOURCES[] = {
     {XORG, "/usr/share/xsessions"},
     {WAYLAND, "/usr/share/wayland-sessions"},
 };
@@ -120,10 +120,10 @@ struct Vector get_avaliable_sessions() {
   vec_reserve(&sessions, LIKELY_BOUND_SESSIONS);
 
   cb_sessions = &sessions;
-  for (size_t i = 0; i < (sizeof(sources) / sizeof(sources[0])); i++) {
-    log_printf("[I] parsing into %s\n", sources[i].dir);
-    session_type = sources[i].type;
-    ftw(sources[i].dir, &fn, 1);
+  for (size_t i = 0; i < (sizeof(SOURCES) / sizeof(SOURCES[0])); i++) {
+    log_printf("[I] parsing into %s\n", SOURCES[i].dir);
+    session_type = SOURCES[i].type;
+    ftw(SOURCES[i].dir, &fn, 1);
   }
   cb_sessions = NULL;
 

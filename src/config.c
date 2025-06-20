@@ -126,7 +126,10 @@ struct parser_error parse_key(enum introspection_type typ, union typ_ptr at,
       aux_str = strdup(key);
       if (!aux_str) FAIL("allocation failure");
       aux_err = parse_str_inplace(aux_str);
-      if (aux_err.msg != NULL) return aux_err;
+      if (aux_err.msg != NULL) {
+        free(aux_str);
+        return aux_err;
+      }
       // FIXME: it be broken, prob the ptr arithmetic or smth, we mem leak
       // instead 😎 If the ptr is not the default it means it was prev
       // allocated, we should free if (*(char**)((uintptr_t)(&default_config) +
@@ -154,7 +157,10 @@ struct parser_error parse_key(enum introspection_type typ, union typ_ptr at,
       aux_str = strdup(key);
       if (!aux_str) FAIL("allocation failure");
       aux_err = parse_str_inplace(aux_str);
-      if (aux_err.msg != NULL) return aux_err;
+      if (aux_err.msg != NULL) {
+        free(aux_str);
+        return aux_err;
+      }
       vec_push(at.vec, aux_str);
       break;
   }
@@ -171,12 +177,12 @@ struct status config_line_handler(void* _config, char* table, char* k,
   struct status ret = {.finish = false};
 
   const struct introspection_table* this_intros_table = NULL;
-  for (size_t i = 0; i < LEN(config_instrospection); i++) {
+  for (size_t i = 0; i < LEN(CONFIG_INSTROSPECTION); i++) {
     if (table == NULL) {
-      if (table != config_instrospection[i].tname) continue;
-    } else if (strcmp(config_instrospection[i].tname, table) != 0)
+      if (table != CONFIG_INSTROSPECTION[i].tname) continue;
+    } else if (strcmp(CONFIG_INSTROSPECTION[i].tname, table) != 0)
       continue;
-    this_intros_table = &config_instrospection[i];
+    this_intros_table = &CONFIG_INSTROSPECTION[i];
     break;
   }
   if (this_intros_table == NULL) {
@@ -202,7 +208,7 @@ struct status config_line_handler(void* _config, char* table, char* k,
   struct parser_error err = parse_key(this_intros_key->typ, k_addr, v, offset);
   if (err.msg != NULL) {
     log_printf("[E] cfg parser, failed to parse [%s.%s] (%s): %s\n", table, k,
-               intros_tys_names[this_intros_key->typ], err.msg);
+               INTROS_TYS_NAMES[this_intros_key->typ], err.msg);
     log_printf("%s\n%*c^\n", v, err.col);
     return ret;
   }

@@ -27,7 +27,7 @@
 #include "users.h"
 #include "util.h"
 
-const u_char inputs_n = 3;
+const u_char INPUTS_N = 3;
 
 static void print_box();
 static void print_footer();
@@ -182,21 +182,21 @@ int load(struct Vector* users, struct Vector* sessions) {
   of_passwd = ofield_new(0);
 
   /// PRINTING
-  const struct uint_point boxstart = box_start();
+  const struct uint_point BOXSTART = box_start();
 
   // printf box
   print_box();
 
   // put hostname
-  printf("\x1b[%d;%dH\x1b[%sm%s\x1b[%sm", boxstart.y + HEAD_ROW,
-         boxstart.x + VALUES_COL - VALUES_SEPR - (uint)utf8len(hostname),
+  printf("\x1b[%d;%dH\x1b[%sm%s\x1b[%sm", BOXSTART.y + HEAD_ROW,
+         BOXSTART.x + VALUES_COL - VALUES_SEPR - (uint)utf8len(hostname),
          g_config->colors.e_hostname, hostname, g_config->colors.fg);
   if (hostname != unknown_str) free(hostname);
 
   // put date
   char* fmtd_time = fmt_time();
-  printf("\x1b[%d;%dH\x1b[%sm%s\x1b[%sm", boxstart.y + HEAD_ROW,
-         boxstart.x + BOX_WIDTH - 1 - BOX_HMARGIN - (uint)utf8len(fmtd_time),
+  printf("\x1b[%d;%dH\x1b[%sm%s\x1b[%sm", BOXSTART.y + HEAD_ROW,
+         BOXSTART.x + BOX_WIDTH - 1 - BOX_HMARGIN - (uint)utf8len(fmtd_time),
          g_config->colors.e_date, fmtd_time, g_config->colors.fg);
   free(fmtd_time);
 
@@ -392,9 +392,9 @@ static void print_row(uint wid, uint n, char* edge1, char* edge2,
 }
 
 static void print_box() {
-  const struct uint_point bstart = box_start();
+  const struct uint_point BSTART = box_start();
 
-  printf("\x1b[%d;%dH\x1b[%sm", bstart.y, bstart.x, g_config->colors.e_box);
+  printf("\x1b[%d;%dH\x1b[%sm", BSTART.y, BSTART.x, g_config->colors.e_box);
   print_row(BOX_WIDTH - 2, 1, g_config->chars.ctl, g_config->chars.ctr,
             g_config->chars.hb);
   print_empty_row(BOX_WIDTH - 2, BOX_HEIGHT - 2, g_config->chars.vb,
@@ -408,9 +408,9 @@ static void print_box() {
 static void print_footer() {
   size_t bsize = snprintf(
       NULL, 0, "%s %s  %s %s  %s %s", g_config->strings.f_poweroff,
-      key_names[g_config->functions.poweroff], g_config->strings.f_reboot,
-      key_names[g_config->functions.reboot], g_config->strings.f_refresh,
-      key_names[g_config->functions.refresh]);
+      KEY_NAMES[g_config->functions.poweroff], g_config->strings.f_reboot,
+      KEY_NAMES[g_config->functions.reboot], g_config->strings.f_refresh,
+      KEY_NAMES[g_config->functions.refresh]);
 
   uint row = window.ws_row - 1;
   uint col = window.ws_col - 2 - bsize;
@@ -418,9 +418,9 @@ static void print_footer() {
       "\x1b[%3$d;%4$dH%8$s \x1b[%1$sm%5$s\x1b[%2$sm  %9$s "
       "\x1b[%1$sm%6$s\x1b[%2$sm  %10$s \x1b[%1$sm%7$s\x1b[%2$sm",
       g_config->colors.e_key, g_config->colors.fg, row, col,
-      key_names[g_config->functions.poweroff],
-      key_names[g_config->functions.reboot],
-      key_names[g_config->functions.refresh], g_config->strings.f_poweroff,
+      KEY_NAMES[g_config->functions.poweroff],
+      KEY_NAMES[g_config->functions.reboot],
+      KEY_NAMES[g_config->functions.refresh], g_config->strings.f_poweroff,
       g_config->strings.f_reboot, g_config->strings.f_refresh);
   (void)fflush(stdout);
 }
