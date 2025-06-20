@@ -90,16 +90,18 @@ size_t utf8len_until(const char* str, const char* until) {
 }
 
 const char* utf8back(const char* str) {
-  while(utf8_iscont(*(--str))) {}
+  while (utf8_iscont(*(--str))) {
+  }
   return str;
 }
 const char* utf8seek(const char* str) {
-  while(utf8_iscont(*(++str))) {}
+  while (utf8_iscont(*(++str))) {
+  }
   return str;
 }
 
 const char* utf8seekn(const char* str, size_t n) {
-  while(n > 0 && *str != '\0') {
+  while (n > 0 && *str != '\0') {
     str = utf8seek(str);
     n--;
   }

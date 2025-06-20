@@ -12,8 +12,9 @@ struct status {
 };
 
 int read_desktop(FILE* NNULLABLE fd, void* UNULLABLE ctx,
-                 struct status (*NNULLABLE cb)(void* UNULLABLE ctx, char* NULLABLE table,
-                                     char* NNULLABLE key,
-                                     char* NNULLABLE value));
+                 struct status (*NNULLABLE cb)(void* UNULLABLE ctx,
+                                               char* NULLABLE table,
+                                               char* NNULLABLE key,
+                                               char* NNULLABLE value));
 
 #endif

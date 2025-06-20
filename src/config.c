@@ -127,10 +127,10 @@ struct parser_error parse_key(enum introspection_type typ, union typ_ptr at,
       if (!aux_str) FAIL("allocation failure");
       aux_err = parse_str_inplace(aux_str);
       if (aux_err.msg != NULL) return aux_err;
-      // FIXME: it be broken, prob the ptr arithmetic or smth, we mem leak instead 😎
-      // If the ptr is not the default it means it was prev allocated, we should
-      // free
-      // if (*(char**)((uintptr_t)(&default_config) + offset) != *at.string) {
+      // FIXME: it be broken, prob the ptr arithmetic or smth, we mem leak
+      // instead 😎 If the ptr is not the default it means it was prev
+      // allocated, we should free if (*(char**)((uintptr_t)(&default_config) +
+      // offset) != *at.string) {
       //   free(*at.string);
       // }
       *at.string = aux_str;

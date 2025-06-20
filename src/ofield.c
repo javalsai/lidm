@@ -33,11 +33,12 @@ void ofield_kbd_type(struct opts_field* self, char* typed,
 }
 
 bool ofield_opts_seek(struct opts_field* self, char seek) {
-  // no options or (a single option but its selected isntead of on edit)
+  // no options or (a single option but its selected instead of on edit)
   if (self->opts == 0 || (self->opts == 1 && self->current_opt != 0))
     return false;
 
-  self->current_opt = 1 + ((self->current_opt - 1 + seek + self->opts) % self->opts);
+  self->current_opt =
+      1 + ((self->current_opt - 1 + seek + self->opts) % self->opts);
   ui_update_ofield(self);
   return true;
 }
