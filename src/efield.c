@@ -23,7 +23,6 @@ void efield_trim(struct editable_field* self, u_char pos) {
   self->content[pos + 1] = '\0';
 }
 
-// NOLINTNEXTLINE(modernize-macro-to-enum)
 #define BACKSPACE_CODE 127
 void efield_update(struct editable_field* self, char* update) {
   u_char insert_len = strlen(update);
@@ -61,24 +60,25 @@ void efield_update(struct editable_field* self, char* update) {
 
 // returns bool depending if it was able to "use" the seek
 bool efield_seek(struct editable_field* self, char seek) {
-  if (strlen(self->content) == 0) return false;
+  if (*self->content == '\0') return false;
+  if (seek == 0) return false;
 
-  u_char count = seek;
-  if (seek < 0) {
-    count = -seek;
+  u_char count = seek < 0 ? -seek : seek;
+  char* ptr = &self->content[self->pos];
+  char* start = ptr;
+
+  while (count-- > 0) {
+    if (seek < 0) {
+      if (ptr == self->content) break;
+      ptr = (char*)utf8back(ptr);
+    } else {
+      if (*ptr == '\0') break;
+      ptr = (char*)utf8seek(ptr);
+    }
   }
 
-  char* orig = &self->content[self->pos];
-  char* ptr = orig;
-  while (ptr > self->content && orig > 0 && *ptr != '\0') {
-    if (seek < 0)
-      ptr = utf8back(ptr);
-    else
-      ptr = utf8seek(ptr);
-    count--;
-  }
-
-  return ptr != orig;
+  self->pos = (u_char)(ptr - self->content);
+  return ptr != start;
 }
 
 // NOLINTEND(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)

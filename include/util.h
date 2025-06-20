@@ -9,15 +9,16 @@
 
 #include "keys.h"
 
-int find_keyname(enum keys* at, char* name);
-enum keys find_ansi(char*);
+int find_keyname(enum keys* at, const char* name);
+enum keys find_ansi(const char*);
 void read_press(u_char*, char*);
 
 bool utf8_iscont(char byte);
-size_t utf8len(char* str);
-size_t utf8len_until(char* str, char* until);
-char* utf8back(char* str);
-char* utf8seek(char* str);
+size_t utf8len(const char* str);
+size_t utf8len_until(const char* str, const char* until);
+const char* utf8back(const char* str);
+const char* utf8seek(const char* str);
+const char* utf8seekn(const char* str, size_t n);
 
 struct Vector {
   uint32_t length;

@@ -11,7 +11,7 @@
 
 static int selret_magic();
 
-int find_keyname(enum keys* at, char* name) {
+int find_keyname(enum keys* at, const char* name) {
   for (size_t i = 0; i < sizeof(key_mappings) / sizeof(key_mappings[0]); i++) {
     if (strcmp(key_names[i], name) == 0) {
       *at = (enum keys)i;
@@ -22,7 +22,7 @@ int find_keyname(enum keys* at, char* name) {
   return -1;
 }
 
-enum keys find_ansi(char* seq) {
+enum keys find_ansi(const char* seq) {
   for (size_t i = 0; i < sizeof(key_mappings) / sizeof(key_mappings[0]); i++) {
     struct key_mapping mapping = key_mappings[i];
     for (size_t j = 0; mapping.sequences[j] != NULL; j++) {
@@ -34,7 +34,6 @@ enum keys find_ansi(char* seq) {
   return -1;
 }
 
-// https://stackoverflow.com/a/48040042
 void read_press(u_char* length, char* out) {
   *length = 0;
 
@@ -54,6 +53,7 @@ void read_press(u_char* length, char* out) {
   }
 }
 
+// https://stackoverflow.com/a/48040042
 static int selret_magic() {
   fd_set set;
   struct timeval timeout;
@@ -64,14 +64,14 @@ static int selret_magic() {
   return select(1, &set, NULL, NULL, &timeout);
 }
 
-// UTF-8 shii+
+// UTF-8 shii
 #define UTF8_CONT_MSK 0b11000000
 #define UTF8_CONT_VAL 0b10000000
 bool utf8_iscont(char byte) {
   return (byte & UTF8_CONT_MSK) == UTF8_CONT_VAL;
 }
 
-size_t utf8len(char* str) {
+size_t utf8len(const char* str) {
   size_t len = 0;
   while (*str != '\0') {
     if (!utf8_iscont(*(str++))) len++;
@@ -80,7 +80,7 @@ size_t utf8len(char* str) {
   return len;
 }
 
-size_t utf8len_until(char* str, char* until) {
+size_t utf8len_until(const char* str, const char* until) {
   size_t len = 0;
   while (str < until) {
     if (!utf8_iscont(*(str++))) len++;
@@ -89,12 +89,20 @@ size_t utf8len_until(char* str, char* until) {
   return len;
 }
 
-char* utf8back(char* str) {
+const char* utf8back(const char* str) {
   while(utf8_iscont(*(--str))) {}
   return str;
 }
-char* utf8seek(char* str) {
+const char* utf8seek(const char* str) {
   while(utf8_iscont(*(++str))) {}
+  return str;
+}
+
+const char* utf8seekn(const char* str, size_t n) {
+  while(n > 0 && *str != '\0') {
+    str = utf8seek(str);
+    n--;
+  }
   return str;
 }
 

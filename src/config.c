@@ -11,7 +11,6 @@
 #include "log.h"
 #include "util.h"
 
-// NOLINTNEXTLINE(modernize-macro-to-enum)
 #define UPPER_HALF_BYTE 4
 int parse_hex(char* _at, char x1, char x2) {
   // make linter happy

@@ -76,6 +76,7 @@ void st_ch_ef_col(char direction) {
       ofield_opts_seek(&of_user, direction);
 
   ui_update_cursor_focus();
+  ui_update_ffield();
 }
 
 void st_kbd_type(char* text, bool cfg_include_defshell) {

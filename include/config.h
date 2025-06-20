@@ -14,18 +14,11 @@ enum introspection_type {
   KEY,
   STRING_ARRAY,
 };
-static const char* const intros_tys_names[] = {
+static const char* NNULLABLE const intros_tys_names[] = {
     [STRING] = "STRING",
     [BOOL] = "BOOL",
     [KEY] = "KEY",
     [STRING_ARRAY] = "STRING_ARRAY",
-};
-
-union introspection_variant {
-  char* string;
-  bool boolean;
-  enum keys key;
-  char** string_array;
 };
 
 struct introspection_item {

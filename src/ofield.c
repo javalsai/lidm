@@ -1,5 +1,6 @@
 #include <stddef.h>
 
+#include "config.h"
 #include "efield.h"
 #include "ofield.h"
 #include "ui.h"
@@ -36,7 +37,7 @@ bool ofield_opts_seek(struct opts_field* self, char seek) {
   if (self->opts == 0 || (self->opts == 1 && self->current_opt != 0))
     return false;
 
-  self->current_opt = 1 + ((self->current_opt - 1 + seek) % self->opts);
+  self->current_opt = 1 + ((self->current_opt - 1 + seek + self->opts) % self->opts);
   ui_update_ofield(self);
   return true;
 }
@@ -53,9 +54,23 @@ bool ofield_seek(struct opts_field* self, char seek) {
   return true;
 }
 
-u_char ofield_display_cursor_col(struct opts_field* self) {
-  if (self->current_opt == 0)
-    return utf8len_until(self->efield.content,
-                         &self->efield.content[self->efield.pos]);
+u_char ofield_display_cursor_col(struct opts_field* self, u_char maxlen) {
+  if (self->current_opt == 0) {
+    u_char display_len = utf8len(self->efield.content);
+    u_char pos = utf8len_until(self->efield.content,
+                               &self->efield.content[self->efield.pos]);
+
+    if (display_len > maxlen) {
+      if (pos < maxlen / 2) {
+        return pos;
+      }
+      if (display_len - pos < maxlen / 2) {
+        return maxlen - (display_len - pos);
+      }
+      return maxlen / 2;
+    }
+
+    return pos;
+  }
   return 0;
 }

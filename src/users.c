@@ -1,6 +1,5 @@
 #include <pwd.h>
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -39,7 +38,6 @@ int build_user(struct user* NNULLABLE user, struct passwd* p) {
 }
 
 // This code is designed to be run purely single threaded
-// NOLINTNEXTLINE(modernize-macro-to-enum)
 #define LIKELY_BOUND_USERS 4
 struct Vector get_human_users() {
   struct Vector users = VEC_NEW;

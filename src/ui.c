@@ -5,6 +5,7 @@
 #include <pwd.h>
 #include <signal.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,36 +28,39 @@
 #include "util.h"
 
 const u_char inputs_n = 3;
-const uint boxw = 50;
-const uint boxh = 12;
 
 static void print_box();
 static void print_footer();
 static void restore_all();
-static void signal_handler(int);
+static void signal_handler(int code);
 
 struct uint_point {
   uint x;
   uint y;
 };
 
-static void print_session(struct uint_point, struct session, bool);
-static void print_user(struct uint_point, struct user, bool);
-static void print_passwd(struct uint_point, uint, bool);
+static void print_session(struct uint_point origin, struct session session,
+                          bool multiple);
+static void print_user(struct uint_point origin, struct user user,
+                       bool multiple);
+static void print_passwd(struct uint_point origin, uint length, bool err);
 
 // ansi resource: https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
 static struct termios orig_term;
 static struct termios term;
 static struct winsize window;
 
+#define INNER_BOX_OUT_MARGIN 2
 struct config* g_config = NULL;
 void setup(struct config* config) {
   g_config = config;
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &window);
 
+  // at least
   // 2 padding top and bottom for footer and vertical compensation
   // 2 padding left & right to not overflow footer width
-  if (window.ws_row < boxh + 4 || window.ws_col < boxw + 4) {
+  if (window.ws_row < BOX_HEIGHT + INNER_BOX_OUT_MARGIN * 2 ||
+      window.ws_col < BOX_WIDTH + INNER_BOX_OUT_MARGIN * 2) {
     (void)fprintf(stderr, "\x1b[1;31mScreen too small\x1b[0m\n");
     exit(1);
   }
@@ -79,18 +83,19 @@ void setup(struct config* config) {
 
 static struct uint_point box_start() {
   return (struct uint_point){
-      .x = ((window.ws_col - boxw) / 2) + 1,
-      .y = ((window.ws_row - boxh) / 2) + 1,
+      .x = ((window.ws_col - BOX_WIDTH) / 2) + 1, // looks better
+      .y = ((window.ws_row - BOX_HEIGHT) / 2),    // leave more space under
   };
 }
 
+#define TM_YEAR_EPOCH 1900
 static char* fmt_time() {
   time_t tme = time(NULL);
   struct tm tm = *localtime(&tme);
 
   // TODO: use strftime and a cfg template string
   char* buf;
-  asprintf(&buf, "%d-%02d-%02d %02d:%02d:%02d", tm.tm_year + 1900,
+  asprintf(&buf, "%d-%02d-%02d %02d:%02d:%02d", tm.tm_year + TM_YEAR_EPOCH,
            tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 
   return buf;
@@ -99,19 +104,21 @@ static char* fmt_time() {
 void ui_update_cursor_focus() {
   struct uint_point bstart = box_start();
   u_char line = bstart.y;
-  u_char col = bstart.x + 15;
+  u_char col = bstart.x + VALUES_COL;
 
   struct opts_field* ofield = get_opts_ffield();
-  col += ofield_display_cursor_col(ofield);
+  col += ofield_display_cursor_col(
+      ofield, VALUE_MAXLEN - utf8len(g_config->strings.opts_pre) -
+                  utf8len(g_config->strings.opts_post));
   if (ofield->opts > 1) col += utf8len(g_config->strings.opts_pre);
 
   // rows in here quite bodged
   if (focused_input == SESSION) {
-    line += 5;
+    line += SESSION_ROW;
   } else if (focused_input == USER) {
-    line += 7;
+    line += USER_ROW;
   } else if (focused_input == PASSWD)
-    line += 9;
+    line += PASSWD_ROW;
 
   (void)printf("\x1b[%d;%dH", line, col);
   (void)fflush(stdout);
@@ -137,7 +144,7 @@ void ui_update_ffield() {
   ui_update_field(focused_input);
 }
 
-void ui_update_ofield(struct opts_field* self) {
+void ui_update_ofield(struct opts_field* NNULLABLE self) {
   enum input input;
   if (self == &of_session)
     input = SESSION;
@@ -152,18 +159,21 @@ void ui_update_ofield(struct opts_field* self) {
 }
 
 static char* unknown_str = "unknown";
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 int load(struct Vector* users, struct Vector* sessions) {
   /// SETUP
   gusers = users;
   gsessions = sessions;
 
   // hostnames larger won't render properly
-  char* hostname = malloc(16);
-  if (gethostname(hostname, 16) != 0) {
+  char* hostname = malloc(VALUES_COL - VALUES_SEPR - BOX_HMARGIN);
+  if (gethostname(hostname, VALUES_COL - VALUES_SEPR - BOX_HMARGIN) != 0) {
     free(hostname);
     hostname = unknown_str;
   } else {
-    hostname[15] = '\0';
+    char* hidx =
+        (char*)utf8back(&hostname[VALUES_COL - VALUES_SEPR - BOX_HMARGIN - 1]);
+    *hidx = '\0';
   }
 
   of_session =
@@ -178,15 +188,15 @@ int load(struct Vector* users, struct Vector* sessions) {
   print_box();
 
   // put hostname
-  printf("\x1b[%d;%dH\x1b[%sm%s\x1b[%sm", boxstart.y + 2,
-         boxstart.x + 12 - (uint)strlen(hostname), g_config->colors.e_hostname,
-         hostname, g_config->colors.fg);
+  printf("\x1b[%d;%dH\x1b[%sm%s\x1b[%sm", boxstart.y + HEAD_ROW,
+         boxstart.x + VALUES_COL - VALUES_SEPR - (uint)utf8len(hostname),
+         g_config->colors.e_hostname, hostname, g_config->colors.fg);
   if (hostname != unknown_str) free(hostname);
 
   // put date
   char* fmtd_time = fmt_time();
-  printf("\x1b[%d;%dH\x1b[%sm%s\x1b[%sm", boxstart.y + 2,
-         boxstart.x + boxw - 3 - (uint)strlen(fmtd_time),
+  printf("\x1b[%d;%dH\x1b[%sm%s\x1b[%sm", boxstart.y + HEAD_ROW,
+         boxstart.x + BOX_WIDTH - 1 - BOX_HMARGIN - (uint)utf8len(fmtd_time),
          g_config->colors.e_date, fmtd_time, g_config->colors.fg);
   free(fmtd_time);
 
@@ -197,7 +207,7 @@ int load(struct Vector* users, struct Vector* sessions) {
 
   /// INTERACTIVE
   u_char len;
-  char seq[256];
+  char seq[0xff];
   uint esc = 0;
   while (true) {
     read_press(&len, seq);
@@ -242,32 +252,46 @@ int load(struct Vector* users, struct Vector* sessions) {
   }
 }
 
-static char* line_cleaner = NULL;
-static void clean_line(struct uint_point origin, uint line) {
+void clean_line(struct uint_point origin, uint line) {
+  static char* line_cleaner = NULL;
   if (line_cleaner == NULL) {
-    line_cleaner = malloc((boxw - 2) * sizeof(char) + 1);
-    memset(line_cleaner, 32, boxw - 2);
-    line_cleaner[boxw - 2] = 0;
+    // - outline + nullbyte
+    line_cleaner = malloc(BOX_WIDTH - 2 + 1);
+    memset(line_cleaner, ' ', BOX_WIDTH - 2);
+    line_cleaner[BOX_WIDTH - 2] = 0;
   }
-  printf("\x1b[%d;%dH", origin.y + line, origin.x + 1);
-  printf("%s", line_cleaner);
+  printf("\x1b[%d;%dH%s", origin.y + line, origin.x + 1, line_cleaner);
 }
 
-// TODO: session_len > 32
+u_char get_render_pos_offset(struct opts_field* self, u_char maxlen) {
+  if (self->current_opt != 0) return 0;
+
+  u_char pos = utf8len_until(self->efield.content,
+                             &self->efield.content[self->efield.pos]);
+  return pos - ofield_display_cursor_col(self, maxlen);
+}
+
 static void print_session(struct uint_point origin, struct session session,
                           bool multiple) {
-  clean_line(origin, 5);
-  const char* session_type;
+  clean_line(origin, SESSION_ROW);
+
+  const char* NNULLABLE session_type;
   if (session.type == XORG) {
     session_type = g_config->strings.s_xorg;
   } else if (session.type == WAYLAND) {
     session_type = g_config->strings.s_wayland;
-  } else {
+  } else if (session.type == SHELL) {
     session_type = g_config->strings.s_shell;
+  } else {
+    __builtin_unreachable();
   }
-  printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm",
-         (ulong)(origin.x + 11 - strlen(session_type)),
-         g_config->colors.e_header, session_type, g_config->colors.fg);
+
+  // already in the box, - 1 bcs no need to step over margin, same reasoning in
+  // other places
+  printf(
+      "\r\x1b[%luC\x1b[%sm%s\x1b[%sm",
+      (ulong)(origin.x + VALUES_COL - VALUES_SEPR - utf8len(session_type) - 1),
+      g_config->colors.e_header, session_type, g_config->colors.fg);
 
   char* session_color;
   if (session.type == XORG) {
@@ -278,42 +302,58 @@ static void print_session(struct uint_point origin, struct session session,
     session_color = g_config->colors.s_shell;
   }
 
+  char* toprint = session.name;
   if (multiple) {
-    printf("\r\x1b[%dC%s\x1b[%sm%s\x1b[%sm%s", origin.x + 14,
-           g_config->strings.opts_pre, session_color, session.name,
+    u_char maxlen = VALUE_MAXLEN - utf8len(g_config->strings.opts_pre) -
+                    utf8len(g_config->strings.opts_post);
+    toprint += get_render_pos_offset(&of_session, maxlen);
+    size_t printlen = utf8seekn(toprint, maxlen) - toprint;
+
+    printf("\r\x1b[%dC%s\x1b[%sm%.*s\x1b[%sm%s", origin.x + VALUES_COL - 1,
+           g_config->strings.opts_pre, session_color, (int)printlen, toprint,
            g_config->colors.fg, g_config->strings.opts_post);
   } else {
-    printf("\r\x1b[%dC\x1b[%sm%s\x1b[%sm", origin.x + 14, session_color,
-           session.name, g_config->colors.fg);
+    toprint += get_render_pos_offset(&of_session, VALUE_MAXLEN);
+    size_t printlen = utf8seekn(toprint, VALUE_MAXLEN) - toprint;
+    printf("\r\x1b[%dC\x1b[%sm%.*s\x1b[%sm", origin.x + VALUES_COL - 1,
+           session_color, (int)printlen, toprint, g_config->colors.fg);
   }
 }
 
-// TODO: user_len > 32
 static void print_user(struct uint_point origin, struct user user,
                        bool multiple) {
-  clean_line(origin, 7);
+  clean_line(origin, USER_ROW);
   printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm",
-         (ulong)(origin.x + 11 - strlen(g_config->strings.e_user)),
+         (ulong)(origin.x + VALUES_COL - VALUES_SEPR - 1 -
+                 strlen(g_config->strings.e_user)),
          g_config->colors.e_header, g_config->strings.e_user,
          g_config->colors.fg);
 
   char* user_color = g_config->colors.e_user;
 
+  char* toprint = user.display_name;
   if (multiple) {
-    printf("\r\x1b[%dC< \x1b[%sm%s\x1b[%sm >", origin.x + 14, user_color,
-           user.display_name, g_config->colors.fg);
+    u_char maxlen = VALUE_MAXLEN - utf8len(g_config->strings.opts_pre) -
+                    utf8len(g_config->strings.opts_post);
+    toprint += get_render_pos_offset(&of_session, maxlen);
+    size_t printlen = utf8seekn(toprint, maxlen) - toprint;
+
+    printf("\r\x1b[%dC< \x1b[%sm%.*s\x1b[%sm >", origin.x + VALUES_COL - 1,
+           user_color, (int)printlen, toprint, g_config->colors.fg);
   } else {
-    printf("\r\x1b[%dC\x1b[%sm%s\x1b[%sm", origin.x + 14, user_color,
-           user.display_name, g_config->colors.fg);
+    toprint += get_render_pos_offset(&of_user, VALUE_MAXLEN);
+    size_t printlen = utf8seekn(toprint, VALUE_MAXLEN) - toprint;
+    printf("\r\x1b[%dC\x1b[%sm%.*s\x1b[%sm", origin.x + VALUES_COL - 1,
+           user_color, (int)printlen, toprint, g_config->colors.fg);
   }
 }
 
-static char passwd_prompt[33];
-// TODO: passwd_len > 32
+static char passwd_prompt[VALUE_MAXLEN + 1];
 static void print_passwd(struct uint_point origin, uint length, bool err) {
-  clean_line(origin, 9);
+  clean_line(origin, PASSWD_ROW);
   printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm",
-         (ulong)(origin.x + 11 - strlen(g_config->strings.e_passwd)),
+         (ulong)(origin.x + VALUES_COL - VALUES_SEPR -
+                 utf8len(g_config->strings.e_passwd) - 1),
          g_config->colors.e_header, g_config->strings.e_passwd,
          g_config->colors.fg);
 
@@ -323,47 +363,46 @@ static void print_passwd(struct uint_point origin, uint length, bool err) {
   else
     pass_color = g_config->colors.e_passwd;
 
-  ulong prompt_len = sizeof(passwd_prompt);
-  ulong actual_len = length > prompt_len ? prompt_len : length;
-  memset(passwd_prompt, ' ', prompt_len);
+  ulong actual_len = length > VALUE_MAXLEN ? VALUE_MAXLEN : length;
+  memset(passwd_prompt, ' ', VALUE_MAXLEN);
   memset(passwd_prompt, '*', actual_len);
-  passwd_prompt[32] = 0;
+  passwd_prompt[VALUE_MAXLEN] = '\0';
 
-  printf("\r\x1b[%dC\x1b[%sm", origin.x + 14, pass_color);
+  printf("\r\x1b[%dC\x1b[%sm", origin.x + VALUES_COL - 1, pass_color);
   printf("%s", passwd_prompt);
 
   printf("\x1b[%sm", g_config->colors.fg);
 }
 
-static void print_empty_row(uint w, uint n, char* edge1, char* edge2) {
+static void print_empty_row(uint wid, uint n, char* edge1, char* edge2) {
   for (size_t i = 0; i < n; i++) {
-    printf("%s\x1b[%dC%s\x1b[%dD\x1b[1B", edge1, w, edge2, w + 2);
+    printf("%s\x1b[%dC%s\x1b[%dD\x1b[1B", edge1, wid, edge2, wid + 2);
   }
 }
 
-static void print_row(uint w, uint n, char* edge1, char* edge2, char* filler) {
+static void print_row(uint wid, uint n, char* edge1, char* edge2,
+                      char* filler) {
   for (size_t i = 0; i < n; i++) {
     printf("%s", edge1);
-    for (size_t i = 0; i < w; i++) {
+    for (size_t i = 0; i < wid; i++) {
       printf("%s", filler);
     }
-    printf("%s\x1b[%dD\x1b[1B", edge2, w + 2);
+    printf("%s\x1b[%dD\x1b[1B", edge2, wid + 2);
   }
 }
 
 static void print_box() {
-  // TODO: check min sizes
   const struct uint_point bstart = box_start();
 
   printf("\x1b[%d;%dH\x1b[%sm", bstart.y, bstart.x, g_config->colors.e_box);
-  fflush(stdout);
-  print_row(boxw - 2, 1, g_config->chars.ctl, g_config->chars.ctr,
+  print_row(BOX_WIDTH - 2, 1, g_config->chars.ctl, g_config->chars.ctr,
             g_config->chars.hb);
-  print_empty_row(boxw - 2, boxh - 2, g_config->chars.vb, g_config->chars.vb);
-  print_row(boxw - 2, 1, g_config->chars.cbl, g_config->chars.cbr,
+  print_empty_row(BOX_WIDTH - 2, BOX_HEIGHT - 2, g_config->chars.vb,
+                  g_config->chars.vb);
+  print_row(BOX_WIDTH - 2, 1, g_config->chars.cbl, g_config->chars.cbr,
             g_config->chars.hb);
   printf("\x1b[%sm", g_config->colors.fg);
-  fflush(stdout);
+  (void)fflush(stdout);
 }
 
 static void print_footer() {
@@ -383,30 +422,32 @@ static void print_footer() {
       key_names[g_config->functions.reboot],
       key_names[g_config->functions.refresh], g_config->strings.f_poweroff,
       g_config->strings.f_reboot, g_config->strings.f_refresh);
-  fflush(stdout);
+  (void)fflush(stdout);
 }
 
 void print_err(const char* msg) {
   struct uint_point origin = box_start();
-  fprintf(stderr, "\x1b[%d;%dH%s(%d): %s", origin.y - 1, origin.x, msg, errno,
-          strerror(errno));
+  (void)fprintf(stderr, "\x1b[%d;%dH%s(%d): %s", origin.y - 1, origin.x, msg,
+                errno, strerror(errno));
 }
 
 void print_errno(const char* descr) {
   struct uint_point origin = box_start();
   if (descr == NULL)
-    fprintf(stderr, "\x1b[%d;%dH\x1b[%smunknown error(%d): %s", origin.y - 1,
-            origin.x, g_config->colors.err, errno, strerror(errno));
+    (void)fprintf(stderr, "\x1b[%d;%dH\x1b[%smunknown error(%d): %s",
+                  origin.y - 1, origin.x, g_config->colors.err, errno,
+                  strerror(errno));
   else {
-    fprintf(stderr, "\x1b[%d;%dH\x1b[%sm%s(%d): %s", origin.y - 1, origin.x,
-            g_config->colors.err, descr, errno, strerror(errno));
+    (void)fprintf(stderr, "\x1b[%d;%dH\x1b[%sm%s(%d): %s", origin.y - 1,
+                  origin.x, g_config->colors.err, descr, errno,
+                  strerror(errno));
   }
 }
 
 void restore_all() {
   // restore cursor pos, restore screen and show cursor
-  printf("\x1b[u\x1b[?47l\x1b[?25h");
-  fflush(stdout);
+  (void)printf("\x1b[u\x1b[?47l\x1b[?25h");
+  (void)fflush(stdout);
   tcsetattr(STDOUT_FILENO, TCSANOW, &orig_term);
 }
 

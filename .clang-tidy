@@ -7,6 +7,7 @@ Checks: >
   -bugprone-easily-swappable-parameters,
   cert-*,
   modernize-*,
+  -modernize-macro-to-enum,
   performance-*,
   portability-*,
   readability-*,
