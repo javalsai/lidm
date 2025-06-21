@@ -10,76 +10,96 @@ lidm-config \- Configuration file syntax for lidm
 \fB\fI/etc/lidm.ini\fP
 
 
+.SH THEMES
+There are themes you can take as reference or simply copy in \fBthemes/\fP, no need to tackle the config yourself. It's good to give this a read however.
+
 .SH DESCRIPTION
-The \fI/etc/lidm.ini\fP file specifies all the configuration for lidm, including theme colors.
+The \fI/etc/lidm.ini\fP file specifies all the configuration for lidm, including theme colors. It's also possible to override this path with the \fILIDM_CONF\fP environment variable.
 
-The config parser is very primitive still, so the file only consists of \fBkey/value\fP pairs separated by \fB' = '\fP (yes, the surrounding spaces are necessary). It will also not warn if the config is invalid.
+The configuration aims to mimic a toml syntax but it's not 100% compatible with it. It's grouped in tables and takes key/value pairs parsed in different modes depndending on the type. Comments and empty lines are allowed as well as surrounding whitespace at the edges of the line and the equals sign.
 
-You can't escape characters with \fB'\\'\fP, but the program reads until the end of line, so you can put any raw bytes there.
+Values can be of these types:
+.TP
+\fBSTRING\fP
+Needs to be quoted with double quotes, allows basic character escaping with a backslash as well as bytes of the form \fB\\xHH\fP, please don't put a nullbyte.
+.TP
+\fBBOOL\fP
+Either \fBtrue\fP or \fBfalse\fP, no quoting.
+.TP
+\fBKEY\fP
+Represents a keyboard key, must be unquoted, possible values are enumerated in \fBinclude/keys.h\fP.
+.TP
+\fBSTRING_ARRAY\fP
+A list of strings, especified as a normal string, but reassigning to the same variable will append to that list.
 
 
 .SH KEYS
-Similar keys are grouped together to keep this as short as possible.
+In case anything here is outdated, all the config structure is defined in \fBinclude/config.h\fP, you can also find the default values there. This reference is separated by tables.
 
-.SS Colors
-All keys under this section are always wrapped inside ansi sequences (\fB\\x1b[...m\fP).
+.SS colors
+All these values are of type \fBSTRING\fP.
 .TP
-\fBcolors.bd, colors.fg, colors.err\fP
+\fBbd, fg, err\fP
 Background, foreground and error escape sequences. \fB'fg'\fP is also used as reset sequence, so it must remove effects used in other keys (such as bold, underline...) \fBWITHOUT\fP using the \fB'0'\fP sequence, as that would remove the background color.
 .TP
-\fBcolors.s_wayland, colors.s_xorg, colors.s_shell\fP
+\fBs_wayland, s_xorg, s_shell\fP
 Coloring for sessions of such types (Wayland, X.org, Shells)
 .TP
-.TP
-\fBcolors.e_hostname, colors.e_date, colors.e_box\fP
+\fBe_hostname, e_date, e_box\fP
 Coloring for the hostname, date and box elements.
 .TP
-\fBcolors.e_header\fP
+\fB.e_header\fP
 Coloring for heading elements (left column)
 .TP
-\fBcolors.e_user, colors.e_passwd, colors.e_badpasswd\fP
+\fBe_user, e_passwd, e_badpasswd\fP
 Coloring for the user element, password and bad padssword.
 .TP
-\fBcolors.e_key\fP
+\fBe_key\fP
 Coloring for key elements (eg: F1, F2, CTRL...)
 
-.SS
-Single characters used for some elements (can be longer than a character, but it will likely break UI)
+.SS chars
+Single characters used for some elements (could be longer than a character, but it will likely break UI code assumptions), these are also of type \fBSTRING\fP.
 .TP
-\fBchars.hb, chars.vb\fP
+\fBhb, vb\fP
 Character for the horizontal bar (hb) and vertical bar (vb).
 .TP
-\fBchars.ctl, chars.ctr, chars.cbl, chars.cbr\fP
+\fBctl, ctr, cbl, cbr\fP
 Characters for the corners of the box (ctl = corner top left, cbr = corner bottom right)
 
-.SS Functions
+.SS functions
+All these are of type \fBKEY\fP.
 .TP
-\fBfunctions.poweroff, functions.reboot, functions.refresh\fP
+\fBpoweroff, reboot, refresh\fP
 Function key to use for such action.
 
-.SS String
-Strings to use for some elements.
+.SS strings
+Display strings to use for some elements.
 .TP
-\fBstrings.f_poweroff, strings.f_reboot, strings.f_refresh\fP
-Text displayed to name such functions.
+\fBf_poweroff, f_reboot, f_refresh\fP
+Text displayed to name such functions at the bottom of the screen.
 .TP
-\fBstrings.e_user, strings.e_passwd\fP
+\fBe_user, e_passwd\fP
 Text to display for these element headers.
 .TP
-\fBstrings.s_wayland, strings.s_xorg, strings.s_shell\fP
+\fBs_wayland, s_xorg, s_shell\fP
 Text to display as the header for such sessions.
+.TP
+\fBopts_pre, opts_post\fP
+To be used for items with multiple options on the left and right sides \fB"< "\fP and \fB" >"\fP.
 
-.SS Behavior
+.SS behavior
+Other miscellaneous behavior strings, of mixed types
 .TP
-\fBbehavior.include_defshell\fP
-"true"/"false" (invalid input defaults to false), if true, includes the user default shell as a session to launch
+\fBinclude_defshell\fP
+Type \fBBOOL\fP, specifies if the default user shel should be included as a session.
 .TP
-\fBbehavior.source\fP
-Specify paths to source on login, simple KEY=VALUE format with comments (#) or empty'ish lines, quoting or escape sequences not supported yet. It is NOT an array, but you rather assign to it multiple times.
+\fBsource, user_source\fP
+Types \fBSTRING_ARRAY\fP. Specify paths to source on login if they exist, simple KEY=VALUE format with comments (#) or empty'ish lines, quoting or escape sequences not supported yet. \fBuser_source\fP paths are relative to user home.
 .TP
-\fBbehavior.user_source\fP
-Same as \fIbehavior.source\fP but relative to user home (if present).
+\fBtimefmt\fP
+Specify the time format string to be displayed. Check \fBstrftime (3)\fP to know the possible formatting variables.
 
 
 .SH "SEE ALSO"
 .BR lidm (1)
+.BR strftime (3)
