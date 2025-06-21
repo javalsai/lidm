@@ -116,9 +116,12 @@ void ui_update_cursor_focus() {
   u_char col = bstart.x + VALUES_COL;
 
   struct opts_field* ofield = get_opts_ffield();
-  col += ofield_display_cursor_col(
-      ofield, VALUE_MAXLEN - utf8len(g_config->strings.opts_pre) -
-                  utf8len(g_config->strings.opts_post));
+  u_char maxlen = VALUE_MAXLEN;
+  if (ofield->opts > 1) {
+    maxlen -= utf8len(g_config->strings.opts_pre) +
+              utf8len(g_config->strings.opts_post);
+  }
+  col += ofield_display_cursor_col(ofield, maxlen);
   if (ofield->opts > 1) col += utf8len(g_config->strings.opts_pre);
 
   // rows in here quite bodged
