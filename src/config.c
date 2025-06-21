@@ -126,7 +126,7 @@ struct parser_error parse_key(enum introspection_type typ, union typ_ptr at,
       aux_str = strdup(key);
       if (!aux_str) FAIL("allocation failure");
       aux_err = parse_str_inplace(aux_str);
-      if (aux_err.msg != NULL) {
+      if (!aux_err.msg) {
         free(aux_str);
         return aux_err;
       }
@@ -157,7 +157,7 @@ struct parser_error parse_key(enum introspection_type typ, union typ_ptr at,
       aux_str = strdup(key);
       if (!aux_str) FAIL("allocation failure");
       aux_err = parse_str_inplace(aux_str);
-      if (aux_err.msg != NULL) {
+      if (!aux_err.msg) {
         free(aux_str);
         return aux_err;
       }
