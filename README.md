@@ -4,9 +4,9 @@
 
 # LiDM
 
-LiDM is a really light UI portion a unix [login manager](https://en.wikipedia.org/wiki/Login_manager) made in C, highly customizable and held together by hopes and prayers 🙏.
+LiDM is a really light unix [login manager](https://en.wikipedia.org/wiki/Login_manager) made in C, highly customizable and held together by hopes and prayers 🙏.
 
-LiDM is like any [X Display Manager](https://en.wikipedia.org/wiki/X_display_manager) you have seen such as SDDM or GDM but without using X org graphics, instead being a purely [text based interface](https://en.wikipedia.org/wiki/Text-based_user_interface).
+LiDM is like any [Display Manager](https://en.wikipedia.org/wiki/X_display_manager) you have seen such as SDDM or GDM but without using any X.org graphics at all. Instead being a purely [text based interface](https://en.wikipedia.org/wiki/Text-based_user_interface) inside your terminal/TTY.
 
 ![demo gif](assets/media/lidm.gif)
 
@@ -16,43 +16,27 @@ LiDM is like any [X Display Manager](https://en.wikipedia.org/wiki/X_display_man
 
 ## Features
 
-* Builds **FAST**.
-  * `a32e4a5`:
-    * `2.830s`: laptop, -O3, -j2, `AMD E-450 APU with Radeon(tm) HD Graphics`
-    * `0.172s`: desktop, -O3, -j12, `AMD Ryzen 5 5600G with Radeon Graphics`
-  * `663427e`:
-    * `0.085s`: desktop, -O0, `AMD Ryzen 5 5600G with Radeon Graphics`
-    * `0.009s`: desktop, -O0, CC=tcc, `AMD Ryzen 5 5600G with Radeon Graphics`
-* Works everywhere you can get gcc to compile.
-* Fast and possibly efficient.
+* Simple as C, you only need a C compiler and standard unix libraries to build this.
 * Fully customizable, from strings, including action keys, to colors (I hope you know ansi escape codes)
 * Automatically detects xorg and wayland sessions, plus allowing to launch the default user shell (if enabled in config)
 * Starts with many init systems (systemd, dinit, runit, openrc and s6).
 
-## WIP
-
-* Desktop's file `TryExec` key.
-* Save last selection.
-* Show/hide passwd switch.
-* Long sessions, strings, usernames, passwords... they will just overflow or fuck your terminal, I know it and I don't know if I'll fix it.
-* UTF characters or any multi-byte character, not yet supported properly, everything treats characters as a single byte, some chars might work or not depending on the context, but it's not designed to.
-
 # Index
 
-- [LiDM](#lidm)
-  - [Features](#features)
-  - [WIP](#wip)
-- [Index](#index)
-- [Ideology](#ideology)
-- [Usage](#usage)
-    - [Arguments](#arguments)
-    - [Program](#program)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Configuring](#configuring)
-- [Contributing](#contributing)
-- [Backstory](#backstory)
-- [Contributors](#contributors)
+* [LiDM](#lidm)
+  * [Features](#features)
+  * [WIP](#wip)
+* [Index](#index)
+* [Ideology](#ideology)
+* [Usage](#usage)
+  * [Arguments](#arguments)
+  * [Program](#program)
+* [Requirements](#requirements)
+* [Installation](#installation)
+* [Configuring](#configuring)
+* [Contributing](#contributing)
+* [Inspiration](#inspiration)
+* [Contributors](#contributors)
 
 # Ideology
 
@@ -66,66 +50,73 @@ We all know that the most important thing in a project is the ideology of the au
 
 ### Arguments
 
-If a single argument is provided (don't even do `--` or standard parsing...), it passes that argument to `chvt` on startup, used (at least) by most service files.
+If a single argument is provided (don't even do `--` or standard unix parsing...), it switches to said tty number at startup. Used (at least) by most service files.
 
 ### Program
 
-On top of pure intuition:
+Base (mostly intuitive):
 
-* You can change focus of session/user/passwd with up/down arrows.
-* In case arrow keys do nothing on the focused input (Either is empty text or doesn't have more options), it tries to change session and if there's only one session it changes user.
-* Typing anything will allow to put a custom user or shell command too, you can use arrow keys to move.
-* ESC and then left/right arrows will force to change the option of the focused input, useful if you're editing the current input and arrow keys just move.
-* Editing a predefined option on a user or a shell session, will put you in edit mode preserving the original value, other cases start from scratch.
+* Use arrow keys to navigate the inputs and type over any of them to override the default value.
+* Enter will just attempt to login.
+* If you are focused on an edited input, horizontal arrow keys will attempt to move across the text just as expected.
+
+On top of that:
+
+* Using the horizontal arrow keys if the focused input is not in text mode or the movement would overflow the input. It will try to change in such direction the option of session or the user.
+* Pressing <kbd>ESC</kbd> and then horizontal arrows will force to change the option of the focused input even if it's in edit mode.
+* Editing an option on a user or a shell session will put you in edit mode appending after the original value.
 
 # Requirements
 
-* A computer with unix based system.
-* That system should have the resources necessary for this program to make sense (Sessions, users...).
-* A compiler (optional, you can compile by hand, but I doubt you want to see the code).
 * Make (Also optional, but does things automatically, make sure `gcc` and `mkdir -p` work as expected).
-* PAM, used for user authentication, just what `login` or `su` use internally. Don't worry, it's surely pre-installed.
+* A compiler like `cc`, `gcc` or `clang`. Make sure to use the desired `CC=<compiler>` on the `make` command.
+* PAM library, used for user authentication, just what `login` or `su` use internally. Don't worry, it's surely pre-installed.
 
 # Installation
 
-Check the [installation guide](./INSTALL.md) to use your preferred installation source.
+Check the [installation guide](INSTALL.md) to use your preferred installation source.
 
 # Configuring
 
-Copy any `.ini` file from [`themes/`](./themes/) (`default.ini` will always be updated) to `/etc/lidm.ini` and/or configure it to your liking. Also, don't place empty lines (for now). You can also set `LIDM_CONF` environment variable to specify a config path.
+Copy any `.ini` file from [`themes/`](./themes/) (`default.ini` will always be updated) to `/etc/lidm.ini` and/or configure it to your liking. You can also set `LIDM_CONF` environment variable to specify a config path.
 
-Configured colors are just gonna be put inside `\x1b[...m`, ofc you can add an 'm' to break this and this can f\*ck up really bad or even make some nice UI effect possible, you should also be able to embed the `\x1b` byte in the config as I won't parse escape codes, I think that the parser is just gonna grab anything in the config file from the space after the `=` (yes, I'ma enforce that space, get good taste if you don't like it) until the newline, you can put any abomination in there. But please, keep in mind this might break easily.
+The format attempts to mimic the TOML format. Escape sequences like `\x1b` are allowed as well as comments and empty lines.
 
-The default fg style should disable decorators set up in other elements (cursive, underline... it's just adding 20 to the number btw, so if cursive is 4 (iirc), disabling it is 24).
+Colors are gonna be put inside `\x1b[...m`, if you don't know what this is check [an ANSI table](https://gist.github.com/JBlond/2fea43a3049b38287e5e9cefc87b2124). Mind that `\x1b` is the same as `\e`, `\033` and several other representations.
+
+> [!NOTE]
+> The default `fg` style should disable decorators set up in other elements (cursive, underline...). It's just adding 20 to the number, so if an underline is 4, disabling it is done with 24.
 
 > [!TIP]
 > If you don't like seeing an element, you can change the fg color of it to be the same as the bg, making it invisible.
 
 # Contributing
 
-If you want to contribute check the [CONTRIBUTING.md](docs/CONTRIBUTING.md)
+If you want to contribute check the [contribution guide](docs/CONTRIBUTING.md).
 
-# Backstory
+# Inspiration
 
-Summer travelling to visit family with an old laptop that barely supports x86\_64, and ly recently added some avx2 instructions I think (invalid op codes), manually building (any previous commit too) didn't work because of something in the `build.zig` file, so out of boredom I decided to craft up my own simple display manager on the only language this thing can handle... **C** (I hate this and reserve the right for the rust rewrite, actually solid).
+This project was started after facing some issues building [ly](https://github.com/fairyglade/ly) on an ancient laptop, the UI is heavily inspired by it.
 
-I spedrun it in roughly 3 days and I'm bad af in C, so this is spaghetti code on **another** level. I think it doesn't do almost anything unsafe, I mean, I didn't check allocations and it's capable of reallocating memory until your username uses all memory, crashing the system due to a off-by-one error, but pretty consistent otherwise (probably).
+For this reason the project's philosophy is to be simple and minimal, such that even prehistoric hardware is capable of running it.
 
-The name is just ly but changing "y" with "i", that had a reason but forgot it, (maybe the i in *simple*), so I remembered this sh\*tty laptop with a lid, this thing is also a display manager (dm, ly command is also `ly-dm`), so just did lidm due to all that.
+I forgot what exactly the name came from, but it surely was a mix of a few things so:
+
+* Obviously it's inspired by `ly`. `ly-dm` leads to "lydm".
+* Wow make "lydm" simple with a "y" → "i" transformation.
+* Associate it with the "i" in s**i**mple and other display managers like **Li**ghtDM.
+* And the **la**ptop this project started in has a **lid**.
 
 # Contributors
 
 [![GitHub Contributors](https://contrib.rocks/image?repo=javalsai/lidm\&max=20)](https://github.com/javalsai/lidm/graphs/contributors)
 
-* KillerTofus, [made the AUR package](https://github.com/javalsai/lidm/pull/2)! Saved me from reading the Arch Wiki 💀.
-* DeaDvey, the most awesomest of all, did some pretty HARDCORE gramer checking. (and trolling, he wrote that, 33 commits of just readme changes ffs)
-* grialion, made a simple C implementation of `chvt` instead of insecurely relying on `kbd utils`'s command.
-* cerealexperiments\_, found a missing newline (had the guts to read the source code, crazy ik)
-* ChatGPT, in times of slow laptops where pages take ages to load, a single tab connected to a bunch of burning cloud GPUs feeding corporate hype is all you need to get quick answers for your questions, as long as you know how to filter AI crap ofc.
-* [My lack of gf](https://www.instagram.com/reel/C8sa3Gltmtq), can't imagine this project being possible if somebody actually cared about me daily.
+[killertofus](https://github.com/killertofus), [deadvey](https://github.com/deadvey), [grialion](https://github.com/grialion/), cerealexperiments\_, [antiz96](https://github.com/Antiz96), [rmntgx](https://github.com/rmntgx) and [more...](https://github.com/javalsai/lidm/graphs/contributors)
 
----
+With their big or small contributions, every commit has helped in its own way and encouraged me to keep putting my soul into this.
 
-🌟 Finally, consider starring this repo or... 🔪
+***
 
-![star-history](https://api.star-history.com/svg?repos=javalsai/lidm&type=Date)
+🌟 Finally, consider starring this repo [or...](https://www.reddit.com/r/github/comments/1l2mchg/is_this_allowed) 🔪
+
+![star-history](https://api.star-history.com/svg?repos=javalsai/lidm\&type=Date)

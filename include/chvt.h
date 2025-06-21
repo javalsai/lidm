@@ -1,5 +1,5 @@
-#ifndef _CHVTH_
-#define _CHVTH_
+#ifndef CHVTH_
+#define CHVTH_
 
 #include <fcntl.h>
 #include <linux/kd.h>

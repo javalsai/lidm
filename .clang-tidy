@@ -1,0 +1,47 @@
+Checks: >
+  clang-analyzer-*,
+  -clang-analyzer-security.insecureAPI.str*,
+  -clang-analyzer-security.insecureAPI.mem*,
+  -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-signal-handler,
+  cert-*,
+  -cert-msc54-cpp,
+  -cert-sig30-c,
+  modernize-*,
+  -modernize-macro-to-enum,
+  performance-*,
+  portability-*,
+  readability-*,
+  -readability-braces-around-statements,
+
+WarningsAsErrors: ''
+HeaderFilterRegex: '.*'
+FormatStyle: file
+
+CheckOptions:
+  - key:              readability-magic-numbers.IgnoredIntegerValues
+    value:            '0;1;2;3;10;255'
+  # - key:              readability-magic-numbers.IgnoredValues
+  #   value:            '0;1;2;3;10;255'
+  - key:              readability-identifier-naming.VariableCase
+    value:            lower_case
+  - key:              readability-identifier-naming.ConstantParameterCase
+    value:            UPPER_CASE
+
+  - key: readability-identifier-naming.ConstantCase
+    value: "UPPER_CASE"
+
+  - key: readability-identifier-length.VariableThreshold
+    value: '2'
+  - key: readability-identifier-length.ParameterThreshold
+    value: '2'
+  - key: readability-identifier-length.LocalConstantThreshold
+    value: '2'
+  - key: readability-identifier-length.MemberThreshold
+    value: '2'
+  - key: readability-identifier-length.MinimumParameterNameLength
+    value: '2'
+  - key: readability-identifier-length.MinimumVariableNameLength
+    value: '2'

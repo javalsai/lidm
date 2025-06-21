@@ -2,72 +2,83 @@
 
 #include "efield.h"
 #include "ui.h"
+#include "util.h"
 
-struct editable_field field_new(char* content) {
-  struct editable_field __efield;
+// NOLINTBEGIN(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
+
+struct editable_field efield_new(char* content) {
+  struct editable_field efield;
   if (content != NULL) {
-    __efield.length = __efield.pos = strlen(content);
-    memcpy(__efield.content, content, __efield.length);
+    efield.pos = strlen(content);
+    memcpy(efield.content, content, strlen(content) + 1);
   } else {
-    field_trim(&__efield, 0);
+    efield_trim(&efield, 0);
   }
-  __efield.content[__efield.length] = '\0';
-  return __efield;
+
+  return efield;
 }
 
-void field_trim(struct editable_field* field, u_char pos) {
-  field->length = field->pos = pos;
-  field->content[field->length] = '\0';
+void efield_trim(struct editable_field* self, u_char pos) {
+  self->pos = pos;
+  self->content[pos + 1] = '\0';
 }
 
-void field_update(struct editable_field* field, char* update) {
+#define BACKSPACE_CODE 127
+void efield_update(struct editable_field* self, char* update) {
   u_char insert_len = strlen(update);
   if (insert_len == 0) return;
 
-  if (field->pos > field->length) field->pos = field->length; // WTF
+  if (self->pos > strlen(self->content))
+    self->pos = strlen(self->content); // WTF tho
+
   if (insert_len == 1) {
     // backspace
-    if (*update == 127) {
-      if (field->pos == 0) return;
-      if (field->pos < field->length) {
-        memmove(&field->content[field->pos - 1], &field->content[field->pos],
-                field->length - field->pos);
-      }
-      (field->pos)--;
-      (field->length)--;
-      field->content[field->length] = '\0';
+    if (*update == BACKSPACE_CODE) {
+      if (self->pos == 0) return;
+      char* curr = &self->content[self->pos];
+      char* prev = (char*)utf8back(curr);
+      memmove(prev, curr, strlen(self->content) - self->pos + 1);
+
+      self->pos -= curr - prev;
       return;
     }
+    // TODO: Del
   }
 
   // append
-  if (field->length + field->pos >= 255) {
+  if (strlen(update) + self->pos + 1 >= 255) {
     print_err("field too long");
   }
-  if (field->pos < field->length) {
-    // move with immediate buffer
-    memmove(&field->content[field->pos + insert_len],
-            &field->content[field->pos], field->length - field->pos);
-  }
-  memcpy(&field->content[field->pos], update, insert_len);
 
-  field->pos += insert_len;
-  field->length += insert_len;
-  field->content[field->length] = '\0';
+  // move the after pos, including nullbyte
+  memmove(&self->content[self->pos + insert_len], &self->content[self->pos],
+          strlen(self->content) - self->pos + 1);
+  memcpy(&self->content[self->pos], update, insert_len);
+
+  self->pos += insert_len;
 }
 
 // returns bool depending if it was able to "use" the seek
-bool field_seek(struct editable_field* field, char seek) {
-  if (field->length == 0) return false;
+bool efield_seek(struct editable_field* self, char seek) {
+  if (*self->content == '\0') return false;
+  if (seek == 0) return false;
 
-  if (seek < 0 && -seek > field->pos)
-    field->pos = 0;
-  else if (seek > 0 && 255 - field->pos < seek)
-    field->pos = 255;
-  else
-    field->pos += seek;
+  u_char count = seek < 0 ? -seek : seek;
+  char* ptr = &self->content[self->pos];
+  char* start = ptr;
 
-  if (field->pos > field->length) field->pos = field->length;
+  while (count-- > 0) {
+    if (seek < 0) {
+      if (ptr == self->content) break;
+      ptr = (char*)utf8back(ptr);
+    } else {
+      if (*ptr == '\0') break;
+      ptr = (char*)utf8seek(ptr);
+    }
+  }
 
-  return true;
+  self->pos = (u_char)(ptr - self->content);
+  return ptr != start;
 }
+
+// NOLINTEND(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
