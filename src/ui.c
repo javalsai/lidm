@@ -332,8 +332,8 @@ void print_session(struct uint_point origin, struct session session,
 void print_user(struct uint_point origin, struct user user, bool multiple) {
   clean_line(origin, USER_ROW);
   printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm",
-         (ulong)(origin.x + VALUES_COL - VALUES_SEPR - 1 -
-                 strlen(g_config->strings.e_user)),
+         (ulong)(origin.x + VALUES_COL - VALUES_SEPR -
+                 utf8len(g_config->strings.e_user) - 1),
          g_config->colors.e_header, g_config->strings.e_user,
          g_config->colors.fg);
 
