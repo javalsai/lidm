@@ -112,10 +112,11 @@ BUILD(strings, STRINGS, TABLE_STRINGS);
   (struct Vector) { \
     0, 0, NULL      \
   }
-#define TABLE_BEHAVIOR(F, name)                          \
-  F(bool, include_defshell, BOOL, true, name)            \
-  F(struct Vector, source, STRING_ARRAY, NULL_VEC, name) \
-  F(struct Vector, user_source, STRING_ARRAY, NULL_VEC, name)
+#define TABLE_BEHAVIOR(F, name)                               \
+  F(bool, include_defshell, BOOL, true, name)                 \
+  F(struct Vector, source, STRING_ARRAY, NULL_VEC, name)      \
+  F(struct Vector, user_source, STRING_ARRAY, NULL_VEC, name) \
+  F(char* NNULLABLE, timefmt, STRING, "%X %x", name)
 
 BUILD(behavior, BEHAVIOR, TABLE_BEHAVIOR);
 

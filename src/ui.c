@@ -88,17 +88,26 @@ static struct uint_point box_start() {
   };
 }
 
+#define STRFTIME_PREALLOC 64
 #define TM_YEAR_EPOCH 1900
-static char* fmt_time() {
+static char* fmt_time(const char* fmt) {
   time_t tme = time(NULL);
   struct tm tm = *localtime(&tme);
 
-  // TODO: use strftime and a cfg template string
-  char* buf;
-  asprintf(&buf, "%d-%02d-%02d %02d:%02d:%02d", tm.tm_year + TM_YEAR_EPOCH,
-           tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+  size_t alloc_size = STRFTIME_PREALLOC;
+  char* buf = malloc(alloc_size);
+  if (!buf) return NULL;
+  while (true) {
+    if (strftime(buf, alloc_size, fmt, &tm) != 0) return buf;
 
-  return buf;
+    alloc_size *= 2;
+    char* nbuf = realloc(buf, alloc_size);
+    if (!nbuf) {
+      free(buf);
+      return NULL;
+    }
+    buf = nbuf;
+  }
 }
 
 void ui_update_cursor_focus() {
@@ -194,7 +203,7 @@ int load(struct Vector* users, struct Vector* sessions) {
   if (hostname != unknown_str) free(hostname);
 
   // put date
-  char* fmtd_time = fmt_time();
+  char* fmtd_time = fmt_time(g_config->behavior.timefmt);
   printf("\x1b[%d;%dH\x1b[%sm%s\x1b[%sm", BOXSTART.y + HEAD_ROW,
          BOXSTART.x + BOX_WIDTH - 1 - BOX_HMARGIN - (uint)utf8len(fmtd_time),
          g_config->colors.e_date, fmtd_time, g_config->colors.fg);
@@ -271,8 +280,8 @@ u_char get_render_pos_offset(struct opts_field* self, u_char maxlen) {
   return pos - ofield_display_cursor_col(self, maxlen);
 }
 
-static void print_session(struct uint_point origin, struct session session,
-                          bool multiple) {
+void print_session(struct uint_point origin, struct session session,
+                   bool multiple) {
   clean_line(origin, SESSION_ROW);
 
   const char* NNULLABLE session_type;
@@ -320,8 +329,7 @@ static void print_session(struct uint_point origin, struct session session,
   }
 }
 
-static void print_user(struct uint_point origin, struct user user,
-                       bool multiple) {
+void print_user(struct uint_point origin, struct user user, bool multiple) {
   clean_line(origin, USER_ROW);
   printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm",
          (ulong)(origin.x + VALUES_COL - VALUES_SEPR - 1 -
@@ -348,8 +356,8 @@ static void print_user(struct uint_point origin, struct user user,
   }
 }
 
-static char passwd_prompt[VALUE_MAXLEN + 1];
-static void print_passwd(struct uint_point origin, uint length, bool err) {
+void print_passwd(struct uint_point origin, uint length, bool err) {
+  char passwd_prompt[VALUE_MAXLEN + 1];
   clean_line(origin, PASSWD_ROW);
   printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm",
          (ulong)(origin.x + VALUES_COL - VALUES_SEPR -
@@ -406,11 +414,15 @@ static void print_box() {
 }
 
 static void print_footer() {
-  size_t bsize = snprintf(
-      NULL, 0, "%s %s  %s %s  %s %s", g_config->strings.f_poweroff,
-      KEY_NAMES[g_config->functions.poweroff], g_config->strings.f_reboot,
-      KEY_NAMES[g_config->functions.reboot], g_config->strings.f_refresh,
-      KEY_NAMES[g_config->functions.refresh]);
+  size_t bsize = utf8len(g_config->strings.f_poweroff) +
+                 utf8len(KEY_NAMES[g_config->functions.poweroff]) +
+                 utf8len(g_config->strings.f_reboot) +
+                 utf8len(KEY_NAMES[g_config->functions.reboot]) +
+                 utf8len(g_config->strings.f_refresh) +
+                 utf8len(KEY_NAMES[g_config->functions.refresh]);
+
+  bsize += 2 * 2 + // 2 wide separators between 3 items
+           3 * 1;  // 3 thin separators inside every item
 
   uint row = window.ws_row - 1;
   uint col = window.ws_col - 2 - bsize;
