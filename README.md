@@ -58,7 +58,7 @@ Base (mostly intuitive):
 
 * Use arrow keys to navigate the inputs and type over any of them to override the default value.
 * Enter will just attempt to login.
-* If you are focused on an editted input, horizontal arrow keys will attempt to move across the text just as expected.
+* If you are focused on an edited input, horizontal arrow keys will attempt to move across the text just as expected.
 
 On top of that:
 
