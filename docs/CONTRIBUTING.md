@@ -12,7 +12,7 @@ For small fixes or incremental improvements simply fork the repo and follow the 
 
 1. [Fork](https://help.github.com/articles/fork-a-repo/) the repository and [clone](https://help.github.com/articles/cloning-a-repository/) your fork.
 
-2. Start coding!
+2. Start coding! (it might be helpful to read a [quide on the project structure and conventions](structure.md) before this)
    * Configure clangd LSP by generating `compile_commands.json` (e.g. `bear -- make` or `compiledb make`)
    * Implement your feature.
    * Check your code works as expected.
