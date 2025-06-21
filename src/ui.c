@@ -178,14 +178,19 @@ int load(struct Vector* users, struct Vector* sessions) {
   gsessions = sessions;
 
   // hostnames larger won't render properly
-  char* hostname = malloc(VALUES_COL - VALUES_SEPR - BOX_HMARGIN);
-  if (gethostname(hostname, VALUES_COL - VALUES_SEPR - BOX_HMARGIN) != 0) {
-    free(hostname);
+  const u_char HOSTNAME_SIZE = VALUES_COL - VALUES_SEPR - BOX_HMARGIN;
+  char hostname_buf[HOSTNAME_SIZE];
+  char* hostname = hostname_buf;
+  if (gethostname(hostname_buf, HOSTNAME_SIZE) != 0) {
     hostname = unknown_str;
   } else {
-    char* hidx =
-        (char*)utf8back(&hostname[VALUES_COL - VALUES_SEPR - BOX_HMARGIN - 1]);
-    *hidx = '\0';
+    // Ig "successful completion" doesn't contemplate truncation case, so need
+    // to append the unspecified nullbyte
+
+    // char* hidx =
+    //     (char*)utf8back(&hostname[VALUES_COL - VALUES_SEPR - BOX_HMARGIN -
+    //     1]);
+    // *hidx = '\0';
   }
 
   of_session =
@@ -203,7 +208,6 @@ int load(struct Vector* users, struct Vector* sessions) {
   printf("\x1b[%d;%dH\x1b[%sm%s\x1b[%sm", BOXSTART.y + HEAD_ROW,
          BOXSTART.x + VALUES_COL - VALUES_SEPR - (uint)utf8len(hostname),
          g_config->colors.e_hostname, hostname, g_config->colors.fg);
-  if (hostname != unknown_str) free(hostname);
 
   // put date
   char* fmtd_time = fmt_time(g_config->behavior.timefmt);
@@ -265,13 +269,9 @@ int load(struct Vector* users, struct Vector* sessions) {
 }
 
 void clean_line(struct uint_point origin, uint line) {
-  static char* line_cleaner = NULL;
-  if (line_cleaner == NULL) {
-    // - outline + nullbyte
-    line_cleaner = malloc(BOX_WIDTH - 2 + 1);
-    memset(line_cleaner, ' ', BOX_WIDTH - 2);
-    line_cleaner[BOX_WIDTH - 2] = 0;
-  }
+  // - outline + nullbyte
+  static char line_cleaner[BOX_WIDTH - 2 + 1] = {
+      [0 ... BOX_WIDTH - 2 - 1] = ' ', [BOX_WIDTH - 2] = '\0'};
   printf("\x1b[%d;%dH%s", origin.y + line, origin.x + 1, line_cleaner);
 }
 

@@ -19,6 +19,9 @@ int pam_conversation(int num_msg, const struct pam_message** msg,
                      struct pam_response** resp, void* appdata_ptr) {
   struct pam_response* reply =
       (struct pam_response*)malloc(sizeof(struct pam_response) * num_msg);
+  if (!reply) {
+    return PAM_BUF_ERR;
+  }
   for (size_t i = 0; i < num_msg; i++) {
     reply[i].resp = NULL;
     reply[i].resp_retcode = 0;
