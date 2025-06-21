@@ -68,7 +68,7 @@ jobs:
           version: 1.0
       - id: build
         run: |
-          make -j$(nproc) 2> /tmp/stderr || (ERR=$!; cat /tmp/stderr >&2; exit $ERR)
+          make -j$(nproc) 2> /tmp/stderr || (ERR=$?; cat /tmp/stderr >&2; exit $ERR)
           cat /tmp/stderr >&2
 
           HSIZE="$(stat --printf="%s" lidm | numfmt --to=iec-i)B"
@@ -117,7 +117,7 @@ jobs:
 
       - id: build
         run: |
-          make -j$(nproc) CFLAGS="-O3 -Wall -m32" 2> /tmp/stderr || (ERR=$!; cat /tmp/stderr >&2; exit $ERR)
+          make -j$(nproc) CFLAGS="-O3 -Wall -m32" 2> /tmp/stderr || (ERR=$?; cat /tmp/stderr >&2; exit $ERR)
           cat /tmp/stderr >&2
 
           HSIZE="$(stat --printf="%s" lidm | numfmt --to=iec-i)B"
@@ -163,7 +163,7 @@ jobs:
             apt-get update && \
             apt-get install -y make gcc libpam0g-dev
           run: |
-            make -j$(nproc) 2> /tmp/stderr || (ERR=$!; cat /tmp/stderr >&2; exit $ERR)
+            make -j$(nproc) 2> /tmp/stderr || (ERR=$?; cat /tmp/stderr >&2; exit $ERR)
 
             cat /tmp/stderr >&2
             mv lidm lidm-aarch64
@@ -213,7 +213,7 @@ jobs:
             apt-get update && \
             apt-get install -y make gcc libpam0g-dev
           run: |
-            make -j$(nproc) 2> /tmp/stderr || (ERR=$!; cat /tmp/stderr >&2; exit $ERR)
+            make -j$(nproc) 2> /tmp/stderr || (ERR=$?; cat /tmp/stderr >&2; exit $ERR)
 
             cat /tmp/stderr >&2
             mv lidm lidm-armv7
@@ -263,7 +263,7 @@ jobs:
             apt-get update && \
             apt-get install -y make gcc libpam0g-dev
           run: |
-            make -j$(nproc) 2> /tmp/stderr || (ERR=$!; cat /tmp/stderr >&2; exit $ERR)
+            make -j$(nproc) 2> /tmp/stderr || (ERR=$?; cat /tmp/stderr >&2; exit $ERR)
 
             cat /tmp/stderr >&2
             mv lidm lidm-riscv64
