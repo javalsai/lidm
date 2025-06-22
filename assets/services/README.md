@@ -8,6 +8,9 @@ There's make scripts to automatically copy the service files to the proper locat
 
 The manual steps for installation are:
 
+> [!IMPORTANT]
+> If you think this should be packaged too, there's [a discussion](https://github.com/javalsai/lidm/discussions/39) to talk about this.
+
 ## Systemd
 
 * Copy `systemd.service` to `/etc/systemd/system/lidm.service`
@@ -35,5 +38,5 @@ The manual steps for installation are:
 * Add the service with `s6-service add default lidm`
 * Reload the database with `s6-db-reload` (you might have to run this every time the service file changes)
 
-> \[!WARNING]
+> [!WARNING]
 > Make sure to disable any other service that might run on tty7, such us lightdm or most display managers out there.

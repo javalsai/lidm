@@ -1,5 +1,5 @@
-#ifndef _USERSH_
-#define _USERSH_
+#ifndef USERSH_
+#define USERSH_
 
 #include <sys/types.h>
 

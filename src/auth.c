@@ -15,12 +15,13 @@
 #include "unistd.h"
 #include "util.h"
 
-int pam_conversation(int num_msg,
-                     const struct pam_message** msg,
-                     struct pam_response** resp,
-                     void* appdata_ptr) {
+int pam_conversation(int num_msg, const struct pam_message** msg,
+                     struct pam_response** resp, void* appdata_ptr) {
   struct pam_response* reply =
       (struct pam_response*)malloc(sizeof(struct pam_response) * num_msg);
+  if (!reply) {
+    return PAM_BUF_ERR;
+  }
   for (size_t i = 0; i < num_msg; i++) {
     reply[i].resp = NULL;
     reply[i].resp_retcode = 0;
@@ -91,13 +92,11 @@ void sourceFileTry(char* file) {
   }
 
   if (line) free(line);
-  fclose(file2source);
+  (void)fclose(file2source);
 }
 
-void moarEnv(char* user,
-             struct session session,
-             struct passwd* pw,
-             struct behavior* behavior) {
+void moarEnv(char* user, struct session session, struct passwd* pw,
+             struct config* config) {
   if (chdir(pw->pw_dir) == -1) print_errno("can't chdir to user home");
 
   setenv("HOME", pw->pw_dir, true);
@@ -109,31 +108,30 @@ void moarEnv(char* user,
 
   // PATH?
 
-  char* xdg_session_type;
+  char* xdg_session_type = "unknown";
   if (session.type == SHELL) xdg_session_type = "tty";
   if (session.type == XORG) xdg_session_type = "x11";
   if (session.type == WAYLAND) xdg_session_type = "wayland";
   setenv("XDG_SESSION_TYPE", xdg_session_type, true);
 
   printf("\n\n\n\n\x1b[1m");
-  for (size_t i = 0; i < behavior->source.length; i++) {
+  for (size_t i = 0; i < config->behavior.source.length; i++) {
     /* printf("DEBUG(source)!!!! %d %s\n", i, (char*)vec_get(&behavior->source,
      * i)); */
-    sourceFileTry((char*)vec_get(&behavior->source, i));
+    sourceFileTry((char*)vec_get(&config->behavior.source, i));
   }
   /* printf("\n"); */
   if (pw->pw_dir) {
     uint home_len = strlen(pw->pw_dir);
-    for (size_t i = 0; i < behavior->user_source.length; i++) {
-      char* file2sourcepath = (char*)vec_get(&behavior->user_source, i);
-      char* newbuf =
-          malloc(home_len + strlen(file2sourcepath) + 2); // nullbyte and slash
-      if (newbuf == NULL) continue;                       // can't bother
-      strcpy(newbuf, pw->pw_dir);
+    for (size_t i = 0; i < config->behavior.user_source.length; i++) {
+      char* file2sourcepath = (char*)vec_get(&config->behavior.user_source, i);
+      size_t newbuf_len = home_len + strlen(file2sourcepath) + 2;
+      char* newbuf = malloc(newbuf_len); // nullbyte and slash
+      if (newbuf == NULL) continue;      // can't bother
+      memcpy(newbuf, pw->pw_dir, newbuf_len);
       newbuf[home_len] = '/'; // assume pw_dir doesn't start with '/' :P
-      strcpy(&newbuf[home_len + 1], file2sourcepath);
+      memcpy(&newbuf[home_len + 1], file2sourcepath, newbuf_len - home_len);
 
-      /* printf("DEBUG(user_source)!!!! %d %s\n", i, newbuf); */
       sourceFileTry(newbuf);
       free(newbuf);
     }
@@ -150,11 +148,9 @@ void moarEnv(char* user,
   /*setenv("XDG_SEAT", "seat0", true);*/
 }
 
-bool launch(char* user,
-            char* passwd,
-            struct session session,
-            void (*cb)(void),
-            struct behavior* behavior) {
+// NOLINTBEGIN(readability-function-cognitive-complexity)
+bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
+            struct config* config) {
   struct passwd* pw = getpwnam(user);
   if (pw == NULL) {
     print_err("could not get user info");
@@ -176,9 +172,10 @@ bool launch(char* user,
 
   uint pid = fork();
   if (pid == 0) { // child
-    char* TERM = NULL;
-    char* _GETTERM = getenv("TERM");
-    if (_GETTERM != NULL) strcln(&TERM, _GETTERM);
+    char* term = NULL;
+    char* getterm = getenv("TERM");
+    // TODO: handle malloc error
+    if (getterm != NULL) term = strdup(getterm);
     if (clearenv() != 0) {
       print_errno("clearenv");
       _exit(EXIT_FAILURE);
@@ -194,13 +191,13 @@ bool launch(char* user,
     }
     // FIXME: path hotfix
     putenv("PATH=/bin:/usr/bin");
-    if (TERM != NULL) {
-      setenv("TERM", TERM, true);
-      free(TERM);
+    if (term != NULL) {
+      setenv("TERM", term, true);
+      free(term);
     }
 
-    free(envlist);
-    moarEnv(user, session, pw, behavior);
+    free((void*)envlist);
+    moarEnv(user, session, pw, config);
 
     // TODO: chown stdin to user
     // does it inherit stdin from parent and
@@ -228,29 +225,30 @@ bool launch(char* user,
     // TODO: these will be different due to TryExec
     // and, Exec/TryExec might contain spaces as args
     printf("\x1b[0m");
+    // NOLINTNEXTLINE(bugprone-branch-clone)
     if (session.type == SHELL) {
       clear_screen();
-      fflush(stdout);
+      (void)fflush(stdout);
       execlp(session.exec, session.exec, NULL);
     } else if (session.type == XORG || session.type == WAYLAND) {
       clear_screen();
-      fflush(stdout);
+      (void)fflush(stdout);
       execlp(session.exec, session.exec, NULL);
     }
     perror("execl error");
-    fprintf(stderr, "failure calling session\n");
+    (void)fputs("failure calling session\n", stderr);
   } else {
-    waitpid(pid, NULL, 0);
+    __pid_t child_pid = (__pid_t)pid;
+    waitpid(child_pid, NULL, 0);
 
     pam_setcred(pamh, PAM_DELETE_CRED);
     pam_close_session(pamh, 0);
     pam_end(pamh, PAM_SUCCESS);
 
-    if (*reach_session == false) {
-      return false;
-    } else
-      exit(0);
+    if (*reach_session == false) return false;
+    exit(0);
   }
 
   return true;
 }
+// NOLINTEND(readability-function-cognitive-complexity)

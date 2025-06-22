@@ -3,6 +3,8 @@ dist/
 /compile_commands.json
 
 .cache/
+# just in case, i dont wanna rebase ever again
+valgrind-out.txt
 
 # nix build result
 result

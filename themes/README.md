@@ -16,6 +16,14 @@
 
 ![kanagawa-wave.ini theme](./screenshots/kanagawa-wave.png)
 
+## minimal.ini
+
+![minimal.ini theme](./screenshots/minimal.png)
+
+> [!WARNING]
+> This theme **heavily** relies on terminal rendering. It's just to show
+> customizability, a TTY won't render this properly
+
 ## nature.ini
 
 ![nature.ini theme](./screenshots/nature.png)
