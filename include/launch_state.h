@@ -2,15 +2,16 @@
 #define LAUNCHSTATEH_
 
 #include <stdbool.h>
-#include <stdio.h>
 #include <sys/stat.h>
 
+#include "macros.h"
+
 struct LaunchState {
-  int user_opt;
-  int session_opt;
+  char* NNULLABLE username;
+  char* NNULLABLE session_opt;
 };
 
-struct LaunchState read_launch_state();
+int read_launch_state(struct LaunchState* NNULLABLE state);
 bool write_launch_state(struct LaunchState state);
 
 #endif
