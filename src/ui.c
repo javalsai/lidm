@@ -200,7 +200,7 @@ int load(struct Vector* users, struct Vector* sessions) {
   of_passwd = ofield_new(0);
 
   struct LaunchState initial_state = read_launch_state();
-  if(initial_state.user_opt > users->length || initial_state.session_opt > sessions->length + behavior.include_defshell) {
+  if(initial_state.user_opt > users->length || initial_state.session_opt > sessions->length + g_config->behavior.include_defshell) {
 	  initial_state.user_opt = 1;
 	  initial_state.session_opt = 1;
   }
