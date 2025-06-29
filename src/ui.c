@@ -21,6 +21,7 @@
 #include "efield.h"
 #include "keys.h"
 #include "launch_state.h"
+#include "log.h"
 #include "ofield.h"
 #include "sessions.h"
 #include "ui.h"
@@ -199,15 +200,33 @@ int load(struct Vector* users, struct Vector* sessions) {
   of_user = ofield_new(users->length);
   of_passwd = ofield_new(0);
 
-  struct LaunchState initial_state = read_launch_state();
-  if (initial_state.user_opt > users->length ||
-      initial_state.session_opt >
-          sessions->length + g_config->behavior.include_defshell) {
-    initial_state.user_opt = 1;
-    initial_state.session_opt = 1;
+  of_user.current_opt = users->length > 0;
+  of_session.current_opt = sessions->length > 0;
+  struct LaunchState initial_state;
+  if (read_launch_state(&initial_state) == 0) {
+    for (size_t i = 0; i < users->length; i++) {
+      struct user* user_i = (struct user*)vec_get(users, i);
+      if (strcmp(user_i->username, initial_state.username) == 0) {
+        of_user.current_opt = i + 1;
+        break;
+      }
+    }
+
+    for (size_t i = 0; i < sessions->length; i++) {
+      struct session* session_i = (struct session*)vec_get(sessions, i);
+      if (strcmp(session_i->name, initial_state.session_opt) == 0) {
+        of_session.current_opt = i + 1;
+        break;
+      }
+    }
+    if (g_config->behavior.include_defshell) {
+      if (strcmp(st_user().shell, initial_state.session_opt) == 0)
+        of_session.current_opt = sessions->length + 1;
+    }
+
+    free(initial_state.username);
+    free(initial_state.session_opt);
   }
-  of_user.current_opt = initial_state.user_opt;
-  of_session.current_opt = initial_state.session_opt;
 
   /// PRINTING
   const struct uint_point BOXSTART = box_start();
@@ -265,10 +284,11 @@ int load(struct Vector* users, struct Vector* sessions) {
       }
     } else {
       if (len == 1 && *seq == '\n') {
-        struct LaunchState ls;
-        ls.user_opt = of_user.current_opt;
-        ls.session_opt = of_session.current_opt;
-        write_launch_state(ls);
+        bool successful_write = write_launch_state((struct LaunchState){
+            .username = st_user().username,
+            .session_opt = st_session(g_config->behavior.include_defshell).name,
+        });
+        if (!successful_write) log_puts("[E] failed to write launch state");
 
         if (!launch(st_user().username, of_passwd.efield.content,
                     st_session(g_config->behavior.include_defshell),
