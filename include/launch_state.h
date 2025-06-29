@@ -1,9 +1,13 @@
-#ifndef _LAUNCHSTATEH_
-#define _LAUNCHSTATEH_
+#ifndef LAUNCHSTATEH_
+#define LAUNCHSTATEH_
+
+#include <stdbool.h>
+#include <stdio.h>
+#include <sys/stat.h>
 
 struct LaunchState {
-	int user_opt;
-	int session_opt;
+  int user_opt;
+  int session_opt;
 };
 
 struct LaunchState read_launch_state();
