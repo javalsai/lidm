@@ -126,7 +126,7 @@ struct parser_error parse_key(enum introspection_type typ, union typ_ptr at,
       aux_str = strdup(key);
       if (!aux_str) FAIL("allocation failure");
       aux_err = parse_str_inplace(aux_str);
-      if (!aux_err.msg) {
+      if (aux_err.msg) {
         free(aux_str);
         return aux_err;
       }
@@ -157,7 +157,7 @@ struct parser_error parse_key(enum introspection_type typ, union typ_ptr at,
       aux_str = strdup(key);
       if (!aux_str) FAIL("allocation failure");
       aux_err = parse_str_inplace(aux_str);
-      if (!aux_err.msg) {
+      if (aux_err.msg) {
         free(aux_str);
         return aux_err;
       }
@@ -170,7 +170,7 @@ struct parser_error parse_key(enum introspection_type typ, union typ_ptr at,
 #undef FAIL
 #undef NOFAIL
 
-// NOLINTBEGIN(readability-identifier-length,readability-function-cognitive-complexity,readability-identifier-length)
+// NOLINTBEGIN(readability-identifier-length,readability-function-cognitive-complexity)
 struct status config_line_handler(void* _config, char* table, char* k,
                                   char* v) {
   struct config* config = (struct config*)_config;
@@ -213,11 +213,14 @@ struct status config_line_handler(void* _config, char* table, char* k,
     return ret;
   }
 
-  log_printf("[I] cfg parsed [%s.%s]\n", table, k);
+  if (this_intros_key->typ == STRING)
+    log_printf("[I] cfg parsed [%s.%s] (%s)\n", table, k, *k_addr.string);
+  else
+    log_printf("[I] cfg parsed [%s.%s]\n", table, k);
 
   return ret;
 }
-// NOLINTEND(readability-identifier-length,readability-function-cognitive-complexity,readability-identifier-length)
+// NOLINTEND(readability-identifier-length,readability-function-cognitive-complexity)
 
 int parse_config(struct config* NNULLABLE config, char* NNULLABLE path) {
   FILE* fd = fopen(path, "r");
@@ -232,9 +235,7 @@ int parse_config(struct config* NNULLABLE config, char* NNULLABLE path) {
 
   bool ret = read_desktop(fd, config, config_line_handler);
   (void)fclose(fd);
-  if (!ret) {
-    return -1;
-  }
 
+  if (!ret) return -1;
   return 0;
 }
