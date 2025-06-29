@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <sys/stat.h>
 
 struct LaunchState {
   int user_opt;
