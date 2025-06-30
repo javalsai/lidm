@@ -125,12 +125,12 @@ void moarEnv(char* user, struct session session, struct passwd* pw,
     uint home_len = strlen(pw->pw_dir);
     for (size_t i = 0; i < config->behavior.user_source.length; i++) {
       char* file2sourcepath = (char*)vec_get(&config->behavior.user_source, i);
-      size_t newbuf_len = home_len + strlen(file2sourcepath) + 2;
-      char* newbuf = malloc(newbuf_len); // nullbyte and slash
+      size_t newbuf_len = home_len + strlen(file2sourcepath) + 2; // nullbute and slash
+      char* newbuf = malloc(newbuf_len);
       if (newbuf == NULL) continue;      // can't bother
-      memcpy(newbuf, pw->pw_dir, newbuf_len);
+      memcpy(newbuf, pw->pw_dir, home_len);
       newbuf[home_len] = '/'; // assume pw_dir doesn't start with '/' :P
-      memcpy(&newbuf[home_len + 1], file2sourcepath, newbuf_len - home_len);
+      memcpy(&newbuf[home_len + 1], file2sourcepath, newbuf_len - home_len - 1);
 
       sourceFileTry(newbuf);
       free(newbuf);
