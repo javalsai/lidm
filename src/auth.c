@@ -121,19 +121,26 @@ void moarEnv(char* user, struct session session, struct passwd* pw,
     sourceFileTry((char*)vec_get(&config->behavior.source, i));
   }
   /* printf("\n"); */
-  if (pw->pw_dir) {
-    uint home_len = strlen(pw->pw_dir);
-    for (size_t i = 0; i < config->behavior.user_source.length; i++) {
-      char* file2sourcepath = (char*)vec_get(&config->behavior.user_source, i);
-      size_t newbuf_len = home_len + strlen(file2sourcepath) + 2; // nullbute and slash
-      char* newbuf = malloc(newbuf_len);
-      if (newbuf == NULL) continue;      // can't bother
-      memcpy(newbuf, pw->pw_dir, home_len);
-      newbuf[home_len] = '/'; // assume pw_dir doesn't start with '/' :P
-      memcpy(&newbuf[home_len + 1], file2sourcepath, newbuf_len - home_len - 1);
 
-      sourceFileTry(newbuf);
-      free(newbuf);
+  if (pw->pw_dir) {
+    const char* home = pw->pw_dir;
+    size_t home_len = strlen(home);
+
+    for (size_t i = 0; i < config->behavior.user_source.length; i++) {
+      const char* filename = (char*)vec_get(&config->behavior.user_source, i);
+      size_t filename_len = strlen(filename);
+
+      size_t path_len = home_len + 1 + filename_len + 1; // nullbyte and slash
+      char* path = malloc(path_len);
+      if (!path) continue; // can't bother
+
+      memcpy(path, home, home_len);
+      path[home_len] = '/'; // assume pw_dir doesn't start with '/' :P
+      memcpy(&path[home_len + 1], filename, filename_len);
+      path[path_len - 1] = '\0';
+
+      sourceFileTry(path);
+      free(path);
     }
   }
 
