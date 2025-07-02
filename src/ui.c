@@ -56,7 +56,13 @@ static struct winsize window;
 #define INNER_BOX_OUT_MARGIN 2
 struct config* g_config = NULL;
 
-void resize_handler(int) {
+static volatile sig_atomic_t need_resize = 0;
+
+static void process_sigwinch(int) {
+  need_resize = 1;
+}
+
+void resize_ui() {
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &window);
 
   if (window.ws_row < BOX_HEIGHT + INNER_BOX_OUT_MARGIN * 2 ||
@@ -96,10 +102,9 @@ void setup(struct config* config) {
   printf("\x1b[s\x1b[?47h\x1b[%s;%sm\x1b[2J", g_config->colors.bg,
          g_config->colors.fg);
 
-  print_footer();
   (void)atexit(restore_all);
   (void)signal(SIGINT, signal_handler);
-  (void)signal(SIGWINCH, resize_handler);
+  (void)signal(SIGWINCH, process_sigwinch);
 }
 
 static struct uint_point box_start() {
@@ -226,6 +231,8 @@ void print_ui() {
          g_config->colors.e_date, fmtd_time, g_config->colors.fg);
   free(fmtd_time);
 
+  print_footer();
+
   ui_update_field(SESSION);
   ui_update_field(USER);
   ui_update_field(PASSWD);
@@ -278,6 +285,25 @@ int load(struct Vector* users, struct Vector* sessions) {
   char seq[0xff];
   uint esc = 0;
   while (true) {
+    if (need_resize) {
+      need_resize = 0;
+      resize_ui();
+    }
+
+    // Async press handling (magic)
+    fd_set fds;
+    FD_ZERO(&fds);
+    FD_SET(STDIN_FILENO, &fds);
+    struct timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = 100000; // timeout = 100ms
+    // Wait for input with timeout
+    int ret = select(STDIN_FILENO + 1, &fds, NULL, NULL, &tv);
+    if (ret < 0) {
+      if (errno == EINTR) continue; // Interrupted by signal
+    }
+    if (ret == 0) continue; // Timeout
+
     read_press(&len, seq);
     if (*seq == '\x1b') {
       enum keys ansi_code = find_ansi(seq);
