@@ -33,7 +33,7 @@ clean:
 install: lidm
 	mkdir -p ${DESTDIR}${PREFIX}/bin ${DESTDIR}${PREFIX}/share/man/man{1,5}
 	install -Dm755 ./lidm ${DESTDIR}${PREFIX}/bin/
-	install -Dm644 ./themes/default.ini ${DESTDIR}/etc/lidm.ini
+	[ ! -f ${DESTDIR}/etc/lidm.ini ] && install -Dm644 ./themes/default.ini ${DESTDIR}/etc/lidm.ini || true
 	install -Dm644 ./assets/man/lidm.1 ${DESTDIR}${PREFIX}/share/man/man1/
 	install -Dm644 ./assets/man/lidm-config.5 ${DESTDIR}${PREFIX}/share/man/man5/
 
