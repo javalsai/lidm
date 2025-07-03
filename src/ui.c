@@ -46,6 +46,7 @@ static void print_session(struct uint_point origin, struct session session,
 static void print_user(struct uint_point origin, struct user user,
                        bool multiple);
 static void print_passwd(struct uint_point origin, uint length, bool err);
+static void scratch_print_ui();
 
 // ansi resource: https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
 static struct termios orig_term;
@@ -54,18 +55,15 @@ static struct winsize window;
 
 #define INNER_BOX_OUT_MARGIN 2
 struct config* g_config = NULL;
+
+static volatile sig_atomic_t need_resize = 0;
+
+static void process_sigwinch(int signal) {
+  need_resize = 1;
+}
+
 void setup(struct config* config) {
   g_config = config;
-  ioctl(STDOUT_FILENO, TIOCGWINSZ, &window);
-
-  // at least
-  // 2 padding top and bottom for footer and vertical compensation
-  // 2 padding left & right to not overflow footer width
-  if (window.ws_row < BOX_HEIGHT + INNER_BOX_OUT_MARGIN * 2 ||
-      window.ws_col < BOX_WIDTH + INNER_BOX_OUT_MARGIN * 2) {
-    (void)fprintf(stderr, "\x1b[1;31mScreen too small\x1b[0m\n");
-    exit(1);
-  }
 
   tcgetattr(STDOUT_FILENO, &orig_term);
   term = orig_term; // save term
@@ -78,9 +76,9 @@ void setup(struct config* config) {
   printf("\x1b[s\x1b[?47h\x1b[%s;%sm\x1b[2J", g_config->colors.bg,
          g_config->colors.fg);
 
-  print_footer();
   (void)atexit(restore_all);
   (void)signal(SIGINT, signal_handler);
+  (void)signal(SIGWINCH, process_sigwinch);
 }
 
 static struct uint_point box_start() {
@@ -173,11 +171,18 @@ void ui_update_ofield(struct opts_field* NNULLABLE self) {
 }
 
 static char* unknown_str = "unknown";
-// NOLINTNEXTLINE(readability-function-cognitive-complexity)
-int load(struct Vector* users, struct Vector* sessions) {
-  /// SETUP
-  gusers = users;
-  gsessions = sessions;
+void scratch_print_ui() {
+  ioctl(STDOUT_FILENO, TIOCGWINSZ, &window);
+
+  if (window.ws_row < BOX_HEIGHT + INNER_BOX_OUT_MARGIN * 2 ||
+      window.ws_col < BOX_WIDTH + INNER_BOX_OUT_MARGIN * 2) {
+    printf("\033[2J\033[H"); // Clear screen
+    printf("\x1b[1;31mScreen too small\x1b[0m\n");
+    printf("\x1b[%s;%sm\x1b[2J", g_config->colors.bg, g_config->colors.fg);
+    return;
+  }
+
+  printf("\033[2J\033[H"); // Clear screen
 
   // hostnames larger won't render properly
   const u_char HOSTNAME_SIZE = VALUES_COL - VALUES_SEPR - BOX_HMARGIN;
@@ -194,6 +199,42 @@ int load(struct Vector* users, struct Vector* sessions) {
     //     1]);
     // *hidx = '\0';
   }
+  /// PRINTING
+  const struct uint_point BOXSTART = box_start();
+
+  // printf box
+  print_box();
+
+  // put hostname
+  printf("\x1b[%d;%dH\x1b[%sm%s\x1b[%sm", BOXSTART.y + HEAD_ROW,
+         BOXSTART.x + VALUES_COL - VALUES_SEPR - (uint)utf8len(hostname),
+         g_config->colors.e_hostname, hostname, g_config->colors.fg);
+
+  // put date
+  char* fmtd_time = fmt_time(g_config->behavior.timefmt);
+  printf("\x1b[%d;%dH\x1b[%sm%s\x1b[%sm", BOXSTART.y + HEAD_ROW,
+         BOXSTART.x + BOX_WIDTH - 1 - BOX_HMARGIN - (uint)utf8len(fmtd_time),
+         g_config->colors.e_date, fmtd_time, g_config->colors.fg);
+  free(fmtd_time);
+
+  print_footer();
+
+  ui_update_field(SESSION);
+  ui_update_field(USER);
+  ui_update_field(PASSWD);
+  ui_update_cursor_focus();
+}
+
+#define READ_NONBLOCK_DELAY 100000
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
+int load(struct Vector* users, struct Vector* sessions) {
+  struct timeval tv;
+  tv.tv_sec = 0;
+  tv.tv_usec = READ_NONBLOCK_DELAY; // timeout = 100ms
+
+  /// SETUP
+  gusers = users;
+  gsessions = sessions;
 
   of_session =
       ofield_new(sessions->length + g_config->behavior.include_defshell);
@@ -228,35 +269,19 @@ int load(struct Vector* users, struct Vector* sessions) {
     free(initial_state.session_opt);
   }
 
-  /// PRINTING
-  const struct uint_point BOXSTART = box_start();
-
-  // printf box
-  print_box();
-
-  // put hostname
-  printf("\x1b[%d;%dH\x1b[%sm%s\x1b[%sm", BOXSTART.y + HEAD_ROW,
-         BOXSTART.x + VALUES_COL - VALUES_SEPR - (uint)utf8len(hostname),
-         g_config->colors.e_hostname, hostname, g_config->colors.fg);
-
-  // put date
-  char* fmtd_time = fmt_time(g_config->behavior.timefmt);
-  printf("\x1b[%d;%dH\x1b[%sm%s\x1b[%sm", BOXSTART.y + HEAD_ROW,
-         BOXSTART.x + BOX_WIDTH - 1 - BOX_HMARGIN - (uint)utf8len(fmtd_time),
-         g_config->colors.e_date, fmtd_time, g_config->colors.fg);
-  free(fmtd_time);
-
-  ui_update_field(SESSION);
-  ui_update_field(USER);
-  ui_update_field(PASSWD);
-  ui_update_cursor_focus();
+  scratch_print_ui();
 
   /// INTERACTIVE
   u_char len;
   char seq[0xff];
   uint esc = 0;
   while (true) {
-    read_press(&len, seq);
+    if (need_resize) {
+      need_resize = 0;
+      scratch_print_ui();
+    }
+
+    if (!read_press_nb(&len, seq, &tv)) continue;
     if (*seq == '\x1b') {
       enum keys ansi_code = find_ansi(seq);
       if (ansi_code != -1) {
