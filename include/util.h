@@ -1,6 +1,7 @@
 #ifndef UTILH_
 #define UTILH_
 
+#include <bits/types/struct_timeval.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -12,6 +13,8 @@
 int find_keyname(enum keys* at, const char* name);
 enum keys find_ansi(const char* seq);
 void read_press(u_char* length, char* out);
+// non blocking, waits up to tv, returns true if actually read
+bool read_press_nb(u_char* length, char* out, struct timeval* tv);
 
 bool utf8_iscont(char byte);
 size_t utf8len(const char* str);

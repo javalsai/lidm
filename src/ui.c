@@ -46,7 +46,7 @@ static void print_session(struct uint_point origin, struct session session,
 static void print_user(struct uint_point origin, struct user user,
                        bool multiple);
 static void print_passwd(struct uint_point origin, uint length, bool err);
-static void print_ui();
+static void scratch_print_ui();
 
 // ansi resource: https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
 static struct termios orig_term;
@@ -58,38 +58,12 @@ struct config* g_config = NULL;
 
 static volatile sig_atomic_t need_resize = 0;
 
-static void process_sigwinch(int) {
+static void process_sigwinch(int signal) {
   need_resize = 1;
-}
-
-void resize_ui() {
-  ioctl(STDOUT_FILENO, TIOCGWINSZ, &window);
-
-  if (window.ws_row < BOX_HEIGHT + INNER_BOX_OUT_MARGIN * 2 ||
-      window.ws_col < BOX_WIDTH + INNER_BOX_OUT_MARGIN * 2) {
-    printf("\033[2J\033[H"); // Clear screen
-    printf("\x1b[1;31mScreen too small\x1b[0m\n");
-    printf("\x1b[%s;%sm\x1b[2J", g_config->colors.bg, g_config->colors.fg);
-    return;
-  }
-
-  printf("\033[2J\033[H"); // Clear screen
-
-  print_ui();
 }
 
 void setup(struct config* config) {
   g_config = config;
-  ioctl(STDOUT_FILENO, TIOCGWINSZ, &window);
-
-  // at least
-  // 2 padding top and bottom for footer and vertical compensation
-  // 2 padding left & right to not overflow footer width
-  if (window.ws_row < BOX_HEIGHT + INNER_BOX_OUT_MARGIN * 2 ||
-      window.ws_col < BOX_WIDTH + INNER_BOX_OUT_MARGIN * 2) {
-    (void)fprintf(stderr, "\x1b[1;31mScreen too small\x1b[0m\n");
-    exit(1);
-  }
 
   tcgetattr(STDOUT_FILENO, &orig_term);
   term = orig_term; // save term
@@ -197,7 +171,19 @@ void ui_update_ofield(struct opts_field* NNULLABLE self) {
 }
 
 static char* unknown_str = "unknown";
-void print_ui() {
+void scratch_print_ui() {
+  ioctl(STDOUT_FILENO, TIOCGWINSZ, &window);
+
+  if (window.ws_row < BOX_HEIGHT + INNER_BOX_OUT_MARGIN * 2 ||
+      window.ws_col < BOX_WIDTH + INNER_BOX_OUT_MARGIN * 2) {
+    printf("\033[2J\033[H"); // Clear screen
+    printf("\x1b[1;31mScreen too small\x1b[0m\n");
+    printf("\x1b[%s;%sm\x1b[2J", g_config->colors.bg, g_config->colors.fg);
+    return;
+  }
+
+  printf("\033[2J\033[H"); // Clear screen
+
   // hostnames larger won't render properly
   const u_char HOSTNAME_SIZE = VALUES_COL - VALUES_SEPR - BOX_HMARGIN;
   char hostname_buf[HOSTNAME_SIZE];
@@ -239,8 +225,13 @@ void print_ui() {
   ui_update_cursor_focus();
 }
 
+#define READ_NONBLOCK_DELAY 100000
 // NOLINTNEXTLINE(readability-function-cognitive-complexity)
 int load(struct Vector* users, struct Vector* sessions) {
+  struct timeval tv;
+  tv.tv_sec = 0;
+  tv.tv_usec = READ_NONBLOCK_DELAY; // timeout = 100ms
+
   /// SETUP
   gusers = users;
   gsessions = sessions;
@@ -278,7 +269,7 @@ int load(struct Vector* users, struct Vector* sessions) {
     free(initial_state.session_opt);
   }
 
-  print_ui();
+  scratch_print_ui();
 
   /// INTERACTIVE
   u_char len;
@@ -287,24 +278,10 @@ int load(struct Vector* users, struct Vector* sessions) {
   while (true) {
     if (need_resize) {
       need_resize = 0;
-      resize_ui();
+      scratch_print_ui();
     }
 
-    // Async press handling (magic)
-    fd_set fds;
-    FD_ZERO(&fds);
-    FD_SET(STDIN_FILENO, &fds);
-    struct timeval tv;
-    tv.tv_sec = 0;
-    tv.tv_usec = 100000; // timeout = 100ms
-    // Wait for input with timeout
-    int ret = select(STDIN_FILENO + 1, &fds, NULL, NULL, &tv);
-    if (ret < 0) {
-      if (errno == EINTR) continue; // Interrupted by signal
-    }
-    if (ret == 0) continue; // Timeout
-
-    read_press(&len, seq);
+    if (!read_press_nb(&len, seq, &tv)) continue;
     if (*seq == '\x1b') {
       enum keys ansi_code = find_ansi(seq);
       if (ansi_code != -1) {
