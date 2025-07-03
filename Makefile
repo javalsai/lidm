@@ -8,7 +8,7 @@ PREFIX=/usr
 CC?=gcc
 CFLAGS?=-O3 -Wall
 _CFLAGS=-I$(DIR)
-BUILD_FLAGS=-DLIDM_GIT_DESCRIPTION="\"$(shell git describe --long --tags || echo ?)\"" -DLIDM_BUILD_DATE="\"$(shell date -u +"%Y-%m-%dT%H:%M:%SZ" || echo ?)\""
+BUILD_FLAGS=-DLIDM_GIT_DESCRIPTION="\"$(shell git describe --long --tags --always || echo ?)\"" -DLIDM_BUILD_DATE="\"$(shell date -u +"%Y-%m-%dT%H:%M:%SZ" || echo ?)\""
 ALLFLAGS=$(CFLAGS) -I$(IDIR) $(BUILD_FLAGS)
 
 LIBS=-lpam
