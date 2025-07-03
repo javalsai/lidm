@@ -8,11 +8,12 @@ PREFIX=/usr
 CC?=gcc
 CFLAGS?=-O3 -Wall
 _CFLAGS=-I$(DIR)
-ALLFLAGS=$(CFLAGS) -I$(IDIR)
+BUILD_FLAGS=-DLIDM_GIT_DESCRIPTION="\"$(shell git describe --long --tags || echo ?)\"" -DLIDM_BUILD_DATE="\"$(shell date -u +"%Y-%m-%dT%H:%M:%SZ" || echo ?)\""
+ALLFLAGS=$(CFLAGS) -I$(IDIR) $(BUILD_FLAGS)
 
 LIBS=-lpam
 
-_DEPS = log.h util.h ui.h ui_state.h config.h desktop.h auth.h ofield.h efield.h keys.h users.h sessions.h chvt.h macros.h launch_state.h
+_DEPS = version.h log.h util.h ui.h ui_state.h config.h desktop.h auth.h ofield.h efield.h keys.h users.h sessions.h chvt.h macros.h launch_state.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 _OBJ = main.o log.o util.o ui.o ui_state.o config.o desktop.o auth.o ofield.o efield.o users.o sessions.o chvt.o launch_state.o

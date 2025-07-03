@@ -1,6 +1,7 @@
 #include <pwd.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -12,6 +13,7 @@
 #include "ui.h"
 #include "users.h"
 #include "util.h"
+#include "version.h"
 
 int main(int argc, char* argv[]) {
   // Logger
@@ -27,8 +29,23 @@ int main(int argc, char* argv[]) {
     log_init(log_fd);
   }
 
-  // Chvt
-  if (argc == 2) chvt_str(argv[1]);
+  if (argc == 2) {
+    if (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0) {
+      printf("lidm version %s (git %s, build date %s)\n", LIDM_VERSION,
+             LIDM_GIT_DESCRIPTION, LIDM_BUILD_DATE);
+      return 0;
+    } else if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0) {
+      printf(
+          "Usage: lidm [vt number]\n"
+          "Options:\n"
+          "  -h, --help     Display help menu\n"
+          "  -v, --version  Display version information\n");
+      return 0;
+    } else {
+      // Chvt
+      chvt_str(argv[1]);
+    }
+  }
 
   struct config config = DEFAULT_CONFIG;
   char* conf_override = getenv("LIDM_CONF");
