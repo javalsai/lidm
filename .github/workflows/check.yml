@@ -1,0 +1,43 @@
+name: Check
+
+on:
+  workflow_call:
+
+jobs:
+  spellcheck:
+    name: Grammar
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: "codespell"
+          version: 1.0
+      - run: codespell
+
+  shellcheck:
+    name: Shellcheck
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: "shellcheck"
+          version: 1.0
+      - run: find . -type f -name '*.sh' -not -path './assets/pkg/aur/*/src/*' | xargs shellcheck
+
+  clangcheck:
+    name: Clang
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: "clang-format clang-tidy bear libpam0g-dev"
+          version: 1.0
+      - run: bear -- make
+      - run: clang-format -ni src/*.c include/*.h
+      - run: clang-tidy -p . src/*.c include/*.h
