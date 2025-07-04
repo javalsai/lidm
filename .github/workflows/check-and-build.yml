@@ -2,11 +2,6 @@ name: Check and Build
 
 on:
   workflow_call:
-    inputs:
-      set-statuses:
-        required: false
-        default: true
-        type: boolean
 
 jobs:
   spellcheck:
@@ -54,36 +49,13 @@ jobs:
     needs: [spellcheck, shellcheck, clangcheck]
 
     steps:
-      - uses: myrotvorets/set-commit-status-action@master
-        if: inputs.set-statuses
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          status: pending
-          description: ${{ steps.build.outputs.DESCR }}
-          context: Build for amd64
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: "git libpam0g-dev"
           version: 1.0
       - uses: actions/checkout@v4
       - id: build
-        run: |
-          make -j$(nproc) 2> /tmp/stderr || (ERR=$?; cat /tmp/stderr >&2; exit $ERR)
-          cat /tmp/stderr >&2
-
-          HSIZE="$(stat --printf="%s" lidm | numfmt --to=iec-i)B"
-          WARNS="$(cat /tmp/stderr | grep '^[^ ]*\.[ch]:' | wc -l)"
-          mv lidm lidm-amd64
-
-          echo "DESCR='$HSIZE, $WARNS warnings'" >> "$GITHUB_OUTPUT"
-
-      - uses: myrotvorets/set-commit-status-action@master
-        if: inputs.set-statuses
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          status: ${{ job.status }}
-          description: ${{ steps.build.outputs.DESCR }}
-          context: Build for amd64
+        run: ARCH=amd64 assets/github_scripts/build.sh
 
       - uses: actions/upload-artifact@v4
         with:
@@ -98,13 +70,6 @@ jobs:
     needs: [spellcheck, shellcheck, clangcheck]
 
     steps:
-      - uses: myrotvorets/set-commit-status-action@master
-        if: inputs.set-statuses
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          status: pending
-          description: ${{ steps.build.outputs.DESCR }}
-          context: Build for i386
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: "git libpam0g-dev gcc-multilib"
@@ -116,23 +81,7 @@ jobs:
           sudo apt-get install -y libpam0g-dev:i386
 
       - id: build
-        run: |
-          make -j$(nproc) CFLAGS="-O3 -Wall -m32" 2> /tmp/stderr || (ERR=$?; cat /tmp/stderr >&2; exit $ERR)
-          cat /tmp/stderr >&2
-
-          HSIZE="$(stat --printf="%s" lidm | numfmt --to=iec-i)B"
-          WARNS="$(cat /tmp/stderr | grep '^[^ ]*\.[ch]:' | wc -l)"
-          mv lidm lidm-i386
-
-          echo "DESCR='$HSIZE, $WARNS warnings'" >> "$GITHUB_OUTPUT"
-
-      - uses: myrotvorets/set-commit-status-action@master
-        if: inputs.set-statuses
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          status: ${{ job.status }}
-          description: ${{ steps.build.outputs.DESCR }}
-          context: Build for i386
+        run: ARCH=i386 assets/github_scripts/build.sh CFLAGS="-O3 -Wall -m32"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -146,13 +95,6 @@ jobs:
     permissions: write-all
     needs: [spellcheck, shellcheck, clangcheck]
     steps:
-      - uses: myrotvorets/set-commit-status-action@master
-        if: inputs.set-statuses
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          status: pending
-          description: ${{ steps.status.outputs.DESCR }}
-          context: Build for aarch64
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: "git"
@@ -166,27 +108,8 @@ jobs:
           install: |
             apt-get update && \
             apt-get install -y make gcc libpam0g-dev
-          run: |
-            make -j$(nproc) 2> /tmp/stderr || (ERR=$?; cat /tmp/stderr >&2; exit $ERR)
-
-            cat /tmp/stderr >&2
-            mv lidm lidm-aarch64
-
-      - if: inputs.set-statuses
-        id: status
-        run: |
-          HSIZE="$(stat --printf="%s" lidm-aarch64 | numfmt --to=iec-i)B"
-          WARNS="$(cat /tmp/stderr | grep '^[^ ]*\.[ch]:' | wc -l)"
-
-          echo "DESCR='$HSIZE, $WARNS warnings'" >> "$GITHUB_OUTPUT"
-
-      - uses: myrotvorets/set-commit-status-action@master
-        if: inputs.set-statuses
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          status: ${{ job.status }}
-          description: ${{ steps.status.outputs.DESCR }}
-          context: Build for aarch64
+          run: ARCH=aarch64 GITHUB_STEP_SUMMARY=gss.out GITHUB_OUTPUT=go.out assets/github_scripts/build.sh
+      - run: set +e; cat gss.out >>"$GITHUB_STEP_SUMMARY"; cat go.out >>"$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -200,13 +123,6 @@ jobs:
     permissions: write-all
     needs: [spellcheck, shellcheck, clangcheck]
     steps:
-      - uses: myrotvorets/set-commit-status-action@master
-        if: inputs.set-statuses
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          status: pending
-          description: ${{ steps.status.outputs.DESCR }}
-          context: Build for armv7
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: "git"
@@ -220,27 +136,8 @@ jobs:
           install: |
             apt-get update && \
             apt-get install -y make gcc libpam0g-dev
-          run: |
-            make -j$(nproc) 2> /tmp/stderr || (ERR=$?; cat /tmp/stderr >&2; exit $ERR)
-
-            cat /tmp/stderr >&2
-            mv lidm lidm-armv7
-
-      - if: inputs.set-statuses
-        id: status
-        run: |
-          HSIZE="$(stat --printf="%s" lidm-armv7 | numfmt --to=iec-i)B"
-          WARNS="$(cat /tmp/stderr | grep '^[^ ]*\.[ch]:' | wc -l)"
-
-          echo "DESCR='$HSIZE, $WARNS warnings'" >> "$GITHUB_OUTPUT"
-
-      - uses: myrotvorets/set-commit-status-action@master
-        if: inputs.set-statuses
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          status: ${{ job.status }}
-          description: ${{ steps.status.outputs.DESCR }}
-          context: Build for armv7
+          run: ARCH=armv7 GITHUB_STEP_SUMMARY=gss.out GITHUB_OUTPUT=go.out assets/github_scripts/build.sh
+      - run: set +e; cat gss.out >>"$GITHUB_STEP_SUMMARY"; cat go.out >>"$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -254,13 +151,6 @@ jobs:
     permissions: write-all
     needs: [spellcheck, shellcheck, clangcheck]
     steps:
-      - uses: myrotvorets/set-commit-status-action@master
-        if: inputs.set-statuses
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          status: pending
-          description: ${{ steps.status.outputs.DESCR }}
-          context: Build for riscv64
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: "git"
@@ -274,27 +164,8 @@ jobs:
           install: |
             apt-get update && \
             apt-get install -y make gcc libpam0g-dev
-          run: |
-            make -j$(nproc) 2> /tmp/stderr || (ERR=$?; cat /tmp/stderr >&2; exit $ERR)
-
-            cat /tmp/stderr >&2
-            mv lidm lidm-riscv64
-
-      - if: inputs.set-statuses
-        id: status
-        run: |
-          HSIZE="$(stat --printf="%s" lidm-riscv64 | numfmt --to=iec-i)B"
-          WARNS="$(cat /tmp/stderr | grep '^[^ ]*\.[ch]:' | wc -l)"
-
-          echo "DESCR='$HSIZE, $WARNS warnings'" >> "$GITHUB_OUTPUT"
-
-      - uses: myrotvorets/set-commit-status-action@master
-        if: inputs.set-statuses
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          status: ${{ job.status }}
-          description: ${{ steps.status.outputs.DESCR }}
-          context: Build for riscv64
+          run: ARCH=riscv64 GITHUB_STEP_SUMMARY=gss.out GITHUB_OUTPUT=go.out assets/github_scripts/build.sh
+      - run: set +e; cat gss.out >>"$GITHUB_STEP_SUMMARY"; cat go.out >>"$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v4
         with:

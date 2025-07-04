@@ -13,8 +13,6 @@ jobs:
     name: Check and Build
     uses: ./.github/workflows/check-and-build.yml
     permissions: write-all
-    with:
-      set-statuses: false
 
   release:
     name: Make Release v${{ inputs.version }}
