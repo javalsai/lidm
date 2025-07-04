@@ -53,11 +53,6 @@ jobs:
     needs: [spellcheck, shellcheck, clangcheck]
 
     steps:
-      - uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: "git libpam0g-dev"
-          version: 1.0
-      - uses: actions/checkout@v4
       - uses: myrotvorets/set-commit-status-action@master
         if: inputs.set-statuses
         with:
@@ -65,6 +60,11 @@ jobs:
           status: pending
           description: ${{ steps.build.outputs.DESCR }}
           context: Build for amd64
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: "git libpam0g-dev"
+          version: 1.0
+      - uses: actions/checkout@v4
       - id: build
         run: |
           make -j$(nproc) 2> /tmp/stderr || (ERR=$?; cat /tmp/stderr >&2; exit $ERR)
@@ -97,11 +97,6 @@ jobs:
     needs: [spellcheck, shellcheck, clangcheck]
 
     steps:
-      - uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: "git libpam0g-dev gcc-multilib"
-          version: 1.0
-      - uses: actions/checkout@v4
       - uses: myrotvorets/set-commit-status-action@master
         if: inputs.set-statuses
         with:
@@ -109,6 +104,11 @@ jobs:
           status: pending
           description: ${{ steps.build.outputs.DESCR }}
           context: Build for i386
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: "git libpam0g-dev gcc-multilib"
+          version: 1.0
+      - uses: actions/checkout@v4
       - run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update -y
@@ -145,11 +145,6 @@ jobs:
     permissions: write-all
     needs: [spellcheck, shellcheck, clangcheck]
     steps:
-      - uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: "git libpam0g-dev"
-          version: 1.0
-      - uses: actions/checkout@v4
       - uses: myrotvorets/set-commit-status-action@master
         if: inputs.set-statuses
         with:
@@ -157,6 +152,11 @@ jobs:
           status: pending
           description: ${{ steps.status.outputs.DESCR }}
           context: Build for aarch64
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: "git"
+          version: 1.0
+      - uses: actions/checkout@v4
       - uses: uraimo/run-on-arch-action@v2
         with:
           arch: aarch64
@@ -199,11 +199,6 @@ jobs:
     permissions: write-all
     needs: [spellcheck, shellcheck, clangcheck]
     steps:
-      - uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: "git libpam0g-dev"
-          version: 1.0
-      - uses: actions/checkout@v4
       - uses: myrotvorets/set-commit-status-action@master
         if: inputs.set-statuses
         with:
@@ -211,6 +206,11 @@ jobs:
           status: pending
           description: ${{ steps.status.outputs.DESCR }}
           context: Build for armv7
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: "git"
+          version: 1.0
+      - uses: actions/checkout@v4
       - uses: uraimo/run-on-arch-action@v2
         with:
           arch: armv7
@@ -253,11 +253,6 @@ jobs:
     permissions: write-all
     needs: [spellcheck, shellcheck, clangcheck]
     steps:
-      - uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: "git libpam0g-dev"
-          version: 1.0
-      - uses: actions/checkout@v4
       - uses: myrotvorets/set-commit-status-action@master
         if: inputs.set-statuses
         with:
@@ -265,6 +260,11 @@ jobs:
           status: pending
           description: ${{ steps.status.outputs.DESCR }}
           context: Build for riscv64
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: "git"
+          version: 1.0
+      - uses: actions/checkout@v4
       - uses: uraimo/run-on-arch-action@v2
         with:
           arch: riscv64
