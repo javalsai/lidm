@@ -41,7 +41,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: "clang-format clang-tidy bear"
+          packages: "clang-format clang-tidy bear libpam0g-dev"
           version: 1.0
       - run: bear -- make
       - run: clang-format -ni src/*.c include/*.h
