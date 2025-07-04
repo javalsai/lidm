@@ -1,4 +1,4 @@
-VERSION = 1.1.1
+VERSION = 1.2.0
 .DEFAULT_GOAL := lidm
 
 CDIR=src
@@ -91,6 +91,9 @@ pre-commit:
 	clang-format -i $$(git ls-files "*.c" "*.h")
 	clang-tidy -p . $$(git ls-files "*.c" "*.h")
 
+print-version:
+	@echo $(VERSION)
+
 .PHONY: clean \
 	install uninstall \
 	install-service \
@@ -99,4 +102,5 @@ pre-commit:
 	install-service-runit \
 	install-service-openrc \
 	install-service-systemd \
-	pre-commit
+	pre-commit \
+	print-version

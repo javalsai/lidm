@@ -2,23 +2,45 @@ name: Check and Build Release
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        required: true
-        default: ''
-        type: string
 
 jobs:
+  release-checks:
+    name: Release Checks
+    runs-on: ubuntu-24.04
+    permissions: write-all
+    outputs:
+      VERSION: ${{ steps.check-ver-changed.outputs.VERSION }}
+    steps:
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: "git"
+          version: 1.0
+      - uses: actions/checkout@v4
+
+      - name: Check Version Changed
+        id: check-ver-changed
+        run: |
+          GIT_TAG=$(git describe --no-long --abbrev=0 --tags --always)
+          MAKE_TAG=$(make print-version)
+
+          if [[ "$GIT_TAG" == "v$MAKE_TAG" ]]; then
+            echo "ERR: Git tag matches makefile, did you bump Makefile up?" >&2
+            exit 1
+          fi
+          echo "VERSION=$MAKE_TAG" >> "$GITHUB_OUTPUT"
+
+
   build:
     name: Check and Build
+    needs: release-checks
     uses: ./.github/workflows/check-and-build.yml
     permissions: write-all
 
   release:
-    name: Make Release v${{ inputs.version }}
+    name: Make Release v${{ needs.release-checks.outputs.VERSION }}
     runs-on: ubuntu-24.04
     permissions: write-all
-    needs: build
+    needs: [ release-checks, build ]
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -28,7 +50,7 @@ jobs:
 
       - uses: ncipollo/release-action@v1
         with:
-          tag: v${{ inputs.version }}
+          tag: v${{ needs.release-checks.outputs.VERSION }}
           commit: ${{ github.sha }}
           artifacts: builds/lidm-*
           artifactErrorsFailBuild: true
@@ -39,7 +61,7 @@ jobs:
     runs-on: ubuntu-24.04
     container: archlinux:latest
     permissions: write-all
-    needs: release
+    needs: [ release-checks, release ]
     steps:
       - run: pacman -Sy --noconfirm git github-cli base-devel pacman-contrib
 
@@ -51,7 +73,7 @@ jobs:
 
           cd "assets/pkg/aur"
           chown nobody:nobody . -R
-          su - -s /bin/bash nobody -c "$PWD/update-pkgs.sh ${{ inputs.version }}"
+          su - -s /bin/bash nobody -c "$PWD/update-pkgs.sh ${{ needs.release-checks.outputs.VERSION }}"
           su - -s /bin/bash nobody -c "$PWD/test-makepkg.sh" # This will also update -git pkgver
           chown $UID:$(id -g) . -R
 
