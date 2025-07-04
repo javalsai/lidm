@@ -84,15 +84,15 @@ jobs:
           chown $UID:$(id -g) . -R
 
       - run: |
-          BRANCH=actions/update-aur-${{ inputs.version }}
+          BRANCH=actions/update-aur-${{ needs.release-checks.outputs.VERSION }}
           git config --global --add safe.directory $GITHUB_WORKSPACE
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git checkout -b $BRANCH
-          git commit -am "Update AUR pkgs to v${{ inputs.version }}"
+          git commit -am "Update AUR pkgs to v${{ needs.release-checks.outputs.VERSION }}"
           git push -u origin $BRANCH
           gh pr create --head $BRANCH \
-            --title "[AUR update]: Bump to ${{ inputs.version }}" \
+            --title "[AUR update]: Bump to ${{ needs.release-checks.outputs.VERSION }}" \
             --body "*This PR was created automatically*"
         env:
           GH_TOKEN: ${{ github.token }}
