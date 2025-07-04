@@ -11,12 +11,14 @@
 enum introspection_type {
   STRING,
   BOOL,
+  NUMBER,
   KEY,
   STRING_ARRAY,
 };
 static const char* NNULLABLE const INTROS_TYS_NAMES[] = {
     [STRING] = "STRING",
     [BOOL] = "BOOL",
+    [NUMBER] = "NUMBER",
     [KEY] = "KEY",
     [STRING_ARRAY] = "STRING_ARRAY",
 };
@@ -116,7 +118,8 @@ BUILD(strings, STRINGS, TABLE_STRINGS);
   F(bool, include_defshell, BOOL, true, name)                 \
   F(struct Vector, source, STRING_ARRAY, NULL_VEC, name)      \
   F(struct Vector, user_source, STRING_ARRAY, NULL_VEC, name) \
-  F(char* NNULLABLE, timefmt, STRING, "%X %x", name)
+  F(char* NNULLABLE, timefmt, STRING, "%X %x", name)          \
+  F(long long, refresh_rate, NUMBER, 100, name)
 
 BUILD(behavior, BEHAVIOR, TABLE_BEHAVIOR);
 
