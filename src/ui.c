@@ -1,6 +1,7 @@
 // i'm sorry
 // really sorry
 
+#include <asm-generic/errno.h>
 #include <errno.h>
 #include <pwd.h>
 #include <signal.h>
@@ -107,6 +108,31 @@ static char* fmt_time(const char* fmt) {
   }
 }
 
+char* trunc_gethostname(const size_t MAXSIZE, const char* const ELLIPSIS) {
+  size_t alloc_size = MAXSIZE + 1;
+  char* buf = malloc(alloc_size);
+  if (!buf) return NULL;
+  while (true) {
+    if (gethostname(buf, alloc_size) == 0) return buf;
+    if (errno == ENAMETOOLONG) {
+      buf[alloc_size] = '\0';
+      if (utf8len(buf) > MAXSIZE) {
+        strcpy(&buf[MAXSIZE - utf8len(ELLIPSIS)], ELLIPSIS);
+        return buf;
+      }
+
+      alloc_size *= 2;
+      char* nbuf = realloc(buf, alloc_size);
+      if (!nbuf) goto fail;
+      buf = nbuf;
+    } else
+      goto fail;
+  }
+fail:
+  free(buf);
+  return NULL;
+}
+
 void ui_update_cursor_focus() {
   u_char line = box_start.y;
   u_char col = box_start.x + VALUES_COL;
@@ -163,7 +189,6 @@ void ui_update_ofield(struct opts_field* NNULLABLE self) {
   ui_update_field(input);
 }
 
-static char* unknown_str = "unknown";
 void scratch_print_ui() {
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &window);
   box_start = (struct uint_point){
@@ -323,21 +348,11 @@ u_char get_render_pos_offset(struct opts_field* self, u_char maxlen) {
 }
 
 #define HOSTNAME_SIZE (VALUES_COL - VALUES_SEPR - BOX_HMARGIN - 1)
-// TODO: make hostname utf8 compatible
 void print_head() {
   // hostname doesn't just change on runtime
-  static bool hostname_set = false;
-  static char hostname[HOSTNAME_SIZE + 1];
-  if (!hostname_set) {
-    strcpy(hostname, unknown_str);
-    int ret = gethostname(hostname, HOSTNAME_SIZE);
-    if (hostname[HOSTNAME_SIZE] != '\0' || ret < 0) {
-      // assume any type of truncation
-      hostname[HOSTNAME_SIZE] = '\0';
-      hostname[HOSTNAME_SIZE - 1] = '_'; // "ellipsis"
-    }
-    hostname_set = true;
-  }
+  static char* hostname = NULL;
+  if (!hostname) hostname = trunc_gethostname(HOSTNAME_SIZE, "...");
+  if (!hostname) hostname = "unknown";
 
   clean_line(box_start, HEAD_ROW);
   // put hostname
