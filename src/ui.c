@@ -109,6 +109,7 @@ static char* fmt_time(const char* fmt) {
 }
 
 char* trunc_gethostname(const size_t MAXSIZE, const char* const ELLIPSIS) {
+  if(utf8len(ELLIPSIS) > MAXSIZE) return NULL;
   size_t alloc_size = MAXSIZE + 1;
   char* buf = malloc(alloc_size);
   if (!buf) return NULL;
@@ -116,7 +117,7 @@ char* trunc_gethostname(const size_t MAXSIZE, const char* const ELLIPSIS) {
     if (gethostname(buf, alloc_size) == 0) return buf;
     if (errno == ENAMETOOLONG) {
       buf[alloc_size] = '\0';
-      if (utf8len(buf) > MAXSIZE) {
+      if (utf8len(buf) > MAXSIZE - utf8len(ELLIPSIS)) {
         strcpy(&buf[MAXSIZE - utf8len(ELLIPSIS)], ELLIPSIS);
         return buf;
       }
