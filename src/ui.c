@@ -322,25 +322,21 @@ u_char get_render_pos_offset(struct opts_field* self, u_char maxlen) {
   return pos - ofield_display_cursor_col(self, maxlen);
 }
 
-#define HOSTNAME_SIZE (VALUES_COL - VALUES_SEPR - BOX_HMARGIN)
+#define HOSTNAME_SIZE (VALUES_COL - VALUES_SEPR - BOX_HMARGIN - 1)
+// TODO: make hostname utf8 compatible
 void print_head() {
   // hostname doesn't just change on runtime
-  static char* hostname = NULL;
-  static char hostname_buf[HOSTNAME_SIZE + 1];
-  if (!hostname) {
-    // hostnames larger won't render properly
-    hostname = hostname_buf;
-    if (gethostname(hostname_buf, HOSTNAME_SIZE) != 0) {
-      hostname = unknown_str;
-    } else {
-      // Ig "successful completion" doesn't contemplate truncation case, so need
-      // to append the unspecified nullbyte
-
-      // char* hidx =
-      //     (char*)utf8back(&hostname[VALUES_COL - VALUES_SEPR - BOX_HMARGIN -
-      //     1]);
-      // *hidx = '\0';
+  static bool hostname_set = false;
+  static char hostname[HOSTNAME_SIZE + 1];
+  if (!hostname_set) {
+    strcpy(hostname, unknown_str);
+    int ret = gethostname(hostname, HOSTNAME_SIZE);
+    if (hostname[HOSTNAME_SIZE] != '\0' || ret < 0) {
+      // assume any type of truncation
+      hostname[HOSTNAME_SIZE] = '\0';
+      hostname[HOSTNAME_SIZE - 1] = '_'; // "ellipsis"
     }
+    hostname_set = true;
   }
 
   clean_line(box_start, HEAD_ROW);
