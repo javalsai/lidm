@@ -34,10 +34,12 @@ int main(int argc, char* argv[]) {
 
   if (argc == 2) {
     if (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0) {
+      // NOLINTBEGIN(clang-analyzer-deadcode.DeadStores)
       char* version = "?";
       char* revision = "?";
       char* builddate = "?";
       char* compilever = "?";
+      // NOLINTEND(clang-analyzer-deadcode.DeadStores)
 #ifdef LIDM_VERSION
       version = LIDM_VERSION;
 #endif
