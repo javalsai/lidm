@@ -106,7 +106,8 @@ BUILD(functions, FUNCTIONS, TABLE_FUNCTIONS);
   F(char* NNULLABLE, s_xorg, STRING, "xorg", name)         \
   F(char* NNULLABLE, s_shell, STRING, "shell", name)       \
   F(char* NNULLABLE, opts_pre, STRING, "< ", name)         \
-  F(char* NNULLABLE, opts_post, STRING, " >", name)
+  F(char* NNULLABLE, opts_post, STRING, " >", name)        \
+  F(char* NNULLABLE, ellipsis, STRING, "…", name)
 
 BUILD(strings, STRINGS, TABLE_STRINGS);
 

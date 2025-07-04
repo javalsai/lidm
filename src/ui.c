@@ -109,7 +109,7 @@ static char* fmt_time(const char* fmt) {
 }
 
 char* trunc_gethostname(const size_t MAXSIZE, const char* const ELLIPSIS) {
-  if(utf8len(ELLIPSIS) > MAXSIZE) return NULL;
+  if (utf8len(ELLIPSIS) > MAXSIZE) return NULL;
   size_t alloc_size = MAXSIZE + 1;
   char* buf = malloc(alloc_size);
   if (!buf) return NULL;
@@ -352,7 +352,8 @@ u_char get_render_pos_offset(struct opts_field* self, u_char maxlen) {
 void print_head() {
   // hostname doesn't just change on runtime
   static char* hostname = NULL;
-  if (!hostname) hostname = trunc_gethostname(HOSTNAME_SIZE, "...");
+  if (!hostname)
+    hostname = trunc_gethostname(HOSTNAME_SIZE, g_config->strings.ellipsis);
   if (!hostname) hostname = "unknown";
 
   clean_line(box_start, HEAD_ROW);
