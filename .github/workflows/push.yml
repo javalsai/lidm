@@ -1,5 +1,4 @@
-# Kinda based by https://github.com/myrotvorets/set-commit-status-action/actions/runs/12344741285/workflow
-name: Push Checks
+name: _
 
 on:
   push:
@@ -9,7 +8,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  check-and-build:
-    name: Check and Build
-    uses: ./.github/workflows/check-and-build.yml
+  check:
+    name: Check
+    uses: ./.github/workflows/check.yml
+    permissions: write-all
+  build:
+    name: Build
+    uses: ./.github/workflows/build.yml
     permissions: write-all

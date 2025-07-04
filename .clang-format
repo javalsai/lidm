@@ -6,3 +6,6 @@ AllowShortIfStatementsOnASingleLine: WithoutElse
 AlignAfterOpenBracket: Align
 BinPackParameters: true
 AllowAllParametersOfDeclarationOnNextLine: true
+
+IndentPPDirectives: BeforeHash
+IndentGotoLabels: true

@@ -1,0 +1,130 @@
+name: Build
+
+on:
+  workflow_call:
+
+jobs:
+  build-linux-amd64:
+    name: amd64
+    runs-on: ubuntu-24.04
+    permissions: write-all
+    steps:
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: "git libpam0g-dev"
+          version: 1.0
+      - uses: actions/checkout@v4
+      - id: build
+        run: ARCH=amd64 assets/github_scripts/build.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-amd64
+          path: lidm-amd64
+          retention-days: 1
+
+  build-linux-i386:
+    name: i386
+    runs-on: ubuntu-24.04
+    permissions: write-all
+
+    steps:
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: "git libpam0g-dev gcc-multilib"
+          version: 1.0
+      - uses: actions/checkout@v4
+      - run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update -y
+          sudo apt-get install -y libpam0g-dev:i386
+
+      - id: build
+        run: ARCH=i386 assets/github_scripts/build.sh CFLAGS="-O3 -Wall -m32"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-i386
+          path: lidm-i386
+          retention-days: 1
+
+  build-linux-aarch64:
+    name: aarch64
+    runs-on: ubuntu-24.04
+    permissions: write-all
+    steps:
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: "git"
+          version: 1.0
+      - uses: actions/checkout@v4
+      - uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: aarch64
+          distro: ubuntu22.04
+          githubToken: ${{ github.token }}
+          install: |
+            apt-get update && \
+            apt-get install -y make gcc libpam0g-dev
+          run: ARCH=aarch64 GITHUB_STEP_SUMMARY=gss.out GITHUB_OUTPUT=go.out assets/github_scripts/build.sh
+      - run: set +e; cat gss.out >>"$GITHUB_STEP_SUMMARY"; cat go.out >>"$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-aarch64
+          path: lidm-aarch64
+          retention-days: 1
+
+  build-linux-armv7:
+    name: armv7
+    runs-on: ubuntu-24.04
+    permissions: write-all
+    steps:
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: "git"
+          version: 1.0
+      - uses: actions/checkout@v4
+      - uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: armv7
+          distro: ubuntu22.04
+          githubToken: ${{ github.token }}
+          install: |
+            apt-get update && \
+            apt-get install -y make gcc libpam0g-dev
+          run: ARCH=armv7 GITHUB_STEP_SUMMARY=gss.out GITHUB_OUTPUT=go.out assets/github_scripts/build.sh
+      - run: set +e; cat gss.out >>"$GITHUB_STEP_SUMMARY"; cat go.out >>"$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-armv7
+          path: lidm-armv7
+          retention-days: 1
+
+  build-linux-riscv64:
+    name: riscv64
+    runs-on: ubuntu-24.04
+    permissions: write-all
+    steps:
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: "git"
+          version: 1.0
+      - uses: actions/checkout@v4
+      - uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: riscv64
+          distro: ubuntu22.04
+          githubToken: ${{ github.token }}
+          install: |
+            apt-get update && \
+            apt-get install -y make gcc libpam0g-dev
+          run: ARCH=riscv64 GITHUB_STEP_SUMMARY=gss.out GITHUB_OUTPUT=go.out assets/github_scripts/build.sh
+      - run: set +e; cat gss.out >>"$GITHUB_STEP_SUMMARY"; cat go.out >>"$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-riscv64
+          path: lidm-riscv64
+          retention-days: 1

@@ -1,3 +1,6 @@
+VERSION = 1.2.0
+.DEFAULT_GOAL := lidm
+
 CDIR=src
 LDIR=lib
 IDIR=include
@@ -7,16 +10,26 @@ PREFIX=/usr
 
 CC?=gcc
 CFLAGS?=-O3 -Wall
-_CFLAGS=-I$(DIR)
 ALLFLAGS=$(CFLAGS) -I$(IDIR)
 
 LIBS=-lpam
 
-_DEPS = log.h util.h ui.h ui_state.h config.h desktop.h auth.h ofield.h efield.h keys.h users.h sessions.h chvt.h macros.h launch_state.h
+_DEPS = version.h log.h util.h ui.h ui_state.h config.h desktop.h auth.h ofield.h efield.h keys.h users.h sessions.h chvt.h macros.h launch_state.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 _OBJ = main.o log.o util.o ui.o ui_state.o config.o desktop.o auth.o ofield.o efield.o users.o sessions.o chvt.o launch_state.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
+
+$(IDIR)/version.h: Makefile .git/HEAD
+	@tmp=$$(mktemp); \
+	printf '' > $$tmp; \
+	echo '#define LIDM_VERSION "'$(VERSION)'"' >> $$tmp; \
+	echo '#define LIDM_GIT_REV "'$$(git describe --long --tags --always)'"' >> $$tmp; \
+	echo '#define LIDM_BUILD_TS '$$(date +%s) >> $$tmp; \
+	if ! cmp -s $$tmp $@; then \
+		mv $$tmp $@; \
+	fi; \
+	rm -f $$tmp;
 
 $(ODIR)/%.o: $(CDIR)/%.c $(DEPS)
 	@mkdir -p $(ODIR)
@@ -25,7 +38,6 @@ $(ODIR)/%.o: $(CDIR)/%.c $(DEPS)
 lidm: $(OBJ)
 	$(CC) -o $@ $^ $(ALLFLAGS) $(LIBS)
 
-.PHONY: clean
 clean:
 	rm -f $(ODIR)/*.o lidm
 
@@ -78,3 +90,17 @@ pre-commit:
 	find . -type f -name '*.sh' -not -path './assets/pkg/aur/*/src/*' | xargs shellcheck
 	clang-format -i $$(git ls-files "*.c" "*.h")
 	clang-tidy -p . $$(git ls-files "*.c" "*.h")
+
+print-version:
+	@echo $(VERSION)
+
+.PHONY: clean \
+	install uninstall \
+	install-service \
+	install-service-s6 \
+	install-service-dinit \
+	install-service-runit \
+	install-service-openrc \
+	install-service-systemd \
+	pre-commit \
+	print-version
