@@ -1,53 +1,13 @@
-name: Check and Build
+name: Build
 
 on:
   workflow_call:
 
 jobs:
-  spellcheck:
-    name: Check Grammar
-    runs-on: ubuntu-24.04
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: "codespell"
-          version: 1.0
-      - run: codespell
-
-  shellcheck:
-    name: Shell Check
-    runs-on: ubuntu-24.04
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: "shellcheck"
-          version: 1.0
-      - run: find . -type f -name '*.sh' -not -path './assets/pkg/aur/*/src/*' | xargs shellcheck
-
-  clangcheck:
-    name: Clang Check
-    runs-on: ubuntu-24.04
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: "clang-format clang-tidy bear libpam0g-dev"
-          version: 1.0
-      - run: bear -- make
-      - run: clang-format -ni src/*.c include/*.h
-      - run: clang-tidy -p . src/*.c include/*.h
-
   build-linux-amd64:
-    name: Build for amd64
+    name: amd64
     runs-on: ubuntu-24.04
     permissions: write-all
-    needs: [spellcheck, shellcheck, clangcheck]
-
     steps:
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
@@ -64,10 +24,9 @@ jobs:
           retention-days: 1
 
   build-linux-i386:
-    name: Build for i386
+    name: i386
     runs-on: ubuntu-24.04
     permissions: write-all
-    needs: [spellcheck, shellcheck, clangcheck]
 
     steps:
       - uses: awalsh128/cache-apt-pkgs-action@latest
@@ -90,10 +49,9 @@ jobs:
           retention-days: 1
 
   build-linux-aarch64:
-    name: Build for aarch64
+    name: aarch64
     runs-on: ubuntu-24.04
     permissions: write-all
-    needs: [spellcheck, shellcheck, clangcheck]
     steps:
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
@@ -118,10 +76,9 @@ jobs:
           retention-days: 1
 
   build-linux-armv7:
-    name: Build for armv7
+    name: armv7
     runs-on: ubuntu-24.04
     permissions: write-all
-    needs: [spellcheck, shellcheck, clangcheck]
     steps:
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
@@ -146,10 +103,9 @@ jobs:
           retention-days: 1
 
   build-linux-riscv64:
-    name: Build for riscv64
+    name: riscv64
     runs-on: ubuntu-24.04
     permissions: write-all
-    needs: [spellcheck, shellcheck, clangcheck]
     steps:
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:

@@ -30,17 +30,23 @@ jobs:
           echo "VERSION=$MAKE_TAG" >> "$GITHUB_OUTPUT"
 
 
-  build:
-    name: Check and Build
+  check:
+    name: Check
     needs: release-checks
-    uses: ./.github/workflows/check-and-build.yml
+    uses: ./.github/workflows/check.yml
+    permissions: write-all
+
+  build:
+    name: Build
+    needs: release-checks
+    uses: ./.github/workflows/build.yml
     permissions: write-all
 
   release:
     name: Make Release v${{ needs.release-checks.outputs.VERSION }}
     runs-on: ubuntu-24.04
     permissions: write-all
-    needs: [ release-checks, build ]
+    needs: [ release-checks, check, build ]
     steps:
       - uses: actions/download-artifact@v4
         with:
