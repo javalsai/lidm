@@ -20,6 +20,16 @@
 #define UNULLABLE
 #endif
 
+#if defined(__clang__)
+#define COMPILER_VERSION __VERSION__
+#elif defined(__GNUC__)
+#define xstr(s) str(s)
+#define str(s) #s
+
+#define COMPILER_VERSION \
+"GCC " xstr(__GNUC__) "." xstr(__GNUC_MINOR__) "." xstr(__GNUC_PATCHLEVEL__)
+#endif
+
 #define LEN(X) (sizeof(X) / sizeof((X)[0]))
 
 #endif
