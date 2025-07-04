@@ -44,8 +44,7 @@ jobs:
           packages: "clang-format clang-tidy"
           version: 1.0
       - run: clang-format -ni src/*.c include/*.h
-      # TODO: include when the errors/warnings are bearable
-      #- run: clang-tidy src/*.c include/*.h
+      - run: clang-tidy -p . src/*.c include/*.h
 
   build-linux-amd64:
     name: Build for amd64
