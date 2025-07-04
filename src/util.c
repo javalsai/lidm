@@ -59,8 +59,9 @@ bool read_press_nb(u_char* length, char* out, struct timeval* tv) {
   fd_set fds;
   FD_ZERO(&fds);
   FD_SET(STDIN_FILENO, &fds);
+  errno = 0;
   int ret = select(STDIN_FILENO + 1, &fds, NULL, NULL, tv);
-  if ((ret < 0 && errno == EINTR) || ret == 0) return false;
+  if (errno || ret <= 0) return false;
 
   read_press(length, out);
   return true;

@@ -1,10 +1,13 @@
+#include <errno.h>
 #include <linux/fs.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include "config.h"
 #include "desktop.h"
@@ -111,6 +114,7 @@ unfinished:
 #define NOFAIL return (struct parser_error){NULL, 0}
 union typ_ptr {
   char** string;
+  long long* number;
   bool* boolean;
   enum keys* key;
   struct Vector* vec;
@@ -145,6 +149,13 @@ struct parser_error parse_key(enum introspection_type typ, union typ_ptr at,
         *at.boolean = false;
       else {
         FAIL("Invalid key value, wasn't 'true' nor 'false'");
+      }
+      break;
+    case NUMBER:
+      errno = 0;
+      *at.number = strtol(key, NULL, 10);
+      if (errno) {
+        FAIL("strtol failed");
       }
       break;
     case KEY:
@@ -205,6 +216,8 @@ struct status config_line_handler(void* _config, char* table, char* k,
   size_t offset = this_intros_table->offset + this_intros_key->offset;
   union typ_ptr k_addr = {.ptr = (uintptr_t)config + offset};
 
+  log_printf("[I] parsing [%s.%s] as %s\n", table, k,
+             INTROS_TYS_NAMES[this_intros_key->typ]);
   struct parser_error err = parse_key(this_intros_key->typ, k_addr, v, offset);
   if (err.msg != NULL) {
     log_printf("[E] cfg parser, failed to parse [%s.%s] (%s): %s\n", table, k,
@@ -213,7 +226,9 @@ struct status config_line_handler(void* _config, char* table, char* k,
     return ret;
   }
 
-  if (this_intros_key->typ == STRING)
+  if (this_intros_key->typ == NUMBER)
+    log_printf("[I] cfg parsed [%s.%s] (%lld)\n", table, k, *k_addr.number);
+  else if (this_intros_key->typ == STRING)
     log_printf("[I] cfg parsed [%s.%s] (%s)\n", table, k, *k_addr.string);
   else
     log_printf("[I] cfg parsed [%s.%s]\n", table, k);
