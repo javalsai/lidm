@@ -18,29 +18,10 @@
           builtins.match "VERSION[[:blank:]]*=[[:space:]]*([^\n]*)\n.*" (builtins.readFile ./Makefile)
         ) 0;
 
-        lidm = (
-          pkgs.stdenv.mkDerivation {
-            pname = name;
-            version = version;
-
-            src = ./.;
-
-            nativeBuildInputs = with pkgs; [
-              gcc
-              gnumake
-              linux-pam
-            ];
-
-            makeFlags = [
-              "DESTDIR=$(out)"
-              "PREFIX="
-            ];
-
-            fixupPhase = ''
-              rm -rf $out/etc
-            '';
-          }
-        );
+        lidm = pkgs.callPackage assets/pkg/nix/lidm.nix {
+          inherit pkgs;
+          config = { inherit version; src = ./.; };
+        };
       in
       rec {
         defaultApp = flake-utils.lib.mkApp { drv = defaultPackage; };
