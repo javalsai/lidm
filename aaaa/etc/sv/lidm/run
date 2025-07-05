@@ -1,0 +1,15 @@
+#!/bin/sh
+
+[ -r conf ] && . ./conf
+
+if [ -x /sbin/getty -o -x /bin/getty ]; then
+	# busybox
+	GETTY=getty
+elif [ -x /sbin/agetty -o -x /bin/agetty ]; then
+	# util-linux
+	GETTY=agetty
+fi
+
+exec setsid ${GETTY} ${GETTY_ARGS} \
+	"${TTY}" "${TERM_NAME}" \
+	-n -l "${EXEC_PATH}" -o 7

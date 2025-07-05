@@ -72,7 +72,7 @@ install-service:
 	elif command -v rc-update &> /dev/null; then \
 		make install-service-openrc; \
 	elif command -v s6-service &> /dev/null; then \
-		if [ -d /etc/sv ]; then\
+		if [ -d /etc/sv ]; then \
 			make install-service-s6; \
 		elif [ -d /etc/r6nit/sv ]; then \
 			make install-service-s6-etc; \
@@ -80,7 +80,7 @@ install-service:
 			printf '\033[31m%s\033[0m\n' "Unknown init system structure, skipping service install..." >&2; \
 		fi \
 	else \
-		printf '\033[1;31m%s\033[0m\n' "Unknown init system, skipping service install..." >&"; \
+		printf '\033[1;31m%s\033[0m\n' "Unknown init system, skipping service install..." >&2; \
 	fi
 
 install-service-systemd:
@@ -91,18 +91,18 @@ install-service-dinit:
 	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'dinitctl enable lidm'"
 install-service-runit:
 	@if [ ! -e /etc/sv ] && [ -d /etc/runit/sv ] && [ -z "$FORCE" ]; then \
-		printf '\033[31m%s\033[0m\n' "/etc/sv doesn't exist but /etc/runit/sv does" >&2 \
-		printf '\033[31m%s\033[0m\n' "you probably meant to 'make install-service-runit-etc'" >&2 \
-		exit 1 \
+		printf '\033[31m%s\033[0m\n' "/etc/sv doesn't exist but /etc/runit/sv does" >&2; \
+		printf '\033[31m%s\033[0m\n' "you probably meant to 'make install-service-runit-etc'" >&2; \
+		exit 1; \
 	fi
 	mkdir -p ${DESTDIR}/etc/sv/lidm
 	cp -r --update=all ./assets/services/runit/* ${DESTDIR}/etc/sv/lidm/
 	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'ln -s ${DESTDIR}/etc/sv/lidm /var/service' or your distro equivalent"
 install-service-runit-etc:
 	@if [ ! -e /etc/runit/sv ] && [ -d /etc/sv ] && [ -z "$FORCE" ]; then \
-		printf '\033[31m%s\033[0m\n' "/etc/runit/sv doesn't exist but /etc/sv does" >&2 \
-		printf '\033[31m%s\033[0m\n' "you probably meant to 'make install-service-runit'" >&2 \
-		exit 1 \
+		printf '\033[31m%s\033[0m\n' "/etc/runit/sv doesn't exist but /etc/sv does" >&2; \
+		printf '\033[31m%s\033[0m\n' "you probably meant to 'make install-service-runit'" >&2; \
+		exit 1; \
 	fi
 	mkdir -p ${DESTDIR}/etc/runit/sv/lidm
 	cp -r --update=all ./assets/services/runit/* ${DESTDIR}/etc/runit/sv/lidm/
@@ -112,18 +112,18 @@ install-service-openrc:
 	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'rc-update add lidm'"
 install-service-s6:
 	@if [ ! -e /etc/sv ] && [ -d /etc/s6/sv ] && [ -z "$FORCE" ]; then \
-		printf '\033[31m%s\033[0m\n' "/etc/sv doesn't exist but /etc/s6/sv does" >&2 \
-		printf '\033[31m%s\033[0m\n' "you probably meant to 'make install-service-s6-etc'" >&2 \
-		exit 1 \
+		printf '\033[31m%s\033[0m\n' "/etc/sv doesn't exist but /etc/s6/sv does" >&2; \
+		printf '\033[31m%s\033[0m\n' "you probably meant to 'make install-service-s6-etc'" >&2; \
+		exit 1; \
 	fi
 	mkdir -p ${DESTDIR}/etc/sv/lidm
 	cp -r --update=all ./assets/services/s6/* ${DESTDIR}/etc/sv/lidm/
 	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 's6-service add default lidm' and 's6-db-reload'"
 install-service-s6-etc:
 	@if [ ! -e /etc/s6/sv ] && [ -d /etc/sv ] && [ -z "$FORCE" ]; then \
-		printf '\033[31m%s\033[0m\n' "/etc/s6/sv doesn't exist but /etc/sv does" >&2 \
-		printf '\033[31m%s\033[0m\n' "you probably meant to 'make install-service-s6'" >&2 \
-		exit 1 \
+		printf '\033[31m%s\033[0m\n' "/etc/s6/sv doesn't exist but /etc/sv does" >&2; \
+		printf '\033[31m%s\033[0m\n' "you probably meant to 'make install-service-s6'" >&2; \
+		exit 1; \
 	fi
 	mkdir -p ${DESTDIR}/etc/s6/sv/lidm
 	cp -r --update=all ./assets/services/s6/* ${DESTDIR}/etc/s6/sv/lidm/
