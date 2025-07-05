@@ -54,7 +54,7 @@ install: lidm
 uninstall:
 	rm -rf ${DESTDIR}${PREFIX}/bin/lidm ${DESTDIR}/etc/lidm.ini
 	rm -rf ${DESTDIR}/usr/share/man/man{1/lidm.1,5/lidm-config.5}.gz
-	rm -rf /etc/systemd/system/lidm.service /etc/dinit.d/lidm /etc/runit/sv/lidm
+	rm -rf ${DESTDIR}/etc/systemd/system/lidm.service ${DESTDIR}/etc/dinit.d/lidm ${DESTDIR}/etc/runit/sv/lidm
 
 install-service:
 	@if command -v systemctl &> /dev/null; then \
@@ -68,24 +68,26 @@ install-service:
 	elif command -v s6-service &> /dev/null; then \
 		make install-service-s6; \
 	else \
-		printf '\x1b[1;31m%s\x1b[0m\n' "Unknown init system, skipping service install..."; \
+		printf '\033[1;31m%s\033[0m\n' "Unknown init system, skipping service install..."; \
 	fi
 
 install-service-systemd:
-	install -m644 ./assets/services/systemd.service /etc/systemd/system/lidm.service
-	@printf '\x1b[1m%s\x1b[0m\n\n' " don't forget to run 'systemctl enable lidm'"
+	install -m644 ./assets/services/systemd.service ${DESTDIR}/etc/systemd/system/lidm.service
+	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'systemctl enable lidm'"
 install-service-dinit:
-	install -m644 ./assets/services/dinit /etc/dinit.d/lidm
-	@printf '\x1b[1m%s\x1b[0m\n\n' " don't forget to run 'dinitctl enable lidm'"
+	install -m644 ./assets/services/dinit ${DESTDIR}/etc/dinit.d/lidm
+	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'dinitctl enable lidm'"
 install-service-runit:
-	rsync -a --no-owner --no-group ./assets/services/runit/. /etc/runit/sv/lidm
-	@printf '\x1b[1m%s\x1b[0m\n\n' " don't forget to run 'ln -s /etc/runit/sv/lidm /run/runit/service' and 'sv enable lidm'"
+	mkdir -p ${DESTDIR}/etc/sv/lidm
+	cp -r ./assets/services/runit/* ${DESTDIR}/etc/sv/lidm/
+	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'ln -s ${DESTDIR}/etc/sv/lidm /var/service'"
 install-service-openrc:
-	install -m755 ./assets/services/openrc /etc/init.d/lidm
-	@printf '\x1b[1m%s\x1b[0m\n\n' " don't forget to run 'rc-update add lidm'"
+	install -m755 ./assets/services/openrc ${DESTDIR}/etc/init.d/lidm
+	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'rc-update add lidm'"
 install-service-s6:
-	rsync -a --no-owner --no-group ./assets/services/s6/. /etc/s6/sv/lidm
-	@printf '\x1b[1m%s\x1b[0m\n\n' " don't forget to run 's6-service add default lidm' and 's6-db-reload'"
+	mkdir -p ${DESTDIR}/etc/s6/sv/lidm
+	cp -r ./assets/services/s6/* ${DESTDIR}/etc/s6/sv/lidm/
+	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 's6-service add default lidm' and 's6-db-reload'"
 
 pre-commit:
 	codespell
