@@ -99,9 +99,6 @@ install-service-s6:
 		mkdir -p ${DESTDIR}/etc/s6/sv/lidm
 		cp -r --update=all ./assets/services/s6/* ${DESTDIR}/etc/s6/sv/lidm/
 	endif
-
-	mkdir -p ${DESTDIR}/etc/s6/sv/lidm
-	cp -r ./assets/services/s6/* ${DESTDIR}/etc/s6/sv/lidm/
 	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 's6-service add default lidm' and 's6-db-reload'"
 
 pre-commit:
