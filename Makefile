@@ -94,17 +94,17 @@ install-service-runit:
 		printf '\033[31m%s\033[0m\n' "${DESTDIR}/etc/sv doesn't exist" >&2 \
 		exit 1 \
 	fi
-	mkdir -p ${DESTDIR}/etc/runit/lidm
+	mkdir -p ${DESTDIR}/etc/sv/lidm
 	cp -r --update=all ./assets/services/runit/* ${DESTDIR}/etc/sv/lidm/
-	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'ln -s ${DESTDIR}/etc/sv/lidm /var/service'"
+	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'ln -s ${DESTDIR}/etc/sv/lidm /var/service' or your distro equivalent"
 install-service-runit-etc:
 	@if [ ! -e /etc/runit/sv ] && [ -z "$FORCE" ]; then \
-		printf '\033[31m%s\033[0m\n' "${DESTDIR}/etc/s6/sv doesn't exist" >&2 \
+		printf '\033[31m%s\033[0m\n' "${DESTDIR}/etc/runit/sv doesn't exist" >&2 \
 		exit 1 \
 	fi
 	mkdir -p ${DESTDIR}/etc/runit/sv/lidm
-	cp -r --update=all ./assets/services/runit/* ${DESTDIR}/etc/s6/sv/lidm/
-	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'ln -s ${DESTDIR}/etc/s6/sv/lidm /var/service'"
+	cp -r --update=all ./assets/services/runit/* ${DESTDIR}/etc/runit/sv/lidm/
+	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'ln -s ${DESTDIR}/etc/runit/sv/lidm /run/runit/service' or your distro equivalent"
 install-service-openrc:
 	install -m755 ./assets/services/openrc ${DESTDIR}/etc/init.d/lidm
 	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'rc-update add lidm'"
@@ -115,6 +115,7 @@ install-service-s6:
 	fi
 	mkdir -p ${DESTDIR}/etc/sv/lidm
 	cp -r --update=all ./assets/services/s6/* ${DESTDIR}/etc/sv/lidm/
+	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 's6-service add default lidm' and 's6-db-reload'"
 install-service-s6-etc:
 	@if [ ! -e "${DESTDIR}/etc/s6/sv" ] && [ -z "$FORCE" ]; then \
 		printf '\033[31m%s\033[0m\n' "${DESTDIR}/etc/s6/sv doesn't exist" >&2 \
