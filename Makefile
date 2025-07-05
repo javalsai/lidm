@@ -62,7 +62,13 @@ install-service:
 	elif command -v dinitctl &> /dev/null; then \
 		make install-service-dinit; \
 	elif command -v sv &> /dev/null; then \
-		make install-service-runit; \
+		if [ -d /etc/sv ]; then \
+			make install-service-runit-void; \
+		elif [ -d /etc/runit/sv ]; then \
+			make install-service-runit-artix; \
+		else \
+			printf '\033[1;31m%s\033[0m\n' "Unknown init system structure, skipping service install..."; \
+		fi \
 	elif command -v rc-update &> /dev/null; then \
 		make install-service-openrc; \
 	elif command -v s6-service &> /dev/null; then \
@@ -71,34 +77,26 @@ install-service:
 		printf '\033[1;31m%s\033[0m\n' "Unknown init system, skipping service install..."; \
 	fi
 
-ETC_SV_EXISTS=$(shell [ -d /etc/sv ] && echo 1 || echo 0 )
 install-service-systemd:
 	install -m644 ./assets/services/systemd.service ${DESTDIR}/etc/systemd/system/lidm.service
 	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'systemctl enable lidm'"
 install-service-dinit:
 	install -m644 ./assets/services/dinit ${DESTDIR}/etc/dinit.d/lidm
 	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'dinitctl enable lidm'"
-install-service-runit:
-	ifeq ($(ETC_SV_EXISTS), 1)
-		mkdir -p ${DESTDIR}/etc/sv/lidm
-		cp -r --update=all ./assets/services/runit/* ${DESTDIR}/etc/sv/lidm/
-		@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'ln -s ${DESTDIR}/etc/sv/lidm /var/service'"
-	else
-		mkdir -p ${DESTDIR}/etc/s6/sv/lidm
-		cp -r --update=all ./assets/services/runit/* ${DESTDIR}/etc/s6/sv/lidm/
-		@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'ln -s ${DESTDIR}/etc/s6/sv/lidm /var/service'"
-	endif
+install-service-runit-void:
+	mkdir -p ${DESTDIR}/etc/sv/lidm
+	cp -r --update=all ./assets/services/runit/* ${DESTDIR}/etc/sv/lidm/
+	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'ln -s ${DESTDIR}/etc/sv/lidm /var/service'"
+install-service-runit-artix:
+	mkdir -p ${DESTDIR}/etc/runit/sv/lidm
+	cp -r --update=all ./assets/services/runit/* ${DESTDIR}/etc/runit/sv/lidm/
+	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'ln -s ${DESTDIR}/etc/runit/sv/lidm /run/runit/service'"
 install-service-openrc:
 	install -m755 ./assets/services/openrc ${DESTDIR}/etc/init.d/lidm
 	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'rc-update add lidm'"
 install-service-s6:
-	ifeq ($(ETC_SV_EXISTS), 1)
-		mkdir -p ${DESTDIR}/etc/sv/lidm
-		cp -r --update=all ./assets/services/s6/* ${DESTDIR}/etc/sv/lidm/
-	else
-		mkdir -p ${DESTDIR}/etc/s6/sv/lidm
-		cp -r --update=all ./assets/services/s6/* ${DESTDIR}/etc/s6/sv/lidm/
-	endif
+	mkdir -p ${DESTDIR}/etc/s6/sv/lidm
+	cp -r --update=all ./assets/services/s6/* ${DESTDIR}/etc/s6/sv/lidm/
 	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 's6-service add default lidm' and 's6-db-reload'"
 
 pre-commit:
