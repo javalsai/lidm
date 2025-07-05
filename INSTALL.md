@@ -39,9 +39,15 @@ make install-service
 # or if you don't like autodetection
 make install-service-systemd # systemd
 make install-service-dinit # dinit
-make install-service-runit # runit
+make install-service-runit # runit (/etc/sv)
+make install-service-runit-etc # runit (/etc/runit/sv)
 make install-service-openrc # openrc
-make install-service-s6 # s6
+make install-service-s6 # s6 (/etc/sv)
+make install-service-s6-etc # s6 (/etc/s6/sv)
+
+#  For runit and s6, some distros (e.g. Artix) like to put it in /etc/<init>/sv
+# to better isolate their packages while other distros (e.g. Void) just put it
+# in /etc/sv
 ```
 
 # AUR
