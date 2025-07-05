@@ -1,8 +1,11 @@
 {
+  description = "A ✨fully✨ colorful customizable TUI display manager made in C for simplicity.";
+
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
   };
+
   outputs =
     { flake-utils, nixpkgs, ... }:
     flake-utils.lib.eachDefaultSystem (
@@ -11,7 +14,9 @@
         pkgs = import nixpkgs { inherit system; };
 
         name = "lidm";
-        version = "0.0.2";
+        version = builtins.elemAt (
+          builtins.match "VERSION[[:blank:]]*=[[:space:]]*([^\n]*)\n.*" (builtins.readFile ./Makefile)
+        ) 0;
 
         lidm = (
           pkgs.stdenv.mkDerivation {
