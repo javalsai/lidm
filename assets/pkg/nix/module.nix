@@ -1,6 +1,8 @@
 { config, lib, pkgs, ... }:
 
 let
+    cfg = config.services.lidm;
+
     dmcfg = config.services.displayManager;
     desktops = dmcfg.sessionData.desktops;
 
@@ -9,6 +11,7 @@ let
         inherit pkgs;
         config = {
             inherit version lib;
+            cfg = cfg.config;
             src = pkgs.fetchFromGitHub {
               owner = "javalsai";
               repo = "lidm";
@@ -22,6 +25,11 @@ let
     };
 in
 {
+    options.services.lidm.conig = lib.mkOption {
+        type = with lib.types; oneOf [ str attrs ];
+        default = {};
+        description = "Config options for lidm | Either attr tree or name of bundled themes";
+    };
     config = {
         services.displayManager.defaultSession = "lidm";
 

@@ -26,6 +26,8 @@
             src = ./.;
             xsessions = null;
             wayland-sessions = null;
+            cfg = null;
+            # cfg = "cherry";
           };
         };
       in
