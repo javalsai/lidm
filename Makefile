@@ -10,7 +10,9 @@ PREFIX=/usr
 
 CC?=gcc
 CFLAGS?=-O3 -Wall
-ALLFLAGS=$(CFLAGS) -I$(IDIR)
+# C PreProcessor flags, not C Plus Plus
+CPPFLAGS?=
+ALLFLAGS=$(CFLAGS) $(CPPFLAGS) -I$(IDIR)
 
 LIBS=-lpam
 

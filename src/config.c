@@ -240,12 +240,11 @@ struct status config_line_handler(void* _config, char* table, char* k,
 int parse_config(struct config* NNULLABLE config, char* NNULLABLE path) {
   FILE* fd = fopen(path, "r");
   if (fd == NULL) {
-    perror("fopen");
-    (void)fputs(
-        "Please place a config file at /etc/lidm.ini or set the LIDM_CONF "
-        "env variable",
-        stderr);
-    return -1;
+    log_perror("fopen");
+    log_printf(
+        " [I] No config, place one at /etc/lidm.ini or set the LIDM_CONF "
+        "env variable");
+    return 0; // Its fine now anyways
   }
 
   bool ret = read_desktop(fd, config, config_line_handler);

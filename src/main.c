@@ -72,6 +72,7 @@ int main(int argc, char* argv[]) {
     chvt_str(argv[1]);
   }
 
+  // Copy
   struct config config = DEFAULT_CONFIG;
   char* conf_override = getenv("LIDM_CONF");
   char* conf_path = conf_override ? conf_override : "/etc/lidm.ini";

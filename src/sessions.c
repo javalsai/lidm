@@ -16,9 +16,16 @@ struct source_dir {
   enum session_type type;
   char* dir;
 };
+
+#ifndef SESSIONS_XSESSIONS
+  #define SESSIONS_XSESSIONS "/usr/share/xsessions"
+#endif
+#ifndef SESSIONS_WAYLAND
+  #define SESSIONS_WAYLAND "/usr/share/wayland-sessions"
+#endif
 static const struct source_dir SOURCES[] = {
-    {XORG, "/usr/share/xsessions"},
-    {WAYLAND, "/usr/share/wayland-sessions"},
+    {XORG, SESSIONS_XSESSIONS},
+    {WAYLAND, SESSIONS_WAYLAND},
 };
 
 static struct Vector* cb_sessions = NULL;
