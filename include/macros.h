@@ -1,6 +1,11 @@
 #ifndef MACROSH_
 #define MACROSH_
 
+// More like constants but I'm not making yet another header file just for this
+#ifndef LIDM_CONF_PATH
+  #define LIDM_CONF_PATH "/etc/lidm.ini"
+#endif
+
 // Do we just replace the compiler with clang??
 #if defined(__clang__)
   #define NULLABLE _Nullable

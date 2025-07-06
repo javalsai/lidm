@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
   // Copy
   struct config config = DEFAULT_CONFIG;
   char* conf_override = getenv("LIDM_CONF");
-  char* conf_path = conf_override ? conf_override : "/etc/lidm.ini";
+  char* conf_path = conf_override ? conf_override : LIDM_CONF_PATH;
   if (parse_config(&config, conf_path) != 0) {
     (void)fputs("error parsing config\n", stderr);
     return 1;

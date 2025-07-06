@@ -12,6 +12,7 @@
 #include "config.h"
 #include "desktop.h"
 #include "log.h"
+#include "macros.h"
 #include "util.h"
 
 #define UPPER_HALF_BYTE 4
@@ -241,9 +242,8 @@ int parse_config(struct config* NNULLABLE config, char* NNULLABLE path) {
   FILE* fd = fopen(path, "r");
   if (fd == NULL) {
     log_perror("fopen");
-    log_printf(
-        " [I] No config, place one at /etc/lidm.ini or set the LIDM_CONF "
-        "env variable");
+    log_printf(" [I] No config, place one at " LIDM_CONF_PATH
+               " or set the LIDM_CONF env variable");
     return 0; // Its fine now anyways
   }
 
