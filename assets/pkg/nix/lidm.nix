@@ -1,4 +1,4 @@
-{ config, pkgs, ...}: pkgs.stdenv.mkDerivation rec {
+{ config, pkgs, lib, ...}: pkgs.stdenv.mkDerivation rec {
     pname = "lidm";
     version = config.version;
     src = config.src;
@@ -12,13 +12,11 @@
     makeFlags = [
         "DESTDIR=$(out)"
         "PREFIX="
-    ];
-
-    installPhase = ''
-        make install DESTDIR=$out PREFIX=
-        mkdir -p $out/etc/systemd/system/
-        make install-service-systemd DESTDIR=$out PREFIX=
-    '';
+    ]
+    ++ lib.optional (config.xsessions != null)
+        "CPPFLAGS+=-DSESSIONS_XSESSIONS=\\\"${config.xsessions}\\\""
+    ++ lib.optional (config.wayland-sessions != null)
+        "CPPFLAGS+=-DSESSIONS_WAYLAND=\\\"${config.wayland-sessions}\\\"";
 
     fixupPhase = ''
         rm -rf $out/etc

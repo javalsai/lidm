@@ -20,7 +20,13 @@
 
         lidm = pkgs.callPackage assets/pkg/nix/lidm.nix {
           inherit pkgs;
-          config = { inherit version; src = ./.; };
+          lib = pkgs.lib;
+          config = {
+            inherit version;
+            src = ./.;
+            xsessions = null;
+            wayland-sessions = null;
+          };
         };
       in
       rec {
@@ -28,5 +34,7 @@
         defaultPackage = lidm;
         devShell = pkgs.mkShell { buildInputs = lidm.nativeBuildInputs ++ [ pkgs.clang-tools ]; };
       }
-    );
+    ) // {
+      nixosModules.lidm = assets/pkg/nix/module.nix;
+    };
 }
