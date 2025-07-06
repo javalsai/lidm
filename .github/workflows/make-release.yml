@@ -16,15 +16,31 @@ jobs:
           packages: "git"
           version: 1.0
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
 
       - name: Check Version Changed
         id: check-ver-changed
         run: |
           GIT_TAG=$(git describe --no-long --abbrev=0 --tags --always)
+
           MAKE_TAG=$(make print-version)
+          NIX_VER=$(sed -nE \
+            's/.*version\s*=\s*"([0-9.]*)".*/\1/p' \
+            assets/pkg/nix/module.nix
+          )
 
           if [[ "$GIT_TAG" == "v$MAKE_TAG" ]]; then
             echo "ERR: Git tag matches makefile, did you bump Makefile up?" >&2
+            exit 1
+          fi
+          if [[ "$GIT_TAG" == "v$NIX_VER" ]]; then
+            echo "ERR: Nix module version matches git, did you bump Nix up?" >&2
+            exit 1
+          fi
+
+          if ! [[ "$NIX_VER" == "$MAKE_TAG" ]]; then
+            echo "ERR: Nix module version and make tag don't match" >&2
             exit 1
           fi
           echo "VERSION=$MAKE_TAG" >> "$GITHUB_OUTPUT"
