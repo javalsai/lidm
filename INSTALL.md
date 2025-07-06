@@ -4,6 +4,7 @@
 - [Installing from Source](#installing-from-source)
 - [AUR](#aur)
 - [Nix Flake](#nix-flake)
+- [Nix Module](#nix-module)
 
 > [!CAUTION]
 > I encourage you to read the manual installation steps to understand what will get installed in your computer by this package.
@@ -73,3 +74,54 @@ nix run github:javalsai/lidm
 
 > [!CAUTION]
 > This doesn't include [service files](./assets/pkg/aur#services) neither
+
+# Nix Module
+
+<details>
+<summary>Sidenote</summary>
+
+The nix module lacks on several aspects, if you know much about nix and know
+how to improve this package, feel free to open an issue or a PR to help. The
+nix package maintainer position is open too.
+
+</details>
+
+Lidm includes a nix module in `assets/pkg/nix/module.nix` that you can add
+(along the included nix files) and import in your `configuration.nix`.
+
+Once imported you'll need to add:
+
+```nix
+services.displayManager.enable = true;
+systemd.services.lidm.enable = true;
+```
+
+Optionally, you can configure it setting `services.lidm.config`. You can either
+pass:
+
+* A string to copy the config from a theme in `themes/` with said name
+  (**name**, e.g `"cherry"`).
+* An attribute tree with the same names as the config file, e.g:
+```nix
+{
+    strings = {
+        f_poweroff = "custom_poweroff";
+        # etc
+    };
+    behavior = {
+        include_defshell = true;
+        source = [
+            "path1"
+            "path2"
+        ];
+        # etc
+    };
+    # etc
+};
+```
+
+> *it's not necessary to cover all keys and anything can be put there, even if
+> its not valid config*
+
+> [!NOTE]
+> [service files](./assets/pkg/aur#services) **are** included and enabled
