@@ -5,7 +5,7 @@
   ...
 }:
 let
-  cfg-file =
+  get-cfg =
     if config.cfg != null then
       import ./get-cfg-file.nix {
         inherit lib;
@@ -13,6 +13,8 @@ let
       }
     else
       null;
+  cfg-file = get-cfg.file;
+  maker = get-cfg.maker;
 in
 pkgs.stdenv.mkDerivation rec {
   pname = "lidm";
@@ -41,4 +43,8 @@ pkgs.stdenv.mkDerivation rec {
   fixupPhase = ''
     rm -rf $out/etc
   '';
+
+  passthru = {
+    keysEnum = maker.keys-enum;
+  };
 }

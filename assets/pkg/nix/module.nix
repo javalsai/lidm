@@ -30,15 +30,23 @@ let
   };
 in
 {
-  options.services.lidm.config = lib.mkOption {
-    type =
-      with lib.types;
-      oneOf [
-        str
-        attrs
-      ];
-    default = { };
-    description = "Config options for lidm | Either attr tree or name of bundled themes";
+  options = {
+    lidm.keysEnum = lib.mkOption {
+      type = with lib.types; attrs;
+      default = lidm.passthru.keysEnum;
+      readOnly = true;
+      description = "Keys enum constants";
+    };
+    services.lidm.config = lib.mkOption {
+      type =
+        with lib.types;
+        oneOf [
+          str
+          attrs
+        ];
+      default = { };
+      description = "Config options for lidm | Either attr tree or name of bundled themes";
+    };
   };
   config = {
     services.displayManager.defaultSession = "lidm";

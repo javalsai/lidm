@@ -102,21 +102,24 @@ pass:
 * A string to copy the config from a theme in `themes/` with said name
   (**name**, e.g `"cherry"`).
 * An attribute tree with the same names as the config file, e.g:
+
 ```nix
-{
+with config.lidm.keysEnum; {
     strings = {
         f_poweroff = "custom_poweroff";
-        # etc
     };
+
     behavior = {
         include_defshell = true;
         source = [
             "path1"
             "path2"
         ];
-        # etc
     };
-    # etc
+
+    functions = { poweroff = F1; };
+
+    # etc...
 };
 ```
 
