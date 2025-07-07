@@ -1,2 +1,2 @@
 [codespell]
-skip = ./assets/pkg/aur/*/src,./assets/pkg/aur/*/*/objects
+skip = ./assets/pkg/aur/*/src,./assets/pkg/aur/*/*/objects,./assets/pkg/aur/*/*.tar.*
