@@ -12,7 +12,24 @@ jobs:
     name: Check
     uses: ./.github/workflows/check.yml
     permissions: write-all
+  check_paths:
+    name: Paths Filter
+    runs-on: ubuntu-latest
+    outputs:
+      code_changed: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            code:
+              - Makefile
+              - 'src/**'
+              - 'include/**'
   build:
     name: Build
+    needs: check_paths
+    if: github.event_name != 'push' || needs.check_paths.outputs.code_changed == 'true'
     uses: ./.github/workflows/build.yml
     permissions: write-all
