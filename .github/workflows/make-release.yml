@@ -16,6 +16,8 @@ jobs:
           packages: "git"
           version: 1.0
       - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
 
       - name: Check Version Changed
         id: check-ver-changed
@@ -27,6 +29,7 @@ jobs:
             echo "ERR: Git tag matches makefile, did you bump Makefile up?" >&2
             exit 1
           fi
+
           echo "VERSION=$MAKE_TAG" >> "$GITHUB_OUTPUT"
 
 
@@ -70,7 +73,6 @@ jobs:
     needs: [ release-checks, release ]
     steps:
       - run: pacman -Sy --noconfirm git github-cli base-devel pacman-contrib
-
       - uses: actions/checkout@v4
 
       - run: |
@@ -93,6 +95,40 @@ jobs:
           git push -u origin $BRANCH
           gh pr create --head $BRANCH \
             --title "[AUR update]: Bump to ${{ needs.release-checks.outputs.VERSION }}" \
+            --body "*This PR was created automatically*"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  nix-update:
+    name: Update NixOS module
+    runs-on: ubuntu-24.04
+    permissions: write-all
+    needs: [ release-checks, release ]
+    steps:
+      - uses: cachix/install-nix-action@v31
+      - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+
+      - run: |
+          tmpdir=$(mktemp -d)
+          git archive v${{ needs.release-checks.outputs.VERSION }} | tar -xC "$tmpdir"
+          sha256sum=$(nix hash path "$tmpdir")
+
+          sed -i -E 's/(.*version\s*=\s*")[0-9.]*(".*)/\1'${{ needs.release-checks.outputs.VERSION }}'\2/' assets/pkg/nix/module.nix
+          sed -i -E 's/(.*sha256\s*=\s*")[^"]*(".*)/\1'"$sha256sum"'\2/' assets/pkg/nix/module.nix
+        # would be cool to be able to check the new module.nix builds
+
+      - run: |
+          BRANCH=actions/update-nix-${{ needs.release-checks.outputs.VERSION }}
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git checkout -b $BRANCH
+          git commit -am "Update NixOS module to v${{ needs.release-checks.outputs.VERSION }}"
+          git push -u origin $BRANCH
+          gh pr create --head $BRANCH \
+            --title "[Nix update]: Bump to ${{ needs.release-checks.outputs.VERSION }}" \
             --body "*This PR was created automatically*"
         env:
           GH_TOKEN: ${{ github.token }}
