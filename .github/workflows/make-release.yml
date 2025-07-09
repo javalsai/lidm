@@ -116,7 +116,7 @@ jobs:
           sha256sum=$(nix hash path "$tmpdir")
 
           sed -i -E 's/(.*version\s*=\s*")[0-9.]*(".*)/\1'${{ needs.release-checks.outputs.VERSION }}'\2/' assets/pkg/nix/module.nix
-          sed -i -E 's/(.*sha256\s*=\s*")[^"]*(".*)/\1'"$sha256sum"'\2/' assets/pkg/nix/module.nix
+          sed -i -E 's|(.*sha256\s*=\s*")[^"]*(".*)|\1'"$sha256sum"'\2|' assets/pkg/nix/module.nix
         # would be cool to be able to check the new module.nix builds
 
       - run: |
