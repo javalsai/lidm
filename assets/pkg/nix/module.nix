@@ -11,7 +11,7 @@ let
   dmcfg = config.services.displayManager;
   desktops = dmcfg.sessionData.desktops;
 
-  version = "1.2.1";
+  version = "1.2.2";
   lidmPkg = pkgs.callPackage ./lidm.nix {
     inherit pkgs;
     config = {
