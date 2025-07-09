@@ -21,7 +21,7 @@ let
         owner = "javalsai";
         repo = "lidm";
         rev = "v${version}";
-        sha256 = "sha256-3CgUI8PUs4c1bfBrykPw87SSa4lzrh4E4Hug7cGRKFk=";
+        sha256 = "sha256-rvxSNv/F+ksy68D7zP7NwbCBV9/6OfEZSfGxKsGiVYc=";
       };
 
       xsessions = "${desktops}/share/xsessions";
