@@ -245,7 +245,7 @@ bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
     perror("execl error");
     (void)fputs("failure calling session\n", stderr);
   } else {
-    __pid_t child_pid = (__pid_t)pid;
+    pid_t child_pid = (pid_t)pid;
     waitpid(child_pid, NULL, 0);
 
     pam_setcred(pamh, PAM_DELETE_CRED);
