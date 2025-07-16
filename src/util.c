@@ -106,12 +106,12 @@ size_t utf8len_until(const char* str, const char* until) {
 size_t utf8trunc(char* str, size_t n) {
   size_t bytes = 0;
   while (true) {
-    if(str[bytes] == '\0') break;
+    if (str[bytes] == '\0') break;
     if (utf8_iscont(str[bytes])) {
       bytes++;
       continue;
     }
-    if(n == 0) {
+    if (n == 0) {
       str[bytes] = '\0';
       break;
     }

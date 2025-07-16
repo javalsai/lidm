@@ -32,7 +32,7 @@ void log_perror(const char* s) {
   if (!logger_out) return;
 
   if (s)
-    (void)fprintf(logger_out, "%s: %s", s, strerror(errno));
+    (void)fprintf(logger_out, "%s: %s\n", s, strerror(errno));
   else
-    (void)fprintf(logger_out, "%s", strerror(errno));
+    (void)fprintf(logger_out, "%s\n", strerror(errno));
 }

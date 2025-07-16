@@ -36,7 +36,7 @@ int pam_conversation(int num_msg, const struct pam_message** msg,
 }
 
 #ifndef PAM_SERVICE_FALLBACK
-#define PAM_SERVICE_FALLBACK "login"
+  #define PAM_SERVICE_FALLBACK "login"
 #endif
 
 #define CHECK_PAM_RET(call) \

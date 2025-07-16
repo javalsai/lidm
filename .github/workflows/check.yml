@@ -30,14 +30,22 @@ jobs:
 
   clangcheck:
     name: Clang
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:25.04
 
     steps:
       - uses: actions/checkout@v4
-      - uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: "clang-format clang-tidy bear libpam0g-dev"
-          version: 1.0
+      - run: apt -y update && apt install -y clang-format clang-tidy make gcc git bear libpam0g-dev
+
       - run: bear -- make
-      - run: clang-format -ni src/*.c include/*.h
-      - run: clang-tidy -p . src/*.c include/*.h
+      - run: clang-format -version && clang-format -dump-config
+      - run: |
+          set -euo pipefail
+          clang-format -ni src/*.c include/*.h -Werror 2>&1 | \
+            sed -E 's/^([^ ]+\.[ch]):([0-9]+):([0-9]+): ([a-z]+): (.*)$/::\4 file=\1,line=\2,col=\3::\5/'
+      - run: clang-tidy -version && clang-tidy -dump-config
+      - run: |
+          set -euo pipefail
+          clang-tidy -p . src/*.c include/*.h -warnings-as-errors=\* 2>&1 1>/dev/null |
+            sed -E 's/^([^ ]+\.[ch]):([0-9]+):([0-9]+): ([a-z]+): (.*)$/::\4 file=\1,line=\2,col=\3::\5/'
