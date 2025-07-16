@@ -71,7 +71,7 @@ On top of that:
 
 # Installation
 
-Check the [installation guide](INSTALL.md) to use your preferred installation source.
+Check the [installation guide](./docs/INSTALL.md) to use your preferred installation source.
 
 <details>
 
