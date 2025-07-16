@@ -19,6 +19,7 @@ bool read_press_nb(u_char* length, char* out, struct timeval* tv);
 bool utf8_iscont(char byte);
 size_t utf8len(const char* str);
 size_t utf8len_until(const char* str, const char* until);
+size_t utf8trunc(char* str, size_t n);
 const char* utf8back(const char* str);
 const char* utf8seek(const char* str);
 const char* utf8seekn(const char* str, size_t n);

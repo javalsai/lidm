@@ -3,6 +3,7 @@
 
 #include <asm-generic/errno.h>
 #include <errno.h>
+#include <limits.h>
 #include <pwd.h>
 #include <signal.h>
 #include <stdbool.h>
@@ -108,30 +109,22 @@ static char* fmt_time(const char* fmt) {
   }
 }
 
-char* trunc_gethostname(const size_t MAXSIZE, const char* const ELLIPSIS) {
-  if (utf8len(ELLIPSIS) > MAXSIZE) return NULL;
-  size_t alloc_size = MAXSIZE + 1;
+char* trunc_gethostname(const size_t MAXLEN, const char* const ELLIPSIS) {
+  if (utf8len(ELLIPSIS) > MAXLEN) return NULL;
+  size_t alloc_size = HOST_NAME_MAX + strlen(ELLIPSIS) + 1;
   char* buf = malloc(alloc_size);
   if (!buf) return NULL;
-  while (true) {
-    if (gethostname(buf, alloc_size) == 0) return buf;
-    if (errno == ENAMETOOLONG) {
-      buf[alloc_size] = '\0';
-      if (utf8len(buf) > MAXSIZE - utf8len(ELLIPSIS)) {
-        strcpy(&buf[MAXSIZE - utf8len(ELLIPSIS)], ELLIPSIS);
-        return buf;
-      }
 
-      alloc_size *= 2;
-      char* nbuf = realloc(buf, alloc_size);
-      if (!nbuf) goto fail;
-      buf = nbuf;
-    } else
-      goto fail;
+  if(gethostname(buf, alloc_size) != 0) {
+    free(buf);
+    return NULL;
   }
-fail:
-  free(buf);
-  return NULL;
+
+  if (utf8len(buf) > MAXLEN) {
+    int end = utf8trunc(buf, MAXLEN - utf8len(ELLIPSIS));
+    strcpy(&buf[end], ELLIPSIS);
+  }
+  return buf;
 }
 
 void ui_update_cursor_focus() {
