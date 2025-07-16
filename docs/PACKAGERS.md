@@ -52,7 +52,7 @@ share/man/man5/lidm-config.5
 
 # Build Recipes for Packaging
 
-To ease most of the installation process there's several `make` recipes to install man pages and service files, I encpurage you to check their source youself, but:
+To ease most of the installation process there's several `make` recipes to install man pages and service files, I encpurage you to check their source yourself, but:
 
 - `make` / `make lidm`: Builds the app binary.
 - `make install`: Attempts to install the binary, place a default config file in `/etc/lidm.ini` and install the man pages.
