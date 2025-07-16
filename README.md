@@ -73,6 +73,14 @@ On top of that:
 
 Check the [installation guide](INSTALL.md) to use your preferred installation source.
 
+<details>
+
+<summary>Packagers read here!!</summary>
+
+If you are a package maintainer or are willing to become one, please read [the packagers guide](./docs/PACKAGERS.md).
+
+</details>
+
 # Configuring
 
 Copy any `.ini` file from [`themes/`](./themes/) (`default.ini` will always be updated) to `/etc/lidm.ini` and/or configure it to your liking. You can also set `LIDM_CONF` environment variable to specify a config path.
