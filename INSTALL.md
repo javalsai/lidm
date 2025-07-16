@@ -53,7 +53,7 @@ make install-service-s6-etc # s6 (/etc/s6/sv)
 
 # AUR
 
-[AUR packages](https://aur.archlinux.org/packages?K=lidm\&SeB=n) will automatically install most files.
+[AUR packages](https://aur.archlinux.org/packages?K=lidm&SeB=n) will automatically install most files.
 
 > [!CAUTION]
 > [service files](./assets/pkg/aur#services) have to be manually installed by now.
@@ -99,9 +99,9 @@ systemd.services.lidm.enable = true;
 Optionally, you can configure it setting `services.lidm.config`. You can either
 pass:
 
-* A string to copy the config from a theme in `themes/` with said name
+- A string to copy the config from a theme in `themes/` with said name
   (**name**, e.g `"cherry"`).
-* An attribute tree with the same names as the config file, e.g:
+- An attribute tree with the same names as the config file, e.g:
 
 ```nix
 with config.lidm.keysEnum; {
@@ -123,8 +123,7 @@ with config.lidm.keysEnum; {
 };
 ```
 
-> *it's not necessary to cover all keys and anything can be put there, even if
-> its not valid config*
+> _it's not necessary to cover all keys and anything can be put there, even if it's not valid config_
 
 > [!NOTE]
 > [service files](./assets/pkg/aur#services) **are** included and enabled
