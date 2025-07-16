@@ -23,20 +23,20 @@ LiDM is like any [Display Manager](https://en.wikipedia.org/wiki/X_display_manag
 
 # Index
 
-* [LiDM](#lidm)
-  * [Features](#features)
-  * [WIP](#wip)
-* [Index](#index)
-* [Ideology](#ideology)
-* [Usage](#usage)
-  * [Arguments](#arguments)
-  * [Program](#program)
-* [Requirements](#requirements)
-* [Installation](#installation)
-* [Configuring](#configuring)
-* [Contributing](#contributing)
-* [Inspiration](#inspiration)
-* [Contributors](#contributors)
+- [LiDM](#lidm)
+  - [Features](#features)
+- [Index](#index)
+- [Ideology](#ideology)
+- [Usage](#usage)
+    - [Arguments](#arguments)
+    - [Program](#program)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Configuring](#configuring)
+- [PAM](#pam)
+- [Contributing](#contributing)
+- [Inspiration](#inspiration)
+- [Contributors](#contributors)
 
 # Ideology
 
@@ -89,6 +89,12 @@ Colors are gonna be put inside `\x1b[...m`, if you don't know what this is check
 
 > [!TIP]
 > If you don't like seeing an element, you can change the fg color of it to be the same as the bg, making it invisible.
+
+# PAM
+
+If your distribution does not use the standard PAM service name `login` (`/etc/pam.d/login`) for its PAM services or if you want to use another PAM file, simply set the `LIDM_PAM_SERVICE` env variable to your PAM service name. 
+
+When the env variable is empty it defaults to the `login` PAM service or whatever fallback your distribution packager has defined during compilation.
 
 # Contributing
 

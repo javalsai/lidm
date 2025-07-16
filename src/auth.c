@@ -35,6 +35,10 @@ int pam_conversation(int num_msg, const struct pam_message** msg,
   return PAM_SUCCESS;
 }
 
+#ifndef PAM_SERVICE_FALLBACK
+#define PAM_SERVICE_FALLBACK "login"
+#endif
+
 #define CHECK_PAM_RET(call) \
   ret = (call);             \
   if (ret != PAM_SUCCESS) { \
@@ -51,7 +55,11 @@ pam_handle_t* get_pamh(char* user, char* passwd) {
   struct pam_conv pamc = {pam_conversation, (void*)passwd};
   int ret;
 
-  CHECK_PAM_RET(pam_start("login", user, &pamc, &pamh))
+  char* pam_service_override = getenv("LIDM_PAM_SERVICE");
+  char* pam_service_name =
+      pam_service_override ? pam_service_override : PAM_SERVICE_FALLBACK;
+
+  CHECK_PAM_RET(pam_start(pam_service_name, user, &pamc, &pamh))
   CHECK_PAM_RET(pam_authenticate(pamh, 0))
   CHECK_PAM_RET(pam_acct_mgmt(pamh, 0))
   CHECK_PAM_RET(pam_setcred(pamh, PAM_ESTABLISH_CRED))
