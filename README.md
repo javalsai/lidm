@@ -21,11 +21,8 @@ LiDM is like any [Display Manager](https://en.wikipedia.org/wiki/X_display_manag
 - Automatically detects xorg and wayland sessions, plus allowing to launch the default user shell (if enabled in config)
 - Starts with many init systems (systemd, dinit, runit, openrc and s6).
 
-# Index
+# Table of Contents
 
-- [LiDM](#lidm)
-  - [Features](#features)
-- [Index](#index)
 - [Ideology](#ideology)
 - [Usage](#usage)
   - [Arguments](#arguments)

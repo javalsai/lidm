@@ -1,6 +1,5 @@
-# Index
+# Table of Contents
 
-- [Index](#index)
 - [Installing from Source](#installing-from-source)
 - [AUR](#aur)
 - [Nix Flake](#nix-flake)
