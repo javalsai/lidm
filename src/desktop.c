@@ -66,8 +66,7 @@ int read_desktop(FILE* fd, void* ctx,
       buf_start[eq_idx] = '\0'; // the equal
       key = trim_str(key);
       char* value = &buf_start[eq_idx + 1];
-      if(buf_start[read_size - 1] == '\n')
-        buf_start[read_size - 1] = '\0';
+      if (buf_start[read_size - 1] == '\n') buf_start[read_size - 1] = '\0';
       value = trim_str(value);
 
       // Callback
