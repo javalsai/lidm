@@ -34,6 +34,7 @@ LiDM is like any [Display Manager](https://en.wikipedia.org/wiki/X_display_manag
 - [Installation](#installation)
 - [Configuring](#configuring)
 - [PAM](#pam)
+  - [Packagers - look here!](#packagers---look-here)
 - [Contributing](#contributing)
 - [Inspiration](#inspiration)
 - [Contributors](#contributors)
@@ -92,9 +93,13 @@ Colors are gonna be put inside `\x1b[...m`, if you don't know what this is check
 
 # PAM
 
-If your distro does not use the standard PAM service name `login` (`/etc/pam.d/login`) for its PAM services or if you want to use another PAM file, simply set the `LIDM_PAM_SERVICE` env variable to your PAM service name. 
+If your distribution does not use the standard PAM service name `login` (`/etc/pam.d/login`) for its PAM services or if you want to use another PAM file, simply set the `LIDM_PAM_SERVICE` env variable to your PAM service name. 
 
-When the env variable is empty it defaults to the `login` PAM service.
+When the env variable is empty it defaults to the `login` PAM service or whatever fallback your distribution packager has defined during compilation.
+
+## Packagers - look here!
+
+If you distribution has a standard service that you want to use as a fallback value (by default) then you can define it using the -DPAM_SERVICE_FALLBACK C Pre-processor flag, eg: `make 'CPPFLAGS+=-DPAM_SERVICE_FALLBACK="fallbackvalue"'`.
 
 # Contributing
 
