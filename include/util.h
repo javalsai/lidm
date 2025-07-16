@@ -1,11 +1,11 @@
 #ifndef UTILH_
 #define UTILH_
 
-#include <bits/types/struct_timeval.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <sys/time.h>
 #include <sys/types.h>
 
 #include "keys.h"

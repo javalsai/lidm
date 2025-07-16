@@ -67,7 +67,8 @@ jobs:
             apt-get update && \
             apt-get install -y make gcc libpam0g-dev
           run: ARCH=aarch64 GITHUB_STEP_SUMMARY=gss.out GITHUB_OUTPUT=go.out assets/github_scripts/build.sh
-      - run: set +e; cat gss.out >>"$GITHUB_STEP_SUMMARY"; cat go.out >>"$GITHUB_OUTPUT"
+      - if: always()
+        run: set +e; cat gss.out >>"$GITHUB_STEP_SUMMARY"; cat go.out >>"$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -94,7 +95,8 @@ jobs:
             apt-get update && \
             apt-get install -y make gcc libpam0g-dev
           run: ARCH=armv7 GITHUB_STEP_SUMMARY=gss.out GITHUB_OUTPUT=go.out assets/github_scripts/build.sh
-      - run: set +e; cat gss.out >>"$GITHUB_STEP_SUMMARY"; cat go.out >>"$GITHUB_OUTPUT"
+      - if: always()
+        run: set +e; cat gss.out >>"$GITHUB_STEP_SUMMARY"; cat go.out >>"$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -121,10 +123,39 @@ jobs:
             apt-get update && \
             apt-get install -y make gcc libpam0g-dev
           run: ARCH=riscv64 GITHUB_STEP_SUMMARY=gss.out GITHUB_OUTPUT=go.out assets/github_scripts/build.sh
-      - run: set +e; cat gss.out >>"$GITHUB_STEP_SUMMARY"; cat go.out >>"$GITHUB_OUTPUT"
+      - if: always()
+        run: set +e; cat gss.out >>"$GITHUB_STEP_SUMMARY"; cat go.out >>"$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v4
         with:
           name: build-riscv64
           path: lidm-riscv64
+          retention-days: 1
+
+  build-linux-amd64-musl:
+    name: amd64-musl
+    runs-on: ubuntu-24.04
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run in Musl Container
+        uses: addnab/docker-run-action@v3
+        with:
+          image: ghcr.io/void-linux/void-musl-full
+          options: -v ${{ github.workspace }}:/workspace
+          run: |
+            cd /workspace
+
+            xbps-install -Sy
+            xbps-install -y git pam-devel make gcc bash git
+
+            ARCH=amd64-musl GITHUB_STEP_SUMMARY=gss.out GITHUB_OUTPUT=go.out assets/github_scripts/build.sh
+      - if: always()
+        run: set +e; cat gss.out >>"$GITHUB_STEP_SUMMARY"; cat go.out >>"$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-amd64-musl
+          path: lidm-amd64-musl
           retention-days: 1
