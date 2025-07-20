@@ -13,8 +13,9 @@ make -j"$(nproc)" "$@" 2> /tmp/stderr || ERR=$?
 BSIZE=$(stat --printf="%s" lidm)
 HSIZE=$(numfmt --to=iec-i<<<"$BSIZE")B
 WARNS=$(
-  { grep -E '^[^ ]+\.[ch]:[0-9]+:[0-9]+: [a-z]+:' /tmp/stderr || :; } \
-  | sed -E 's/^([^ ]+\.[ch]):([0-9]+):([0-9]+): ([a-z]+): (.*)$/::\4 file=\1,line=\2,col=\3::\5/'
+  sed -nE \
+      's/^([^ ]+\.[ch]):([0-9]+):([0-9]+): ([a-z]+): (.*)$/::\4 file=\1,line=\2,col=\3::\5/p' \
+      /tmp/stderr
 )
 WARNS_NUM=$({ [[ "$WARNS" == "" ]] && echo 0; } || wc -l <<<"$WARNS")
 

@@ -10,7 +10,18 @@ LiDM is like any [Display Manager](https://en.wikipedia.org/wiki/X_display_manag
 
 ![demo gif](assets/media/lidm.gif)
 
-> _shown as in a featured terminal emulator, actual linux console doesn't support as much color and decorations_
+<blockquote><details>
+<summary><i>
+shown as in a featured terminal emulator, actual linux console doesn't support as much color and decorations
+</i></summary>
+
+If you want to add fancy color and font support to your TTYs you can wrap lidm in [`kmscon`](https://wiki.archlinux.org/title/KMSCON). (edit appropriate service files). e.g:
+
+```sh
+kmscon -l --vt /dev/tty7 --font-name "Cascadia Code" -- /usr/bin/lidm
+```
+
+</details></blockquote>
 
 > _however, all colors and strings are fully customizable_
 

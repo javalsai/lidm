@@ -115,13 +115,13 @@ char* trunc_gethostname(const size_t MAXLEN, const char* const ELLIPSIS) {
   char* buf = malloc(alloc_size);
   if (!buf) return NULL;
 
-  if(gethostname(buf, alloc_size) != 0) {
+  if (gethostname(buf, alloc_size) != 0) {
     free(buf);
     return NULL;
   }
 
   if (utf8len(buf) > MAXLEN) {
-    int end = utf8trunc(buf, MAXLEN - utf8len(ELLIPSIS));
+    size_t end = utf8trunc(buf, MAXLEN - utf8len(ELLIPSIS));
     strcpy(&buf[end], ELLIPSIS);
   }
   return buf;

@@ -243,7 +243,7 @@ int parse_config(struct config* NNULLABLE config, char* NNULLABLE path) {
   if (fd == NULL) {
     log_perror("fopen");
     log_printf(" [I] No config, place one at " LIDM_CONF_PATH
-               " or set the LIDM_CONF env variable");
+               " or set the LIDM_CONF env variable\n");
     return 0; // Its fine now anyways
   }
 
