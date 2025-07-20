@@ -29,7 +29,7 @@ Then you can install the files onto your filesystem with:
 make install
 ```
 
-And additionally, to install service files (start-up behavior). <sup>[more docs](./assets/services/README.md)</sup>
+And additionally, to install service files (start-up behavior). <sup>[more docs](../assets/services/README.md)</sup>
 
 ```sh
 # automatically detects your init system
@@ -55,7 +55,7 @@ make install-service-s6-etc # s6 (/etc/s6/sv)
 [AUR packages](https://aur.archlinux.org/packages?K=lidm&SeB=n) will automatically install most files.
 
 > [!CAUTION]
-> [service files](./assets/pkg/aur#services) have to be manually installed by now.
+> [service files](../assets/pkg/aur#services) have to be manually installed by now.
 
 # Nix Flake
 
@@ -72,7 +72,7 @@ nix run github:javalsai/lidm
 ```
 
 > [!CAUTION]
-> This doesn't include [service files](./assets/pkg/aur#services) neither
+> This doesn't include [service files](../assets/pkg/aur#services) neither
 
 # Nix Module
 
@@ -125,4 +125,4 @@ with config.lidm.keysEnum; {
 > _it's not necessary to cover all keys and anything can be put there, even if it's not valid config_
 
 > [!NOTE]
-> [service files](./assets/pkg/aur#services) **are** included and enabled
+> [service files](../assets/pkg/aur#services) **are** included and enabled
