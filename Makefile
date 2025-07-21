@@ -22,14 +22,15 @@ DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 _OBJ = main.o log.o util.o ui.o ui_state.o config.o desktop.o auth.o ofield.o efield.o users.o sessions.o chvt.o launch_state.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-.git/HEAD:
+INFO_GIT_REV?=$$(git describe --long --tags --always || echo '?')
+INFO_BUILD_TS?=$$(date +%s)
 
-$(IDIR)/version.h: Makefile .git/HEAD
+$(IDIR)/version.h: Makefile
 	@tmp=$$(mktemp); \
 	printf '' > $$tmp; \
 	echo '#define LIDM_VERSION "'$(VERSION)'"' >> $$tmp; \
-	echo '#define LIDM_GIT_REV "'$$(git describe --long --tags --always || echo '?')'"' >> $$tmp; \
-	echo '#define LIDM_BUILD_TS '$$(date +%s) >> $$tmp; \
+	echo '#define LIDM_GIT_REV "'$(INFO_GIT_REV)'"' >> $$tmp; \
+	echo '#define LIDM_BUILD_TS '$(INFO_BUILD_TS) >> $$tmp; \
 	if ! cmp -s $$tmp $@; then \
 		mv $$tmp $@; \
 	fi; \

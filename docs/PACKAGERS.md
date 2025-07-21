@@ -38,6 +38,17 @@ Lidm attempts to support being built by `gcc` and `clang` with preference over t
 
 Compiler flags should be passed with `CFLAGS`, its `-O3 -Wall` by default so adding anything will overwrite this.
 
+## Build Metadata
+
+`lidm -v` outputs some information about the build version, this can be weaked with `INFO_GIT_REV` and `INFO_BUILD_TS`, by default they are:
+
+```make
+INFO_GIT_REV?=$$(git describe --long --tags --always || echo '?')
+INFO_BUILD_TS?=$$(date +%s)
+```
+
+But this can be changed by just passing those env variables, for example, in the case git is not applicable in the build environment of the package.
+
 ## Target Directory
 
 `DESTDIR` can be used to for installation recipes to install on alternative root directories. Along with `PREFIX` (defaults to `/usr`) for systems which don't use the common `/usr` structure. e.g. `make install DESTDIR=$out PREFIX=`
