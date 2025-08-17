@@ -1,50 +1,47 @@
 {
-  config,
-  pkgs,
+  stdenv,
   lib,
+  gcc,
+  gnumake,
+  linux-pam,
+  xsessions ? null,
+  wayland-sessions ? null,
   ...
 }:
-let
-  get-cfg =
-    if config.cfg != null then
-      import ./get-cfg-file.nix {
-        inherit lib;
-        inherit (config) cfg src;
-      }
-    else
-      null;
-  cfg-file = get-cfg.file;
-  maker = get-cfg.maker;
-in
-pkgs.stdenv.mkDerivation rec {
+stdenv.mkDerivation {
   pname = "lidm";
-  version = config.version;
-  src = config.src;
+  version = builtins.elemAt (builtins.match "VERSION[[:blank:]]*=[[:space:]]*([^\n]*)\n.*" (builtins.readFile ../../../Makefile)) 0;
+  src = ../../..;
 
-  nativeBuildInputs = with pkgs; [
+  nativeBuildInputs = [
     gcc
     gnumake
     linux-pam
   ];
 
-  makeFlags =
-    [
-      "DESTDIR=$(out)"
-      "PREFIX="
-    ]
-    ++ lib.optional (
-      config.xsessions != null
-    ) "CPPFLAGS+=-DSESSIONS_XSESSIONS=\\\"${config.xsessions}\\\""
-    ++ lib.optional (
-      config.wayland-sessions != null
-    ) "CPPFLAGS+=-DSESSIONS_WAYLAND=\\\"${config.wayland-sessions}\\\""
-    ++ lib.optional (cfg-file != null) "CPPFLAGS+=-DLIDM_CONF_PATH=\\\"${cfg-file}\\\"";
+  makeFlags = [
+    "DESTDIR=$(out)"
+    "PREFIX="
+  ]
+  ++ lib.optional (xsessions != null) "CPPFLAGS+=-DSESSIONS_XSESSIONS=\\\"${xsessions}\\\""
+  ++ lib.optional (
+    wayland-sessions != null
+  ) "CPPFLAGS+=-DSESSIONS_WAYLAND=\\\"${wayland-sessions}\\\"";
 
-  fixupPhase = ''
+  postInstall = ''
+    mkdir -p "$out/share/themes"
+    cp $src/themes/*.ini $out/share/themes
+
+  '';
+
+  postFixup = ''
     rm -rf $out/etc
   '';
 
-  passthru = {
-    keysEnum = maker.keys-enum;
+  meta = {
+    description = "A fully colorful customizable TUI display manager made in C for simplicity";
+    homepage = "https://github.com/javalsai/lidm";
+    license = with lib.licenses; [ gpl3 ];
+    mainProgram = "lidm";
   };
 }

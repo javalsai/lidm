@@ -8,39 +8,29 @@
 
   outputs =
     {
+      self,
       flake-utils,
       nixpkgs,
-      self,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
         pkgs = import nixpkgs { inherit system; };
-
-        name = "lidm";
-        version = builtins.elemAt (builtins.match "VERSION[[:blank:]]*=[[:space:]]*([^\n]*)\n.*" (builtins.readFile ./Makefile)) 0;
-
-        lidm = pkgs.callPackage assets/pkg/nix/lidm.nix {
-          inherit pkgs;
-          lib = pkgs.lib;
-          config = {
-            inherit version;
-            src = ./.;
-            xsessions = null;
-            wayland-sessions = null;
-            cfg = null;
-            # cfg = "cherry";
-          };
-        };
+        lidm = pkgs.callPackage assets/pkg/nix/lidm.nix { };
       in
-      rec {
-        defaultApp = flake-utils.lib.mkApp { drv = defaultPackage; };
-        defaultPackage = lidm;
-        devShell = pkgs.mkShell { buildInputs = lidm.nativeBuildInputs ++ [ pkgs.clang-tools ]; };
-        formatter = nixpkgs.legacyPackages.${system}.nixfmt-tree;
+      {
+        packages = {
+          inherit lidm;
+          default = lidm;
+        };
+        devShell = pkgs.mkShell {
+          buildInputs = lidm.nativeBuildInputs ++ [ pkgs.clang-tools ];
+        };
+        formatter = pkgs.nixfmt-tree;
       }
     )
-    // {
-      nixosModules.lidm = assets/pkg/nix/module.nix;
-    };
+    // flake-utils.lib.eachDefaultSystemPassThrough (system: {
+      nixosModules.default = assets/pkg/nix/module.nix;
+      overlays.default = final: _: { lidm = final.callPackage assets/pkg/nix/lidm.nix { }; };
+    });
 }

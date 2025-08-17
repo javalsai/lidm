@@ -23,10 +23,18 @@ struct source_dir {
 #ifndef SESSIONS_WAYLAND
   #define SESSIONS_WAYLAND "/usr/share/wayland-sessions"
 #endif
-static const struct source_dir SOURCES[] = {
-    {XORG, SESSIONS_XSESSIONS},
-    {WAYLAND, SESSIONS_WAYLAND},
+static struct source_dir sources[] = {
+    {XORG, NULL},
+    {WAYLAND, NULL},
 };
+
+__attribute__((constructor)) static void init_sources(void) {
+  char* xorg = getenv("LIDM_SESSIONS_XSESSIONS");
+  char* wayland = getenv("LIDM_SESSIONS_WAYLAND");
+
+  sources[0].dir = (xorg != NULL) ? xorg : SESSIONS_XSESSIONS;
+  sources[1].dir = (wayland != NULL) ? wayland : SESSIONS_WAYLAND;
+}
 
 static struct Vector* cb_sessions = NULL;
 
@@ -127,10 +135,10 @@ struct Vector get_avaliable_sessions() {
   vec_reserve(&sessions, LIKELY_BOUND_SESSIONS);
 
   cb_sessions = &sessions;
-  for (size_t i = 0; i < (sizeof(SOURCES) / sizeof(SOURCES[0])); i++) {
-    log_printf("[I] parsing into %s\n", SOURCES[i].dir);
-    session_type = SOURCES[i].type;
-    ftw(SOURCES[i].dir, &fn, 1);
+  for (size_t i = 0; i < (sizeof(sources) / sizeof(sources[0])); i++) {
+    log_printf("[I] parsing into %s\n", sources[i].dir);
+    session_type = sources[i].type;
+    ftw(sources[i].dir, &fn, 1);
   }
   cb_sessions = NULL;
 
