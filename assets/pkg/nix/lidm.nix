@@ -38,7 +38,7 @@ pkgs.stdenv.mkDerivation rec {
     ++ lib.optional (
       config.wayland-sessions != null
     ) "CPPFLAGS+=-DSESSIONS_WAYLAND=\\\"${config.wayland-sessions}\\\""
-    ++ lib.optional (cfg-file != null) "CPPFLAGS+=-DLIDM_CONF_PATH=\\\"${cfg-file}\\\"";
+    ++ lib.optional (get-cfg != null) "CPPFLAGS+=-DLIDM_CONF_PATH=\\\"${cfg-file}\\\"";
 
   fixupPhase = ''
     rm -rf $out/etc
