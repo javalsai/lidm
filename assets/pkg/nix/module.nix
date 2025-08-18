@@ -40,7 +40,7 @@ in
       example = lib.literalExample "${pkgs.kmscon}/bin/kmscon -l --vt /dev/tty7 --font-name \"Cascadia Code\"";
       description = ''
         A command to wrap lidm, useful because the standard
-        tty doesn't support all colors/symobls.
+        tty doesn't support all colors/symbols.
       '';
     };
   };
@@ -58,16 +58,21 @@ in
     security.pam.services.lidm = {
       unixAuth = true;
       startSession = true;
-      setLoginUid = true;
     };
 
     services = {
-      # dbus.packages = [ cfg.package ];
+      dbus.packages = [ cfg.package ];
       displayManager = {
         enable = true;
-        execCmd = "exec ${cfg.wrapperCommand} ${lib.getExe cfg.package} 7";
+        execCmd = "exec ${cfg.wrapperCommand} ${lib.getExe cfg.package}";
+      };
+      xserver = {
+        # To enable user switching, allow ly to allocate displays dynamically.
+        display = null;
       };
     };
+
+    environment.systemPackages = [ pkgs.lidm ];
 
     systemd.services.display-manager = {
       enable = true;
@@ -81,9 +86,7 @@ in
       serviceConfig = {
         Type = "idle";
         StandardInput = "tty";
-        StandardOutput = "tty";
-        StandardError = "tty";
-        TTYPath = "/dev/tty7";
+        TTYPath = "/dev/tty1";
         TTYReset = "yes";
         TTYVHangup = "yes";
         # Clear the console before starting
@@ -96,6 +99,7 @@ in
         {
           LIDM_SESSIONS_XSESSIONS = "${desktops}/share/xsessions";
           LIDM_SESSIONS_WAYLAND = "${desktops}/share/wayland-sessions";
+          LIDM_PAM_SERVICE = "lidm";
         };
       # Don't kill a user session when using nixos-rebuild
       restartIfChanged = false;
