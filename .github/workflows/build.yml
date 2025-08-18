@@ -159,3 +159,16 @@ jobs:
           name: build-amd64-musl
           path: lidm-amd64-musl
           retention-days: 1
+
+  build-nix-x86_64-linux:
+    name: "nix x86_64-linux"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: cachix/install-nix-action@master
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/checkout@v4
+
+      - run: nix build -L --no-link
+        name: Build

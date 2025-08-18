@@ -32,8 +32,8 @@ __attribute__((constructor)) static void init_sources(void) {
   char* xorg = getenv("LIDM_SESSIONS_XSESSIONS");
   char* wayland = getenv("LIDM_SESSIONS_WAYLAND");
 
-  sources[0].dir = (xorg != NULL) ? xorg : SESSIONS_XSESSIONS;
-  sources[1].dir = (wayland != NULL) ? wayland : SESSIONS_WAYLAND;
+  sources[0].dir = xorg ? xorg : SESSIONS_XSESSIONS;
+  sources[1].dir = wayland ? wayland : SESSIONS_WAYLAND;
 }
 
 static struct Vector* cb_sessions = NULL;
