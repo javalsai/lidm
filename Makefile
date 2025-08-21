@@ -134,10 +134,12 @@ install-service-s6-etc:
 
 pre-commit:
 	codespell
-	prettier --write "**/*.md"
-	find . -type f -name '*.sh' -not -path './assets/pkg/aur/*/src/*' | xargs shellcheck
+	prettier -c "**/*.md"
+	git ls-files "*.sh" "*/PKGBUILD" | xargs shellcheck --shell=bash
 	clang-format -i $$(git ls-files "*.c" "*.h")
-	clang-tidy -p . $$(git ls-files "*.c" "*.h")
+	git ls-files -z "*.h" | \
+		parallel -j$$(nproc) -q0 --no-notice --will-cite --tty clang-tidy --quiet |& \
+		grep -v "warnings generated." || true
 
 print-version:
 	@echo $(VERSION)

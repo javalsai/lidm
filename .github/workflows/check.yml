@@ -26,7 +26,7 @@ jobs:
         with:
           packages: "shellcheck"
           version: 1.0
-      - run: find . -type f -name '*.sh' -not -path './assets/pkg/aur/*/src/*' | xargs shellcheck
+      - run: git ls-files "*.sh" "*/PKGBUILD" | xargs shellcheck --shell=bash
 
   clangcheck:
     name: Clang
