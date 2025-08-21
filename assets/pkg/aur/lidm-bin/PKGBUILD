@@ -1,21 +1,20 @@
-# shellcheck disable=SC2034,SC2148,SC2128,SC2154,SC2164
+# shellcheck disable=SC2034,SC2154,SC2164
 # Maintainer: javalsai <javalsai@proton.me>
 pkgname=lidm-bin
 pkgver=1.2.3
 pkgrel=1
-depends=('pam')
+depends=('libpam.so=0')
 pkgdesc="A fully colorful customizable TUI display manager made in C. (release binary)"
 arch=('x86_64')
 url="https://github.com/javalsai/lidm"
 license=('GPL')
 provides=('lidm')
 conflicts=('lidm')
-_ver="${pkgver}-${pkgrel}"
 source=(
-    "lidm-${_ver}::$url/releases/download/v$pkgver/lidm-amd64"
-    "lidm-default-theme-${_ver}.ini::https://raw.githubusercontent.com/javalsai/lidm/v$pkgver/themes/default.ini"
-    "lidm-${_ver}.1::https://raw.githubusercontent.com/javalsai/lidm/v$pkgver/assets/man/lidm.1"
-    "lidm-config-${_ver}.5::https://raw.githubusercontent.com/javalsai/lidm/v$pkgver/assets/man/lidm-config.5"
+    "lidm-${pkgver}::$url/releases/download/v$pkgver/lidm-amd64"
+    "lidm-default-theme-${pkgver}.ini::https://raw.githubusercontent.com/javalsai/lidm/v$pkgver/themes/default.ini"
+    "lidm-${pkgver}.1::https://raw.githubusercontent.com/javalsai/lidm/v$pkgver/assets/man/lidm.1"
+    "lidm-config-${pkgver}.5::https://raw.githubusercontent.com/javalsai/lidm/v$pkgver/assets/man/lidm-config.5"
 )
 sha256sums=('a533b5aee3ffe04268f8d3ff8d7eb87f09d31fbe25e1b8b1ed29c42ef465bd4b'
             'ffaa5fe2cf5011bf53c90f81bfec8585158d35f72c0666db0bd4d3866ae041ca'
@@ -23,8 +22,10 @@ sha256sums=('a533b5aee3ffe04268f8d3ff8d7eb87f09d31fbe25e1b8b1ed29c42ef465bd4b'
             '0aa5755bdcc60ea80cd9ee0f89233ffaf22c6cee9db9da277274a62c6ed477d9')
 
 package() {
-    install -Dm755 "lidm-${_ver}" "${pkgdir}/usr/bin/lidm"
-    install -Dm644 "lidm-default-theme-${_ver}.ini" "${pkgdir}/etc/lidm.ini"
-    install -Dm644 "lidm-${_ver}.1" "${pkgdir}/usr/share/man/man1/lidm.1"
-    install -Dm644 "lidm-config-${_ver}.5" "${pkgdir}/usr/share/man/man5/lidm-config.5"
+    cd "$srcdir"
+
+    install -Dm755 "lidm-${pkgver}" "${pkgdir}/usr/bin/lidm"
+    install -Dm644 "lidm-default-theme-${pkgver}.ini" "${pkgdir}/etc/lidm.ini"
+    install -Dm644 "lidm-${pkgver}.1" "${pkgdir}/usr/share/man/man1/lidm.1"
+    install -Dm644 "lidm-config-${pkgver}.5" "${pkgdir}/usr/share/man/man5/lidm-config.5"
 }
