@@ -10,13 +10,13 @@ typeset -a pkgs=(lidm{,-git,-bin})
 for pkg in "${pkgs[@]}"; do
     printf "\x1b[mEntering '%s'\x1b[0m\n" "$pkg"
     cd "$pkg"
-    makepkg -Cf
+    # shellcheck disable=SC1091
+    source PKGBUILD
+    # shellcheck disable=SC2154
+    for f in "${source[@]}"; do
+        echo "$f"
+        awk -F:: '{print $1}' <<<"$f" | xargs rm -rf
+    done
     cd ..
     echo
 done
-
-if [[ -n "${PRINT_TREE:-}" ]]; then
-    for pkg in "${pkgs[@]}"; do
-        eza --tree "$pkg/pkg/"*
-    done
-fi

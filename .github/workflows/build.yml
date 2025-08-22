@@ -132,6 +132,7 @@ jobs:
           path: lidm-riscv64
           retention-days: 1
 
+  # This build job is only symbolic, the behavior of the packaged Void Linux version may differ.
   build-linux-amd64-musl:
     name: amd64-musl
     runs-on: ubuntu-24.04
@@ -147,7 +148,7 @@ jobs:
           run: |
             cd /workspace
 
-            xbps-install -Sy
+            xbps-install -Syu xbps && xbps-install -yu
             xbps-install -y git pam-devel make gcc bash git
 
             ARCH=amd64-musl GITHUB_STEP_SUMMARY=gss.out GITHUB_OUTPUT=go.out assets/github_scripts/build.sh
