@@ -10,6 +10,8 @@
 
 #include "auth.h"
 #include "config.h"
+#include "desktop_exec.h"
+#include "log.h"
 #include "sessions.h"
 #include "ui.h"
 #include "unistd.h"
@@ -166,6 +168,22 @@ void moarEnv(char* user, struct session session, struct passwd* pw,
 // NOLINTBEGIN(readability-function-cognitive-complexity)
 bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
             struct config* config) {
+  char** desktop_exec;
+  int desktop_count;
+
+  if (session.type != SHELL) {
+    desktop_exec = NULL;
+    int parse_status =
+        parse_exec_string(session.exec, &desktop_count, &desktop_exec);
+    if (parse_status != 0 || desktop_count == 0 || !desktop_exec[0]) {
+      print_err("failure parsing exec string");
+      log_printf("failure parsing exec string '%s': %d\n",
+                 session.exec ? session.exec : "NULL", parse_status);
+      free_parsed_args(desktop_count, desktop_exec);
+    }
+    return false;
+  }
+
   struct passwd* pw = getpwnam(user);
   if (pw == NULL) {
     print_err("could not get user info");
@@ -237,8 +255,7 @@ bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
 
     *reach_session = true;
 
-    // TODO: these will be different due to TryExec
-    // and, Exec/TryExec might contain spaces as args
+    // TODO: test existence of executable with TryExec
     printf("\x1b[0m");
     // NOLINTNEXTLINE(bugprone-branch-clone)
     if (session.type == SHELL) {
@@ -248,9 +265,12 @@ bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
     } else if (session.type == XORG || session.type == WAYLAND) {
       clear_screen();
       (void)fflush(stdout);
-      execlp(session.exec, session.exec, NULL);
+      // NOLINTNEXTLINE
+      execvp(desktop_exec[0], desktop_exec);
+      // NOLINTNEXTLINE
+      free_parsed_args(desktop_count, desktop_exec);
     }
-    perror("execl error");
+    perror("exec error");
     (void)fputs("failure calling session\n", stderr);
   } else {
     pid_t child_pid = (pid_t)pid;
