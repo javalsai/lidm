@@ -180,8 +180,8 @@ bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
       log_printf("failure parsing exec string '%s': %d\n",
                  session.exec ? session.exec : "NULL", parse_status);
       free_parsed_args(desktop_count, desktop_exec);
+      return false;
     }
-    return false;
   }
 
   struct passwd* pw = getpwnam(user);
