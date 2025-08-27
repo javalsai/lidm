@@ -9,10 +9,11 @@ ODIR=dist
 PREFIX=/usr
 
 CC?=gcc
-CFLAGS?=-O3 -Wall
+CFLAGS?=-O3 -Wall -fdata-sections -ffunction-sections
 # C PreProcessor flags, not C Plus Plus
 CPPFLAGS?=
 ALLFLAGS=$(CFLAGS) $(CPPFLAGS) -I$(IDIR)
+LDFLAGS?=-Wl,--gc-sections
 
 LIBS=-lpam
 
@@ -41,7 +42,7 @@ $(ODIR)/%.o: $(CDIR)/%.c $(DEPS)
 	$(CC) -c -o $@ $< $(ALLFLAGS)
 
 lidm: $(OBJ)
-	$(CC) -o $@ $^ $(ALLFLAGS) $(LIBS)
+	$(CC) -o $@ $^ $(ALLFLAGS) $(LIBS) $(LDFLAGS)
 
 clean:
 	rm -f $(ODIR)/*.o lidm
