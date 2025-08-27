@@ -30,6 +30,8 @@ struct Vector {
   void** pages;
 };
 
+struct Vector vec_from_raw(void** raw);
+void** vec_as_raw(struct Vector self);
 extern const struct Vector VEC_NEW;
 int vec_resize(struct Vector* self, size_t size);
 int vec_reserve(struct Vector* self, size_t size);

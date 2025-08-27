@@ -16,32 +16,30 @@ Checks: >
   readability-*,
   -readability-braces-around-statements,
 
-WarningsAsErrors: ''
-HeaderFilterRegex: '.*'
+WarningsAsErrors: ""
+HeaderFilterRegex: ".*"
 FormatStyle: file
 
 CheckOptions:
-  - key:              readability-magic-numbers.IgnoredIntegerValues
-    value:            '0;1;2;3;10;255'
-  # - key:              readability-magic-numbers.IgnoredValues
-  #   value:            '0;1;2;3;10;255'
-  - key:              readability-identifier-naming.VariableCase
-    value:            lower_case
-  - key:              readability-identifier-naming.ConstantParameterCase
-    value:            UPPER_CASE
+  - key: readability-magic-numbers.IgnoredIntegerValues
+    value: "0;1;2;3;10;255"
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case
+  - key: readability-identifier-naming.ConstantParameterCase
+    value: UPPER_CASE
 
   - key: readability-identifier-naming.ConstantCase
     value: "UPPER_CASE"
 
   - key: readability-identifier-length.VariableThreshold
-    value: '2'
+    value: "2"
   - key: readability-identifier-length.ParameterThreshold
-    value: '2'
+    value: "2"
   - key: readability-identifier-length.LocalConstantThreshold
-    value: '2'
+    value: "2"
   - key: readability-identifier-length.MemberThreshold
-    value: '2'
+    value: "2"
   - key: readability-identifier-length.MinimumParameterNameLength
-    value: '2'
+    value: "2"
   - key: readability-identifier-length.MinimumVariableNameLength
-    value: '2'
+    value: "2"

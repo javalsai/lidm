@@ -147,6 +147,23 @@ const struct Vector VEC_NEW = {
     .pages = NULL,
 };
 
+struct Vector vec_from_raw(void** raw) {
+  size_t len = 0;
+  while (raw[len])
+    len++;
+
+  return (struct Vector){
+      .length = len,
+      .capacity = len,
+      .pages = raw,
+  };
+}
+
+void** vec_as_raw(struct Vector self) {
+  if (vec_push(&self, NULL) != 0) return NULL;
+  return self.pages;
+}
+
 int vec_resize(struct Vector* self, size_t size) {
   void** new_location =
       (void**)realloc((void*)self->pages, size * sizeof(void*));
