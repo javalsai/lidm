@@ -25,6 +25,7 @@
 #include "keys.h"
 #include "launch_state.h"
 #include "log.h"
+#include "macros.h"
 #include "ofield.h"
 #include "sessions.h"
 #include "ui.h"
@@ -61,6 +62,7 @@ struct config* g_config = NULL;
 static volatile sig_atomic_t need_resize = 0;
 
 static void process_sigwinch(int signal) {
+  UNUSED(signal);
   need_resize = 1;
 }
 
@@ -280,28 +282,29 @@ int load(struct Vector* users, struct Vector* sessions) {
     (void)fflush(stdout);
     if (!read_press_nb(&len, seq, &tv)) continue;
     if (*seq == '\x1b') {
-      enum Keys ansi_code = find_ansi(seq);
-      if (ansi_code != -1) {
-        if (ansi_code == ESC) {
+      struct option_keys ansi_code = find_ansi(seq);
+      if (ansi_code.is_some) {
+        enum Keys ansi_key = ansi_code.key;
+        if (ansi_key == ESC) {
           esc = 2;
-        } else if (ansi_code == g_config->functions.refresh) {
+        } else if (ansi_key == g_config->functions.refresh) {
           restore_all();
           return 0;
-        } else if (ansi_code == g_config->functions.reboot) {
+        } else if (ansi_key == g_config->functions.reboot) {
           restore_all();
           reboot(RB_AUTOBOOT);
           exit(0);
-        } else if (ansi_code == g_config->functions.poweroff) {
+        } else if (ansi_key == g_config->functions.poweroff) {
           restore_all();
           reboot(RB_POWER_OFF);
           exit(0);
-        } else if (ansi_code == A_UP || ansi_code == A_DOWN) {
-          st_ch_focus(ansi_code == A_DOWN ? 1 : -1);
-        } else if (ansi_code == A_RIGHT || ansi_code == A_LEFT) {
+        } else if (ansi_key == A_UP || ansi_key == A_DOWN) {
+          st_ch_focus(ansi_key == A_DOWN ? 1 : -1);
+        } else if (ansi_key == A_RIGHT || ansi_key == A_LEFT) {
           if (esc)
-            st_ch_of_opts(ansi_code == A_RIGHT ? 1 : -1);
+            st_ch_of_opts(ansi_key == A_RIGHT ? 1 : -1);
           else
-            st_ch_ef_col(ansi_code == A_RIGHT ? 1 : -1);
+            st_ch_ef_col(ansi_key == A_RIGHT ? 1 : -1);
         }
       }
     } else {

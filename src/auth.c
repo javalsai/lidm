@@ -12,14 +12,14 @@
 
 #include "auth.h"
 #include "config.h"
-#include "desktop_exec.h"
 #include "log.h"
 #include "pam.h"
 #include "sessions.h"
 #include "ui.h"
 #include "util.h"
 
-void try_source_file(struct Vector* NNULLABLE vec_envlist, char* filepath) {
+static void try_source_file(struct Vector* NNULLABLE vec_envlist,
+                     char* NNULLABLE filepath) {
   log_printf("sourcing %s\n", filepath);
   FILE* file2source = fopen(filepath, "r");
   if (file2source == NULL) {
@@ -35,7 +35,7 @@ void try_source_file(struct Vector* NNULLABLE vec_envlist, char* filepath) {
     if (read == 0 || (read > 0 && *line == '#')) continue;
     if (line[read - 1] == '\n') line[read - 1] = '\0';
 
-    for (size_t i = 1; i < read; i++) {
+    for (ssize_t i = 1; i < read; i++) {
       if (line[i] == '=') {
         vec_push(vec_envlist, (void*)line);
         line = NULL;
@@ -48,7 +48,7 @@ void try_source_file(struct Vector* NNULLABLE vec_envlist, char* filepath) {
   (void)fclose(file2source);
 }
 
-void source_paths(struct Vector* NNULLABLE vec_envlist,
+static void source_paths(struct Vector* NNULLABLE vec_envlist,
                   struct Vector* NNULLABLE abs_source,
                   const char* NULLABLE user_home,
                   struct Vector* NNULLABLE user_source) {
@@ -66,6 +66,7 @@ void source_paths(struct Vector* NNULLABLE vec_envlist,
         continue;
       }
       try_source_file(vec_envlist, path);
+      free(path);
     }
   else {
     log_puts("user has no home\n");
@@ -88,25 +89,51 @@ struct child_msg {
   bool err;
 };
 
+#define SEND_MSG(MSG)                                   \
+  {                                                     \
+    write(pipefd[1], &(MSG), sizeof(struct child_msg)); \
+    close(pipefd[1]);                                   \
+  }
+#define SEND_ERR(MSG)                                                      \
+  {                                                                        \
+    write(pipefd[1],                                                       \
+          &(struct child_msg){.msg = (MSG), ._errno = errno, .err = true}, \
+          sizeof(struct child_msg));                                       \
+    close(pipefd[1]);                                                      \
+    _exit(EXIT_FAILURE);                                                   \
+  }
+#define DUMMY_READ()                          \
+  {                                           \
+    char _dummy;                              \
+    read(pipefd[0], &_dummy, sizeof(_dummy)); \
+  }
+inline static void forked(int pipefd[2], struct passwd* pw,
+                          char* NNULLABLE user,
+                          struct session_exec* NNULLABLE exec,
+                          char** NNULLABLE envlist) {
+  if (chdir(pw->pw_dir) == -1) SEND_ERR("chdir");
+  if (setgid(pw->pw_gid) == -1) SEND_ERR("setgid");
+  if (initgroups(user, pw->pw_gid) == -1) SEND_ERR("initgroups");
+  if (setuid(pw->pw_uid) == -1) SEND_ERR("setuid");
+
+  // or maybe Xorg fork should happen here
+
+  SEND_MSG((struct child_msg){.err = false});
+  DUMMY_READ();
+  close(pipefd[0]);
+
+  int exit = session_exec_exec(exec, envlist);
+  perror("exec error");
+  (void)fputs("failure calling session\n", stderr);
+  _exit(exit);
+}
+#undef SEND_MSG
+#undef SEND_ERR
+#undef DUMMY_READ
+
 // NOLINTBEGIN(readability-function-cognitive-complexity)
 bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
             struct config* config) {
-  char** desktop_exec;
-  int desktop_count;
-
-  if (session.type != SHELL) {
-    desktop_exec = NULL;
-    int parse_status =
-        parse_exec_string(session.exec, &desktop_count, &desktop_exec);
-    if (parse_status != 0 || desktop_count == 0 || !desktop_exec[0]) {
-      print_err("failure parsing exec string");
-      log_printf("failure parsing exec string '%s': %d\n",
-                 session.exec ? session.exec : "NULL", parse_status);
-      free_parsed_args(desktop_count, desktop_exec);
-      return false;
-    }
-  }
-
   struct passwd* pw = getpwnam(user);
   if (pw == NULL) {
     print_err("could not get user info");
@@ -120,7 +147,7 @@ bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
   }
 
   struct pamh_getenv_status env_ret =
-      pamh_get_complete_env(pamh, user, pw, session.type);
+      pamh_get_complete_env(pamh, pw, session.type);
   if (env_ret.error_flag != PAMH_ERR_NOERR) {
     if (env_ret.error_flag == PAMH_ERR_ALLOC) {
       print_err("allocator error");
@@ -141,53 +168,20 @@ bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
     return false;
   }
 
+  // TODO: start X server here if needed
+  // e.g. spawn (also after downgrading privs):
+  //
+  // `X :0 tty<X> -auth <user-home>/.Xauthority -nolisten tcp -background none`
+  //
+  // Then `DISPLAY=:0 <xsession>`
+
   int pipefd[2];
   pipe(pipefd);
 
   uint pid = fork();
-  if (pid == 0) { // child
-
-#define SEND_MSG(MSG)                                   \
-  {                                                     \
-    write(pipefd[1], &(MSG), sizeof(struct child_msg)); \
-    close(pipefd[1]);                                   \
-  }
-#define SEND_ERR(MSG)                                                      \
-  {                                                                        \
-    write(pipefd[1],                                                       \
-          &(struct child_msg){.msg = (MSG), ._errno = errno, .err = true}, \
-          sizeof(struct child_msg));                                       \
-    close(pipefd[1]);                                                      \
-    _exit(EXIT_FAILURE);                                                   \
-  }
-
-    if (chdir(pw->pw_dir) == -1) SEND_ERR("chdir");
-    if (setgid(pw->pw_gid) == -1) SEND_ERR("setgid");
-    if (initgroups(user, pw->pw_gid) == -1) SEND_ERR("initgroups");
-    if (setuid(pw->pw_uid) == -1) SEND_ERR("setuid");
-
-    SEND_MSG((struct child_msg){.err = false});
-#undef SEND_MSG
-#undef SEND_ERR
-    char _;
-    read(pipefd[0], &_, sizeof(_));
-    close(pipefd[0]);
-
-    int exit;
-    if (session.type == SHELL) {
-      exit = execle(session.exec, session.exec, NULL, envlist);
-    } else if (session.type == XORG || session.type == WAYLAND) {
-      // TODO: test existence of executable with TryExec
-      // NOLINTNEXTLINE
-      exit = execve(desktop_exec[0], desktop_exec, envlist);
-      // NOLINTNEXTLINE
-      free_parsed_args(desktop_count, desktop_exec);
-    } else
-      exit = -1;
-    perror("exec error");
-    (void)fputs("failure calling session\n", stderr);
-    _exit(exit);
-  } else {
+  if (pid == 0)
+    forked(pipefd, pw, user, &session.exec, envlist);
+  else {
     struct child_msg msg;
     read(pipefd[0], &msg, sizeof(struct child_msg));
     close(pipefd[0]);

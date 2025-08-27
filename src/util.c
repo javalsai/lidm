@@ -24,16 +24,19 @@ int find_keyname(enum Keys* at, const char* name) {
   return -1;
 }
 
-enum Keys find_ansi(const char* seq) {
+struct option_keys find_ansi(const char* seq) {
   for (size_t i = 0; i < LEN(KEY_MAPPINGS); i++) {
     struct key_mapping mapping = KEY_MAPPINGS[i];
     for (size_t j = 0; mapping.sequences[j] != NULL; j++) {
       if (strcmp(mapping.sequences[j], seq) == 0) {
-        return (enum Keys)i;
+        return (struct option_keys){
+            .is_some = true,
+            .key = (enum Keys)i,
+        };
       }
     }
   }
-  return -1;
+  return (struct option_keys){.is_some = false};
 }
 
 void read_press(u_char* length, char* out) {

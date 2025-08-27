@@ -24,7 +24,6 @@ struct pamh_getenv_status {
 
 // Doesn't include `source`s
 struct pamh_getenv_status pamh_get_complete_env(pam_handle_t* handle,
-                                                char* NNULLABLE user,
                                                 struct passwd* NNULLABLE pw,
                                                 enum SessionType session_typ);
 

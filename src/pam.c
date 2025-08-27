@@ -89,7 +89,6 @@ char* NULLABLE xdg_ssession_type_str(enum SessionType typ) {
   }
 
 struct pamh_getenv_status pamh_get_complete_env(pam_handle_t* handle,
-                                                char* NNULLABLE user,
                                                 struct passwd* NNULLABLE pw,
                                                 enum SessionType session_typ) {
   struct pamh_getenv_status status;
@@ -123,7 +122,7 @@ int pam_conversation(int num_msg, const struct pam_message** msg,
   if (!reply) {
     return PAM_BUF_ERR;
   }
-  for (size_t i = 0; i < num_msg; i++) {
+  for (int i = 0; i < num_msg; i++) {
     reply[i].resp = NULL;
     reply[i].resp_retcode = 0;
     if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF ||

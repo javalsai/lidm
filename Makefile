@@ -9,7 +9,7 @@ ODIR=dist
 PREFIX=/usr
 
 CC?=gcc
-CFLAGS?=-O3 -Wall -fdata-sections -ffunction-sections
+CFLAGS?=-O3 -Wall -Wextra -fdata-sections -ffunction-sections
 # C PreProcessor flags, not C Plus Plus
 CPPFLAGS?=
 ALLFLAGS=$(CFLAGS) $(CPPFLAGS) -I$(IDIR)

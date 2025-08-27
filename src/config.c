@@ -122,7 +122,7 @@ union typ_ptr {
   uintptr_t ptr;
 };
 struct parser_error parse_key(enum IntrospectionType typ, union typ_ptr at,
-                              char* key, size_t offset) {
+                              char* key) {
   char* aux_str = NULL;
   struct parser_error aux_err;
 
@@ -219,7 +219,7 @@ struct status config_line_handler(void* _config, char* table, char* k,
 
   log_printf("[I] parsing [%s.%s] as %s\n", table, k,
              INTROS_TYS_NAMES[this_intros_key->typ]);
-  struct parser_error err = parse_key(this_intros_key->typ, k_addr, v, offset);
+  struct parser_error err = parse_key(this_intros_key->typ, k_addr, v);
   if (err.msg != NULL) {
     log_printf("[E] cfg parser, failed to parse [%s.%s] (%s): %s\n", table, k,
                INTROS_TYS_NAMES[this_intros_key->typ], err.msg);

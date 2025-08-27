@@ -1,4 +1,3 @@
-// NOLINTBEGIN(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,readability-function-cognitive-complexity)
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -82,4 +81,3 @@ int read_desktop(FILE* fd, void* ctx,
   if (buf != NULL) free(buf);
   return ret;
 }
-// NOLINTEND(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,readability-function-cognitive-complexity)

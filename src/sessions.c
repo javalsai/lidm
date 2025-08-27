@@ -8,7 +8,9 @@
 #include <sys/types.h>
 
 #include "desktop.h"
+#include "desktop_exec.h"
 #include "log.h"
+#include "macros.h"
 #include "sessions.h"
 #include "util.h"
 
@@ -75,6 +77,8 @@ struct status cb(void* _ctx, char* NULLABLE table, char* key, char* value) {
 static enum SessionType session_type;
 // NOLINTNEXTLINE(readability-function-cognitive-complexity)
 static int fn(const char* fpath, const struct stat* sb, int typeflag) {
+  UNUSED(sb);
+
   // guessing symlink behavior
   //  - FTW_PHYS if set doesn't follow symlinks, so ftw() has no flags and it
   //  follows symlinks, we should never get to handle that
@@ -95,28 +99,44 @@ static int fn(const char* fpath, const struct stat* sb, int typeflag) {
   }
 
   int ret = read_desktop(fd, &ctx, &cb);
-  if (ret < 0) { // any error
-    log_printf("[E] format error parsing %s", fpath);
-    return 0;
-  }
+  // any error
+  if (ret < 0) goto err_close;
 
   (void)fclose(fd);
+
+  // TODO: filter based on tryexec
+  // https://specifications.freedesktop.org/desktop-entry-spec/latest/recognized-keys.html
+  free(ctx.tryexec);
 
   // just add this to the list
   if (ctx.name != NULL && ctx.exec != NULL) {
     struct session* this_session = malloc(sizeof(struct session));
     if (this_session == NULL) return 0;
 
+    int arg_count;
+    char** args;
+    int parse_status = parse_exec_string(ctx.exec, &arg_count, &args);
+    if (parse_status != 0 || arg_count == 0 || !args[0]) {
+      log_printf("[E] parsing exec string '%s': %d\n", ctx.exec, parse_status);
+      goto err_parsing;
+    }
+    free(ctx.exec);
+
     *this_session = (struct session){
         .name = ctx.name,
-        .exec = ctx.exec,
-        .tryexec = ctx.tryexec,
+        .exec = session_exec_desktop(arg_count, args),
         .type = session_type,
     };
 
     vec_push(cb_sessions, this_session);
   }
 
+  return 0;
+
+err_close:
+  (void)fclose(fd);
+err_parsing:
+  log_printf("[E] format error parsing %s", fpath);
   return 0;
 }
 
@@ -127,7 +147,7 @@ struct Vector get_avaliable_sessions() {
   vec_reserve(&sessions, LIKELY_BOUND_SESSIONS);
 
   cb_sessions = &sessions;
-  for (size_t i = 0; i < (sizeof(SOURCES) / sizeof(SOURCES[0])); i++) {
+  for (size_t i = 0; i < LEN(SOURCES); i++) {
     log_printf("[I] parsing into %s\n", SOURCES[i].dir);
     session_type = SOURCES[i].type;
     ftw(SOURCES[i].dir, &fn, 1);

@@ -150,15 +150,15 @@ struct introspection_table {
 
 static const struct introspection_table CONFIG_INSTROSPECTION[] = {
     {"colors", offsetof(struct config, colors), INTROS_TABLE_COLORS,
-     sizeof(INTROS_TABLE_COLORS) / sizeof(INTROS_TABLE_COLORS[0])},
+     LEN(INTROS_TABLE_COLORS)},
     {"chars", offsetof(struct config, chars), INTROS_TABLE_CHARS,
-     sizeof(INTROS_TABLE_CHARS) / sizeof(INTROS_TABLE_CHARS[0])},
+     LEN(INTROS_TABLE_CHARS)},
     {"functions", offsetof(struct config, functions), INTROS_TABLE_FUNCTIONS,
-     sizeof(INTROS_TABLE_FUNCTIONS) / sizeof(INTROS_TABLE_FUNCTIONS[0])},
+     LEN(INTROS_TABLE_FUNCTIONS)},
     {"strings", offsetof(struct config, strings), INTROS_TABLE_STRINGS,
-     sizeof(INTROS_TABLE_STRINGS) / sizeof(INTROS_TABLE_STRINGS[0])},
+     LEN(INTROS_TABLE_STRINGS)},
     {"behavior", offsetof(struct config, behavior), INTROS_TABLE_BEHAVIOR,
-     sizeof(INTROS_TABLE_BEHAVIOR) / sizeof(INTROS_TABLE_BEHAVIOR[0])},
+     LEN(INTROS_TABLE_BEHAVIOR)},
 };
 
 //// FUNCTIONS
