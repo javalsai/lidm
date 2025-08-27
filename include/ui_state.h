@@ -6,7 +6,7 @@
 #include "macros.h"
 #include "ui.h"
 
-extern enum input focused_input;
+extern enum Input focused_input;
 
 extern struct opts_field of_session;
 extern struct opts_field of_user;
@@ -15,7 +15,7 @@ extern struct opts_field of_passwd;
 extern struct Vector* UNULLABLE gusers;
 extern struct Vector* UNULLABLE gsessions;
 
-struct opts_field* NNULLABLE get_opts_field(enum input from);
+struct opts_field* NNULLABLE get_opts_field(enum Input from);
 struct opts_field* NNULLABLE get_opts_ffield();
 
 struct user st_user();

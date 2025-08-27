@@ -68,7 +68,7 @@ free_new_envlist_extra:
   return NULL;
 }
 
-char* NULLABLE xdg_ssession_type_str(enum session_type typ) {
+char* NULLABLE xdg_ssession_type_str(enum SessionType typ) {
   char* xdg_session_type = NULL;
   if (typ == SHELL) xdg_session_type = "tty";
   if (typ == XORG) xdg_session_type = "x11";
@@ -91,7 +91,7 @@ char* NULLABLE xdg_ssession_type_str(enum session_type typ) {
 struct pamh_getenv_status pamh_get_complete_env(pam_handle_t* handle,
                                                 char* NNULLABLE user,
                                                 struct passwd* NNULLABLE pw,
-                                                enum session_type session_typ) {
+                                                enum SessionType session_typ) {
   struct pamh_getenv_status status;
   char** envlist = pam_getenvlist(handle);
   if (!envlist) FAIL(status, PAMH_ERR_ERRNO, "pam_getenvlist");

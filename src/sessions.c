@@ -13,7 +13,7 @@
 #include "util.h"
 
 struct source_dir {
-  enum session_type type;
+  enum SessionType type;
   char* dir;
 };
 
@@ -72,7 +72,7 @@ struct status cb(void* _ctx, char* NULLABLE table, char* key, char* value) {
 
 // also, always return 0 or we will break parsing and we don't want a bad
 // desktop file to break all possible sessions
-static enum session_type session_type;
+static enum SessionType session_type;
 // NOLINTNEXTLINE(readability-function-cognitive-complexity)
 static int fn(const char* fpath, const struct stat* sb, int typeflag) {
   // guessing symlink behavior

@@ -117,11 +117,11 @@ union typ_ptr {
   char** string;
   long long* number;
   bool* boolean;
-  enum keys* key;
+  enum Keys* key;
   struct Vector* vec;
   uintptr_t ptr;
 };
-struct parser_error parse_key(enum introspection_type typ, union typ_ptr at,
+struct parser_error parse_key(enum IntrospectionType typ, union typ_ptr at,
                               char* key, size_t offset) {
   char* aux_str = NULL;
   struct parser_error aux_err;

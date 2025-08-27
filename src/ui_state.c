@@ -4,7 +4,7 @@
 #include "ui.h"
 #include "users.h"
 
-enum input focused_input = PASSWD;
+enum Input focused_input = PASSWD;
 
 struct Vector* gusers;
 struct Vector* gsessions;
@@ -13,7 +13,7 @@ struct opts_field of_session;
 struct opts_field of_user;
 struct opts_field of_passwd;
 
-struct opts_field* NNULLABLE get_opts_field(enum input from) {
+struct opts_field* NNULLABLE get_opts_field(enum Input from) {
   if (from == SESSION) return &of_session;
   if (from == USER) return &of_user;
   if (from == PASSWD) return &of_passwd;

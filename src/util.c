@@ -13,10 +13,10 @@
 
 static int selret_magic();
 
-int find_keyname(enum keys* at, const char* name) {
+int find_keyname(enum Keys* at, const char* name) {
   for (size_t i = 0; i < LEN(KEY_MAPPINGS); i++) {
     if (strcmp(KEY_NAMES[i], name) == 0) {
-      *at = (enum keys)i;
+      *at = (enum Keys)i;
       return 0;
     }
   }
@@ -24,12 +24,12 @@ int find_keyname(enum keys* at, const char* name) {
   return -1;
 }
 
-enum keys find_ansi(const char* seq) {
+enum Keys find_ansi(const char* seq) {
   for (size_t i = 0; i < LEN(KEY_MAPPINGS); i++) {
     struct key_mapping mapping = KEY_MAPPINGS[i];
     for (size_t j = 0; mapping.sequences[j] != NULL; j++) {
       if (strcmp(mapping.sequences[j], seq) == 0) {
-        return (enum keys)i;
+        return (enum Keys)i;
       }
     }
   }

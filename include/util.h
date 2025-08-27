@@ -10,8 +10,8 @@
 
 #include "keys.h"
 
-int find_keyname(enum keys* at, const char* name);
-enum keys find_ansi(const char* seq);
+int find_keyname(enum Keys* at, const char* name);
+enum Keys find_ansi(const char* seq);
 void read_press(u_char* length, char* out);
 // non blocking, waits up to tv or interrupt, returns true if actually read
 bool read_press_nb(u_char* length, char* out, struct timeval* tv);

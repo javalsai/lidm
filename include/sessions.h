@@ -6,7 +6,7 @@
 #include "macros.h"
 #include "util.h"
 
-enum session_type {
+enum SessionType {
   XORG,
   WAYLAND,
   SHELL,
@@ -16,7 +16,7 @@ struct session {
   char* NNULLABLE name;
   char* NNULLABLE exec;
   char* NULLABLE tryexec;
-  enum session_type type;
+  enum SessionType type;
 };
 
 struct Vector get_avaliable_sessions();

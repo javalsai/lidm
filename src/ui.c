@@ -151,7 +151,7 @@ void ui_update_cursor_focus() {
   (void)printf("\x1b[%d;%dH", line, col);
 }
 
-void ui_update_field(enum input focused_input) {
+void ui_update_field(enum Input focused_input) {
   if (focused_input == PASSWD) {
     print_passwd(utf8len(of_passwd.efield.content), false);
   } else if (focused_input == SESSION) {
@@ -170,7 +170,7 @@ void ui_update_ffield() {
 }
 
 void ui_update_ofield(struct opts_field* NNULLABLE self) {
-  enum input input;
+  enum Input input;
   if (self == &of_session)
     input = SESSION;
   else if (self == &of_user)
@@ -280,7 +280,7 @@ int load(struct Vector* users, struct Vector* sessions) {
     (void)fflush(stdout);
     if (!read_press_nb(&len, seq, &tv)) continue;
     if (*seq == '\x1b') {
-      enum keys ansi_code = find_ansi(seq);
+      enum Keys ansi_code = find_ansi(seq);
       if (ansi_code != -1) {
         if (ansi_code == ESC) {
           esc = 2;
