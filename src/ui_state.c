@@ -4,7 +4,7 @@
 #include "ui.h"
 #include "users.h"
 
-enum input focused_input = PASSWD;
+enum Input focused_input = PASSWD;
 
 struct Vector* gusers;
 struct Vector* gsessions;
@@ -13,7 +13,7 @@ struct opts_field of_session;
 struct opts_field of_user;
 struct opts_field of_passwd;
 
-struct opts_field* NNULLABLE get_opts_field(enum input from) {
+struct opts_field* NNULLABLE get_opts_field(enum Input from) {
   if (from == SESSION) return &of_session;
   if (from == USER) return &of_user;
   if (from == PASSWD) return &of_passwd;
@@ -40,7 +40,8 @@ struct session st_session(bool include_defshell) {
     if (include_defshell && of_session.current_opt == gsessions->length + 1) {
       struct session shell_session;
       shell_session.type = SHELL;
-      shell_session.exec = shell_session.name = st_user().shell;
+      shell_session.exec =
+          session_exec_shell(shell_session.name = st_user().shell);
       return shell_session;
     }
 
@@ -49,7 +50,8 @@ struct session st_session(bool include_defshell) {
 
   struct session custom_session;
   custom_session.type = SHELL;
-  custom_session.name = custom_session.exec = of_session.efield.content;
+  custom_session.exec =
+      session_exec_shell(custom_session.name = of_session.efield.content);
   return custom_session;
 }
 
@@ -86,7 +88,7 @@ void st_kbd_type(char* text, bool cfg_include_defshell) {
     start = st_user().username;
   if (focused_input == SESSION && of_session.current_opt != 0 &&
       st_session(cfg_include_defshell).type == SHELL)
-    start = st_session(cfg_include_defshell).exec;
+    start = st_session(cfg_include_defshell).exec.shell;
 
   ofield_kbd_type(field, text, start);
   ui_update_ffield();

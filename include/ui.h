@@ -39,7 +39,7 @@
 #define VALUES_SEPR 3
 #define VALUE_MAXLEN (BOX_WIDTH - VALUES_COL + 1 - BOX_HMARGIN - 2)
 
-enum input { SESSION, USER, PASSWD };
+enum Input { SESSION, USER, PASSWD };
 extern const u_char INPUTS_N;
 
 void setup(struct config* config);
@@ -47,7 +47,7 @@ int load(struct Vector* users, struct Vector* sessions);
 void print_err(const char* /*msg*/);
 void print_errno(const char* /*descr*/);
 
-void ui_update_field(enum input focused_input);
+void ui_update_field(enum Input focused_input);
 void ui_update_ffield();
 void ui_update_ofield(struct opts_field* self);
 void ui_update_cursor_focus();

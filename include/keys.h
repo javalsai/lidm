@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-enum keys {
+enum Keys {
   ESC,
   F1,
   F2,
@@ -66,7 +66,7 @@ static const char* const KEY_NAMES[] = {
 };
 
 struct key_mapping {
-  enum keys key;
+  enum Keys key;
   const char* sequences[3];
 };
 

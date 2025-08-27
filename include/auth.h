@@ -6,7 +6,8 @@
 #include "config.h"
 #include "sessions.h"
 
-bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
-            struct config* config);
+bool launch(char* NNULLABLE user, char* NNULLABLE passwd,
+            struct session session, void (*NULLABLE cb)(void),
+            struct config* NNULLABLE config);
 
 #endif

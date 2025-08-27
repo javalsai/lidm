@@ -4,8 +4,6 @@
 #include "ui.h"
 #include "util.h"
 
-// NOLINTBEGIN(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
-
 struct editable_field efield_new(char* content) {
   struct editable_field efield;
   if (content != NULL) {
@@ -80,5 +78,3 @@ bool efield_seek(struct editable_field* self, char seek) {
   self->pos = (u_char)(ptr - self->content);
   return ptr != start;
 }
-
-// NOLINTEND(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling)
