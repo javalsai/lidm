@@ -118,6 +118,7 @@ static int fn(const char* fpath, const struct stat* sb, int typeflag) {
     int parse_status = parse_exec_string(ctx.exec, &arg_count, &args);
     if (parse_status != 0 || arg_count == 0 || !args[0]) {
       log_printf("[E] parsing exec string '%s': %d\n", ctx.exec, parse_status);
+      free(this_session);
       goto err_parsing;
     }
     free(ctx.exec);

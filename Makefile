@@ -138,8 +138,8 @@ pre-commit:
 	prettier -c "**/*.md"
 	git ls-files "*.sh" "*/PKGBUILD" | xargs shellcheck --shell=bash
 	clang-format -i $$(git ls-files "*.c" "*.h")
-	git ls-files -z "*.h" | \
-		parallel -j$$(nproc) -q0 --no-notice --will-cite --tty clang-tidy --quiet |& \
+	git ls-files -z "*.c" "*.h" | \
+		parallel -j$$(nproc) -q0 --no-notice --will-cite --tty clang-tidy -warnings-as-errors=\* --quiet |& \
 		grep -v "warnings generated." || true
 
 print-version:

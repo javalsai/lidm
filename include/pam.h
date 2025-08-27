@@ -17,17 +17,17 @@
 struct pamh_getenv_status {
   char error_flag;
   union {
-    char** envlist;
-    const char* errfn;
+    char* NULLABLE* NNULLABLE envlist;
+    const char* NNULLABLE errfn;
   };
 };
 
 // Doesn't include `source`s
-struct pamh_getenv_status pamh_get_complete_env(pam_handle_t* handle,
+struct pamh_getenv_status pamh_get_complete_env(pam_handle_t* NNULLABLE handle,
                                                 struct passwd* NNULLABLE pw,
                                                 enum SessionType session_typ);
 
-void free_envlist(char** NNULLABLE envlist);
+void free_envlist(char* NULLABLE* NNULLABLE envlist);
 pam_handle_t* NULLABLE get_pamh(char* NNULLABLE user, char* NNULLABLE passwd);
 
 #endif /* PAM_H */

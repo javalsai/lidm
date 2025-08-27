@@ -76,24 +76,20 @@ char* NULLABLE xdg_ssession_type_str(enum SessionType typ) {
   return xdg_session_type;
 }
 
-#define FAIL_ALLOC(status)                \
-  {                                       \
-    (status).error_flag = PAMH_ERR_ALLOC; \
-    return (status);                      \
+#define FAIL_ALLOC()                                                  \
+  {                                                                   \
+    return (struct pamh_getenv_status){.error_flag = PAMH_ERR_ALLOC}; \
   }
-#define FAIL(status, ERR, ERRFN) \
-  {                              \
-    (status).error_flag = (ERR); \
-    (status).errfn = (ERRFN);    \
-    return (status);             \
+#define FAIL(ERR, ERRFN)                                                       \
+  {                                                                            \
+    return (struct pamh_getenv_status){.error_flag = (ERR), .errfn = (ERRFN)}; \
   }
 
 struct pamh_getenv_status pamh_get_complete_env(pam_handle_t* handle,
                                                 struct passwd* NNULLABLE pw,
                                                 enum SessionType session_typ) {
-  struct pamh_getenv_status status;
-  char** envlist = pam_getenvlist(handle);
-  if (!envlist) FAIL(status, PAMH_ERR_ERRNO, "pam_getenvlist");
+  char** raw_envlist = pam_getenvlist(handle);
+  if (!raw_envlist) FAIL(PAMH_ERR_ERRNO, "pam_getenvlist");
 
   struct envpair extra_env[] = {
       {"TERM", getenv("TERM")},
@@ -104,11 +100,12 @@ struct pamh_getenv_status pamh_get_complete_env(pam_handle_t* handle,
       {"LOGNAME", pw->pw_name},
       {"XDG_SESSION_TYPE", xdg_ssession_type_str(session_typ)}};
 
-  status.error_flag = PAMH_ERR_NOERR;
-  status.envlist = merge_envlist(envlist, extra_env, LEN(extra_env));
-  if (!status.envlist) FAIL_ALLOC(status);
-
-  return status;
+  char** envlist = merge_envlist(raw_envlist, extra_env, LEN(extra_env));
+  if (!envlist) FAIL_ALLOC();
+  return (struct pamh_getenv_status){
+      .error_flag = PAMH_ERR_NOERR,
+      .envlist = envlist,
+  };
 }
 
 #undef FAIL
