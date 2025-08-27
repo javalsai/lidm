@@ -19,7 +19,7 @@
 #include "util.h"
 
 static void try_source_file(struct Vector* NNULLABLE vec_envlist,
-                     char* NNULLABLE filepath) {
+                            char* NNULLABLE filepath) {
   log_printf("sourcing %s\n", filepath);
   FILE* file2source = fopen(filepath, "r");
   if (file2source == NULL) {
@@ -49,9 +49,9 @@ static void try_source_file(struct Vector* NNULLABLE vec_envlist,
 }
 
 static void source_paths(struct Vector* NNULLABLE vec_envlist,
-                  struct Vector* NNULLABLE abs_source,
-                  const char* NULLABLE user_home,
-                  struct Vector* NNULLABLE user_source) {
+                         struct Vector* NNULLABLE abs_source,
+                         const char* NULLABLE user_home,
+                         struct Vector* NNULLABLE user_source) {
   for (size_t i = 0; i < abs_source->length; i++) {
     char* path = vec_get(abs_source, i);
     try_source_file(vec_envlist, path);

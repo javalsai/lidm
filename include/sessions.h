@@ -19,27 +19,27 @@ enum ExecType {
 };
 
 struct desktop_exec {
-  char** args;
+  char* NULLABLE* NNULLABLE args;
   int arg_count;
 };
 
 struct session_exec {
   enum ExecType typ;
   union {
-    char* shell;
+    char* NNULLABLE shell;
     struct desktop_exec desktop;
   };
 };
 
-static inline struct session_exec session_exec_shell(char* shell) {
+static inline struct session_exec session_exec_shell(char* NNULLABLE shell) {
   return (struct session_exec){
       .typ = EXEC_SHELL,
       .shell = shell,
   };
 }
 
-static inline struct session_exec session_exec_desktop(int arg_count,
-                                                       char** args) {
+static inline struct session_exec session_exec_desktop(
+    int arg_count, char* NULLABLE* NNULLABLE args) {
   return (struct session_exec){
       .typ = EXEC_DESKTOP,
       .desktop =
@@ -50,8 +50,8 @@ static inline struct session_exec session_exec_desktop(int arg_count,
   };
 }
 
-static inline int session_exec_exec(struct session_exec* exec,
-                                    char** NNULLABLE envlist) {
+static inline int session_exec_exec(struct session_exec* NNULLABLE exec,
+                                    char* NULLABLE* NNULLABLE envlist) {
   switch (exec->typ) {
     case EXEC_SHELL:
       return execle(exec->shell, exec->shell, NULL, envlist);
