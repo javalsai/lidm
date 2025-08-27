@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <grp.h>
 #include <pwd.h>
 #include <security/pam_misc.h>
@@ -81,6 +82,12 @@ void source_paths(struct Vector* NNULLABLE vec_envlist,
 /*setenv("XDG_SESSION_DESKTOP", , true);*/
 /*setenv("XDG_SEAT", "seat0", true);*/
 
+struct child_msg {
+  char* msg;
+  int _errno;
+  bool err;
+};
+
 // NOLINTBEGIN(readability-function-cognitive-complexity)
 bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
             struct config* config) {
@@ -134,45 +141,67 @@ bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
     return false;
   }
 
+  int pipefd[2];
+  pipe(pipefd);
+
   uint pid = fork();
   if (pid == 0) { // child
-    if (chdir(pw->pw_dir) == -1) print_errno("can't chdir to user home");
 
-    // TODO: chown stdin to user
-    // does it inherit stdin from parent and
-    // does parent need to reclaim it after
-    // this dies?
+#define SEND_MSG(MSG)                                   \
+  {                                                     \
+    write(pipefd[1], &(MSG), sizeof(struct child_msg)); \
+    close(pipefd[1]);                                   \
+  }
+#define SEND_ERR(MSG)                                                      \
+  {                                                                        \
+    write(pipefd[1],                                                       \
+          &(struct child_msg){.msg = (MSG), ._errno = errno, .err = true}, \
+          sizeof(struct child_msg));                                       \
+    close(pipefd[1]);                                                      \
+    _exit(EXIT_FAILURE);                                                   \
+  }
 
-    if (setgid(pw->pw_gid) == -1) {
-      print_errno("setgid");
-      _exit(EXIT_FAILURE);
-    }
-    if (initgroups(user, pw->pw_gid) == -1) {
-      print_errno("initgroups");
-      _exit(EXIT_FAILURE);
-    }
+    if (chdir(pw->pw_dir) == -1) SEND_ERR("chdir");
+    if (setgid(pw->pw_gid) == -1) SEND_ERR("setgid");
+    if (initgroups(user, pw->pw_gid) == -1) SEND_ERR("initgroups");
+    if (setuid(pw->pw_uid) == -1) SEND_ERR("setuid");
 
-    if (setuid(pw->pw_uid) == -1) {
-      perror("setuid");
-      _exit(EXIT_FAILURE);
-    }
+    SEND_MSG((struct child_msg){.err = false});
+#undef SEND_MSG
+#undef SEND_ERR
+    char _;
+    read(pipefd[0], &_, sizeof(_));
+    close(pipefd[0]);
 
-    if (cb) cb();
-
-    printf("\x1b[0m\x1b[H\x1b[J");
-    (void)fflush(stdout);
+    int exit;
     if (session.type == SHELL) {
-      execle(session.exec, session.exec, NULL, envlist);
+      exit = execle(session.exec, session.exec, NULL, envlist);
     } else if (session.type == XORG || session.type == WAYLAND) {
       // TODO: test existence of executable with TryExec
       // NOLINTNEXTLINE
-      execve(desktop_exec[0], desktop_exec, envlist);
+      exit = execve(desktop_exec[0], desktop_exec, envlist);
       // NOLINTNEXTLINE
       free_parsed_args(desktop_count, desktop_exec);
-    }
+    } else
+      exit = -1;
     perror("exec error");
     (void)fputs("failure calling session\n", stderr);
+    _exit(exit);
   } else {
+    struct child_msg msg;
+    read(pipefd[0], &msg, sizeof(struct child_msg));
+    close(pipefd[0]);
+    if (msg.err) {
+      errno = msg._errno;
+      print_errno(msg.msg);
+      return false;
+    }
+
+    if (cb) cb();
+    printf("\x1b[0m\x1b[H\x1b[J");
+    (void)fflush(stdout);
+    close(pipefd[1]);
+
     int exit_code;
     waitpid((pid_t)pid, &exit_code, 0);
 
