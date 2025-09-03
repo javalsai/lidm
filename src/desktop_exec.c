@@ -1,13 +1,58 @@
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "desktop_exec.h"
+#include "macros.h"
 
 // constants for exec string parsing
 #define MAX_ARGS 100
 // ARG_LENGTH is the initial length of a parsed argument
 #define ARG_LENGTH 64
+
+// returns NULL on any error
+// otherwise it returns the absolute path of the program that MUST BE FREED
+static char* NULLABLE search_path(const char* NNULLABLE for_binary) {
+  char* path = strdup(getenv("PATH"));
+  if (!path) return NULL;
+
+  char* tok = strtok(path, ":");
+  while (tok) {
+    char* bin_path;
+    asprintf(&bin_path, "%s/%s", tok, for_binary);
+    if (!bin_path) {
+      free(path);
+      return NULL;
+    }
+
+    struct stat stat_buf;
+    if (stat(bin_path, &stat_buf) == 0) {
+      // TODO: check exec bit ig
+      // if(stat_buf.) {}
+      free(path);
+      return bin_path;
+    }
+
+    free(bin_path);
+    tok = strtok(NULL, ":");
+  }
+
+  return NULL;
+}
+
+// returns -1 on exec failure and -2 on search failure
+int execvpe_desktop(char** args, char* NNULLABLE* NNULLABLE envlist) {
+  char* new_arg = search_path(args[0]);
+  if (!new_arg) return -2;
+
+  free(args[0]);
+  args[0] = new_arg;
+
+  return execve(args[0], args, envlist);
+}
 
 // parse Exec=/bin/prog arg1 arg2\ with\ spaces
 void free_parsed_args(int arg_count, char** args) {

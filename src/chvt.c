@@ -24,8 +24,10 @@ int chvt_str(char* str) {
   return chvt((int)i);
 }
 
+int vt = -1;
 int chvt(int n) {
   (void)fprintf(stderr, "activating vt %d\n", n);
+  vt = n;
   // NOLINTNEXTLINE(readability-identifier-length)
   char c = 0;
   for (size_t i = 0; i < LEN(vterms); i++) {

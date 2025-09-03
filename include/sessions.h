@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "desktop_exec.h"
 #include "macros.h"
 #include "util.h"
 
@@ -56,7 +57,7 @@ static inline int session_exec_exec(struct session_exec* NNULLABLE exec,
     case EXEC_SHELL:
       return execle(exec->shell, exec->shell, NULL, envlist);
     case EXEC_DESKTOP:
-      return execve(exec->desktop.args[0], exec->desktop.args, envlist);
+      return execvpe_desktop(exec->desktop.args, envlist);
     default:
       __builtin_unreachable();
   }

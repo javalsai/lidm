@@ -1,22 +1,31 @@
+// TODO: handle `fork() == -1`s
+
 #include <errno.h>
 #include <grp.h>
 #include <pwd.h>
 #include <security/pam_misc.h>
+#include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
 #include "auth.h"
 #include "config.h"
 #include "log.h"
+#include "macros.h"
 #include "pam.h"
 #include "sessions.h"
 #include "ui.h"
 #include "util.h"
+
+#define DEFAULT_XORG_DISPLAY 0
+// no PATH search for now
+#define XORG_COMMAND "/usr/bin/X"
 
 static void try_source_file(struct Vector* NNULLABLE vec_envlist,
                             char* NNULLABLE filepath) {
@@ -89,6 +98,93 @@ struct child_msg {
   bool err;
 };
 
+// TODO: OR check if xorg_pid fail exited
+static int wait_for_x_ready(const int xorg_pipefd[1], __pid_t xorg_pid) {
+  // TODO
+  UNUSED(xorg_pipefd);
+  UNUSED(xorg_pid);
+  sleep(2);
+  return 0;
+}
+
+// TODO: properly pass this down
+extern int vt;
+// TODO: add error msgs
+static void launch_with_xorg_server(struct session_exec* NNULLABLE exec,
+                                    struct passwd* pw,
+                                    char** NNULLABLE envlist) {
+  int xorg_pipefd[2];
+  pipe(xorg_pipefd);
+  (void)fflush(NULL);
+  __pid_t xorg_pid = fork();
+  if (xorg_pid == 0) {
+    if (!pw->pw_dir) _exit(EXIT_FAILURE);
+    // !!!!!!!!!! ATTENTION: this fails silently, of course add failure msgs but
+    // for now I can't so be careful
+    if (vt == -1) _exit(EXIT_FAILURE);
+
+    char* display_thing;
+    asprintf(&display_thing, ":%d", DEFAULT_XORG_DISPLAY);
+    if (!display_thing) _exit(EXIT_FAILURE);
+
+    char* vt_path;
+    asprintf(&vt_path, "vt%d", vt);
+    if (!vt_path) {
+      free(display_thing);
+      _exit(EXIT_FAILURE);
+    }
+
+    // dup2(xorg_pipefd[1], STDERR_FILENO);
+    // dup2(xorg_pipefd[1], STDOUT_FILENO);
+    // close(xorg_pipefd[0]);
+    // close(xorg_pipefd[1]);
+
+    int exit = execle(XORG_COMMAND, XORG_COMMAND, display_thing, vt_path, NULL,
+                      envlist);
+    perror("exec");
+    // execle("X", "X", display_thing, vt_path, "-auth", xauth_path,
+    //        "-nolisten", "tcp", "-background", "none", NULL, envlist);
+
+    printf("wtf3\n");
+    (void)fflush(stdout);
+
+    free(vt_path);
+    free(display_thing);
+    _exit(exit);
+  }
+
+  wait_for_x_ready(xorg_pipefd, xorg_pid);
+
+  __pid_t xorg_session_pid = fork();
+  if (xorg_session_pid == 0) {
+    int exit = session_exec_exec(exec, envlist);
+    perror("exec error");
+    (void)fputs("failure calling session\n", stderr);
+    _exit(exit);
+  }
+
+  // looks weird, waiting on -1 should wait on any child and then just check if
+  // its xorg server or the session and kill the other waiting on it
+  __pid_t pid;
+  int status; // not even read for now
+  while ((pid = waitpid(-1, &status, 0)) > 0) {
+    if (pid == xorg_pid || pid == xorg_session_pid) {
+      __pid_t pid_to_kill = pid ^ xorg_pid ^ xorg_session_pid;
+      if (pid == xorg_pid) printf("Xorg server died\n");
+      if (pid == xorg_session_pid) printf("Xorg session died\n");
+
+      kill(pid_to_kill, SIGTERM);
+      waitpid(pid_to_kill, &status, 0);
+      printf("wtf %d, x%d s%d - k%d\n", status, xorg_pid, xorg_session_pid,
+             pid_to_kill);
+      (void)fflush(stdout);
+      sleep(10);
+
+      break;
+    }
+  }
+}
+
 #define SEND_MSG(MSG)                                   \
   {                                                     \
     write(pipefd[1], &(MSG), sizeof(struct child_msg)); \
@@ -109,23 +205,25 @@ struct child_msg {
   }
 inline static void forked(int pipefd[2], struct passwd* pw,
                           char* NNULLABLE user,
-                          struct session_exec* NNULLABLE exec,
+                          struct session* NNULLABLE session,
                           char** NNULLABLE envlist) {
   if (chdir(pw->pw_dir) == -1) SEND_ERR("chdir");
   if (setgid(pw->pw_gid) == -1) SEND_ERR("setgid");
   if (initgroups(user, pw->pw_gid) == -1) SEND_ERR("initgroups");
   if (setuid(pw->pw_uid) == -1) SEND_ERR("setuid");
 
-  // or maybe Xorg fork should happen here
-
   SEND_MSG((struct child_msg){.err = false});
   DUMMY_READ();
   close(pipefd[0]);
 
-  int exit = session_exec_exec(exec, envlist);
-  perror("exec error");
-  (void)fputs("failure calling session\n", stderr);
-  _exit(exit);
+  if (session->type == XORG) {
+    launch_with_xorg_server(&session->exec, pw, envlist);
+  } else {
+    int exit = session_exec_exec(&session->exec, envlist);
+    perror("exec error");
+    (void)fputs("failure calling session\n", stderr);
+    _exit(exit);
+  }
 }
 #undef SEND_MSG
 #undef SEND_ERR
@@ -160,6 +258,17 @@ bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
   }
 
   struct Vector envlist_vec = vec_from_raw((void**)env_ret.envlist);
+
+  if (session.type == XORG) {
+    char* display_env;
+    asprintf(&display_env, "DISPLAY=:%d", DEFAULT_XORG_DISPLAY);
+    if (!display_env) {
+      print_err("alloc error");
+      return false;
+    }
+    vec_push(&envlist_vec, display_env);
+  }
+
   source_paths(&envlist_vec, &config->behavior.source, pw->pw_dir,
                &config->behavior.user_source);
   char** envlist = (char**)vec_as_raw(envlist_vec);
@@ -168,19 +277,12 @@ bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
     return false;
   }
 
-  // TODO: start X server here if needed
-  // e.g. spawn (also after downgrading privs):
-  //
-  // `X :0 tty<X> -auth <user-home>/.Xauthority -nolisten tcp -background none`
-  //
-  // Then `DISPLAY=:0 <xsession>`
-
   int pipefd[2];
   pipe(pipefd);
 
   uint pid = fork();
   if (pid == 0)
-    forked(pipefd, pw, user, &session.exec, envlist);
+    forked(pipefd, pw, user, &session, envlist);
   else {
     struct child_msg msg;
     read(pipefd[0], &msg, sizeof(struct child_msg));
