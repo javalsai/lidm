@@ -109,8 +109,8 @@ static char* fmt_time(const char* fmt) {
   }
 }
 
-char* trunc_gethostname(const size_t MAXLEN, const char* const ELLIPSIS) {
-  if (utf8len(ELLIPSIS) > MAXLEN) return NULL;
+char* trunc_gethostname(size_t maxlen, const char* const ELLIPSIS) {
+  if (utf8len(ELLIPSIS) > maxlen) return NULL;
   size_t alloc_size = HOST_NAME_MAX + strlen(ELLIPSIS) + 1;
   char* buf = malloc(alloc_size);
   if (!buf) return NULL;
@@ -120,8 +120,8 @@ char* trunc_gethostname(const size_t MAXLEN, const char* const ELLIPSIS) {
     return NULL;
   }
 
-  if (utf8len(buf) > MAXLEN) {
-    size_t end = utf8trunc(buf, MAXLEN - utf8len(ELLIPSIS));
+  if (utf8len(buf) > maxlen) {
+    size_t end = utf8trunc(buf, maxlen - utf8len(ELLIPSIS));
     strcpy(&buf[end], ELLIPSIS);
   }
   return buf;
@@ -341,25 +341,40 @@ u_char get_render_pos_offset(struct opts_field* self, u_char maxlen) {
   return pos - ofield_display_cursor_col(self, maxlen);
 }
 
-#define HOSTNAME_SIZE (VALUES_COL - VALUES_SEPR - BOX_HMARGIN - 1)
 void print_head() {
-  // hostname doesn't just change on runtime
-  static char* hostname = NULL;
-  if (!hostname)
-    hostname = trunc_gethostname(HOSTNAME_SIZE, g_config->strings.ellipsis);
-  if (!hostname) hostname = "unknown";
+  char* fmtd_time = fmt_time(g_config->behavior.timefmt);
+  size_t len_tm = utf8len(fmtd_time);
+
+  // calculate the space available for the host name
+  ssize_t hostname_size = BOX_WIDTH - (BOX_HMARGIN * 2) - len_tm - VALUES_SEPR;
+  if (hostname_size < 0) hostname_size = 0;
+
+  // hostname doesn't just change on runtime,
+  // but the length of the time string might
+  static char* NULLABLE hostname = NULL;
+  static size_t hostname_calcd_size;
+
+  // save the truncated hostname and the length it truncated to,
+  // if said length changes recalculate this (and free previous str)
+  if (!hostname || hostname_calcd_size != hostname_size) {
+    if (hostname) free(hostname);
+    hostname = trunc_gethostname(hostname_size, g_config->strings.ellipsis);
+    hostname_calcd_size = hostname_size;
+  }
 
   clean_line(box_start, HEAD_ROW);
+
   // put hostname
-  printf("\x1b[%dG\x1b[%sm%s\x1b[%sm",
-         box_start.x + VALUES_COL - VALUES_SEPR - (uint)utf8len(hostname),
-         g_config->colors.e_hostname, hostname, g_config->colors.fg);
+  if (hostname_size)
+    printf("\x1b[%dG\x1b[%sm%s\x1b[%sm", box_start.x + 1 + BOX_HMARGIN,
+           g_config->colors.e_hostname, hostname ? hostname : "unknown",
+           g_config->colors.fg);
 
   // put date
-  char* fmtd_time = fmt_time(g_config->behavior.timefmt);
   printf("\x1b[%dG\x1b[%sm%s\x1b[%sm",
-         box_start.x + BOX_WIDTH - 1 - BOX_HMARGIN - (uint)utf8len(fmtd_time),
+         box_start.x + BOX_WIDTH - 1 - BOX_HMARGIN - (uint)len_tm,
          g_config->colors.e_date, fmtd_time, g_config->colors.fg);
+
   free(fmtd_time);
 }
 
