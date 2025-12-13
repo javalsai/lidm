@@ -534,13 +534,12 @@ static void print_footer() {
                  utf8len(g_config->strings.f_refresh) +
                  utf8len(KEY_NAMES[g_config->functions.refresh]);
 
+  bsize += 2 * 2 + 3 * 1;
+
   if (fido_enabled) {
     bsize += utf8len(g_config->strings.f_fido) +
-             utf8len(KEY_NAMES[g_config->functions.fido]);
+             utf8len(KEY_NAMES[g_config->functions.fido]) + 2 + 1;
   }
-
-  int num_items = fido_enabled ? 4 : 3;
-  bsize += (num_items - 1) * 2 + num_items * 1;
 
   uint row = window.ws_row - 1;
   uint col = window.ws_col - 2 - bsize;
