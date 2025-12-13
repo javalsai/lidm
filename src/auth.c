@@ -17,6 +17,11 @@
 #include "unistd.h"
 #include "util.h"
 
+struct pam_conv_data {
+  char* password;
+  void (*display_pam_msg)(const char* msg, int msg_style);
+};
+
 int pam_conversation(int num_msg, const struct pam_message** msg,
                      struct pam_response** resp, void* appdata_ptr) {
   struct pam_response* reply =
@@ -24,13 +29,34 @@ int pam_conversation(int num_msg, const struct pam_message** msg,
   if (!reply) {
     return PAM_BUF_ERR;
   }
+
+  struct pam_conv_data* conv_data = (struct pam_conv_data*)appdata_ptr;
+
   for (size_t i = 0; i < num_msg; i++) {
     reply[i].resp = NULL;
     reply[i].resp_retcode = 0;
-    if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF ||
-        msg[i]->msg_style == PAM_PROMPT_ECHO_ON) {
-      char* input = (char*)appdata_ptr;
-      reply[i].resp = strdup(input);
+
+    switch (msg[i]->msg_style) {
+      case PAM_PROMPT_ECHO_OFF:
+      case PAM_PROMPT_ECHO_ON:
+        reply[i].resp = strdup(conv_data->password);
+        if (!reply[i].resp) {
+          for (size_t j = 0; j < i; j++)
+            free(reply[j].resp);
+          free(reply);
+          return PAM_BUF_ERR;
+        }
+        break;
+
+      case PAM_TEXT_INFO:
+      case PAM_ERROR_MSG:
+        if (conv_data->display_pam_msg && msg[i]->msg) {
+          conv_data->display_pam_msg(msg[i]->msg, msg[i]->msg_style);
+        }
+        break;
+
+      default:
+        break;
     }
   }
   *resp = reply;
@@ -54,7 +80,9 @@ void clear_screen() {
 
 pam_handle_t* get_pamh(char* user, char* passwd) {
   pam_handle_t* pamh = NULL;
-  struct pam_conv pamc = {pam_conversation, (void*)passwd};
+  struct pam_conv_data conv_data = {.password = passwd,
+                                    .display_pam_msg = print_pam_msg};
+  struct pam_conv pamc = {pam_conversation, (void*)&conv_data};
   int ret;
 
   char* pam_service_override = getenv("LIDM_PAM_SERVICE");
@@ -192,9 +220,10 @@ bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
 
   pam_handle_t* pamh = get_pamh(user, passwd);
   if (pamh == NULL) {
-    print_err("error on pam authentication");
+    print_pam_msg("authentication failed", PAM_ERROR_MSG);
     return false;
   }
+  clear_pam_msg();
 
   bool* reach_session = shmalloc(sizeof(bool));
   if (reach_session == NULL) {

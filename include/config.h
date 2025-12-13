@@ -92,6 +92,7 @@ BUILD(chars, CHARS, TABLE_CHARS);
 #define TABLE_FUNCTIONS(F, name)        \
   F(enum keys, poweroff, KEY, F1, name) \
   F(enum keys, reboot, KEY, F2, name)   \
+  F(enum keys, fido, KEY, NONE, name)   \
   F(enum keys, refresh, KEY, F5, name)
 
 BUILD(functions, FUNCTIONS, TABLE_FUNCTIONS);
@@ -99,6 +100,7 @@ BUILD(functions, FUNCTIONS, TABLE_FUNCTIONS);
 #define TABLE_STRINGS(F, name)                             \
   F(char* NNULLABLE, f_poweroff, STRING, "poweroff", name) \
   F(char* NNULLABLE, f_reboot, STRING, "reboot", name)     \
+  F(char* NNULLABLE, f_fido, STRING, "fido", name)         \
   F(char* NNULLABLE, f_refresh, STRING, "refresh", name)   \
   F(char* NNULLABLE, e_user, STRING, "user", name)         \
   F(char* NNULLABLE, e_passwd, STRING, "password", name)   \
