@@ -300,7 +300,8 @@ int load(struct Vector* users, struct Vector* sessions) {
                    ansi_code == g_config->functions.fido) {
           bool successful_write = write_launch_state((struct LaunchState){
               .username = st_user().username,
-              .session_opt = st_session(g_config->behavior.include_defshell).name,
+              .session_opt =
+                  st_session(g_config->behavior.include_defshell).name,
           });
           if (!successful_write) log_puts("[E] failed to write launch state");
 
@@ -544,8 +545,8 @@ static void print_footer() {
   uint row = window.ws_row - 1;
   uint col = window.ws_col - 2 - bsize;
 
-  printf("\x1b[%d;%dH%s \x1b[%sm%s\x1b[%sm  %s \x1b[%sm%s\x1b[%sm  ",
-         row, col, g_config->strings.f_poweroff, g_config->colors.e_key,
+  printf("\x1b[%d;%dH%s \x1b[%sm%s\x1b[%sm  %s \x1b[%sm%s\x1b[%sm  ", row, col,
+         g_config->strings.f_poweroff, g_config->colors.e_key,
          KEY_NAMES[g_config->functions.poweroff], g_config->colors.fg,
          g_config->strings.f_reboot, g_config->colors.e_key,
          KEY_NAMES[g_config->functions.reboot], g_config->colors.fg);

@@ -41,7 +41,8 @@ int pam_conversation(int num_msg, const struct pam_message** msg,
       case PAM_PROMPT_ECHO_ON:
         reply[i].resp = strdup(conv_data->password);
         if (!reply[i].resp) {
-          for (size_t j = 0; j < i; j++) free(reply[j].resp);
+          for (size_t j = 0; j < i; j++)
+            free(reply[j].resp);
           free(reply);
           return PAM_BUF_ERR;
         }
