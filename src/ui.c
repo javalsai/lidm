@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <pwd.h>
+#include <security/pam_appl.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -295,6 +296,20 @@ int load(struct Vector* users, struct Vector* sessions) {
           restore_all();
           reboot(RB_POWER_OFF);
           exit(0);
+        } else if (g_config->functions.fido != NONE &&
+                   ansi_code == g_config->functions.fido) {
+          bool successful_write = write_launch_state((struct LaunchState){
+              .username = st_user().username,
+              .session_opt = st_session(g_config->behavior.include_defshell).name,
+          });
+          if (!successful_write) log_puts("[E] failed to write launch state");
+
+          if (!launch(st_user().username, "",
+                      st_session(g_config->behavior.include_defshell),
+                      &restore_all, g_config)) {
+            print_passwd(utf8len(of_passwd.efield.content), true);
+            ui_update_cursor_focus();
+          }
         } else if (ansi_code == A_UP || ansi_code == A_DOWN) {
           st_ch_focus(ansi_code == A_DOWN ? 1 : -1);
         } else if (ansi_code == A_RIGHT || ansi_code == A_LEFT) {
@@ -509,6 +524,8 @@ static void print_box() {
 }
 
 static void print_footer() {
+  bool fido_enabled = g_config->functions.fido != NONE;
+
   size_t bsize = utf8len(g_config->strings.f_poweroff) +
                  utf8len(KEY_NAMES[g_config->functions.poweroff]) +
                  utf8len(g_config->strings.f_reboot) +
@@ -516,24 +533,52 @@ static void print_footer() {
                  utf8len(g_config->strings.f_refresh) +
                  utf8len(KEY_NAMES[g_config->functions.refresh]);
 
-  bsize += 2 * 2 + // 2 wide separators between 3 items
-           3 * 1;  // 3 thin separators inside every item
+  if (fido_enabled) {
+    bsize += utf8len(g_config->strings.f_fido) +
+             utf8len(KEY_NAMES[g_config->functions.fido]);
+  }
+
+  int num_items = fido_enabled ? 4 : 3;
+  bsize += (num_items - 1) * 2 + num_items * 1;
 
   uint row = window.ws_row - 1;
   uint col = window.ws_col - 2 - bsize;
-  printf(
-      "\x1b[%3$d;%4$dH%8$s \x1b[%1$sm%5$s\x1b[%2$sm  %9$s "
-      "\x1b[%1$sm%6$s\x1b[%2$sm  %10$s \x1b[%1$sm%7$s\x1b[%2$sm",
-      g_config->colors.e_key, g_config->colors.fg, row, col,
-      KEY_NAMES[g_config->functions.poweroff],
-      KEY_NAMES[g_config->functions.reboot],
-      KEY_NAMES[g_config->functions.refresh], g_config->strings.f_poweroff,
-      g_config->strings.f_reboot, g_config->strings.f_refresh);
+
+  printf("\x1b[%d;%dH%s \x1b[%sm%s\x1b[%sm  %s \x1b[%sm%s\x1b[%sm  ",
+         row, col, g_config->strings.f_poweroff, g_config->colors.e_key,
+         KEY_NAMES[g_config->functions.poweroff], g_config->colors.fg,
+         g_config->strings.f_reboot, g_config->colors.e_key,
+         KEY_NAMES[g_config->functions.reboot], g_config->colors.fg);
+
+  if (fido_enabled) {
+    printf("%s \x1b[%sm%s\x1b[%sm  ", g_config->strings.f_fido,
+           g_config->colors.e_key, KEY_NAMES[g_config->functions.fido],
+           g_config->colors.fg);
+  }
+
+  printf("%s \x1b[%sm%s\x1b[%sm", g_config->strings.f_refresh,
+         g_config->colors.e_key, KEY_NAMES[g_config->functions.refresh],
+         g_config->colors.fg);
 }
 
 void print_err(const char* msg) {
   (void)fprintf(stderr, "\x1b[%d;%dH%s(%d): %s", box_start.y - 1, box_start.x,
                 msg, errno, strerror(errno));
+}
+
+void print_pam_msg(const char* msg, int msg_style) {
+  uint row = box_start.y + BOX_HEIGHT + 1;
+  const char* color =
+      (msg_style == PAM_ERROR_MSG) ? g_config->colors.err : g_config->colors.fg;
+  printf("\x1b[%d;%dH\x1b[K\x1b[%sm%.*s\x1b[%sm", row, box_start.x, color,
+         BOX_WIDTH, msg, g_config->colors.fg);
+  (void)fflush(stdout);
+}
+
+void clear_pam_msg(void) {
+  uint row = box_start.y + BOX_HEIGHT + 1;
+  printf("\x1b[%d;%dH\x1b[K", row, box_start.x);
+  (void)fflush(stdout);
 }
 
 void print_errno(const char* descr) {
