@@ -13,7 +13,7 @@ The manual steps for installation are:
 
 ## Systemd
 
-- Copy `systemd.service` to `/etc/systemd/system/lidm.service`
+- Copy `systemd.service` to `/usr/local/lib/systemd/system/lidm.service` (if the directory doesn't exist, create it first)
 - To enable it you can run `systemctl enable lidm`
 
 ## Dinit
