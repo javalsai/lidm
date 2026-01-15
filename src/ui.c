@@ -193,8 +193,8 @@ void scratch_print_ui() {
       .y = ((window.ws_row - BOX_HEIGHT) / 2),    // leave more space under
   };
 
-  if (window.ws_row < BOX_HEIGHT + INNER_BOX_OUT_MARGIN * 2 ||
-      window.ws_col < BOX_WIDTH + INNER_BOX_OUT_MARGIN * 2) {
+  if (window.ws_row < BOX_HEIGHT + (INNER_BOX_OUT_MARGIN * 2) ||
+      window.ws_col < BOX_WIDTH + (INNER_BOX_OUT_MARGIN * 2)) {
     printf("\033[2J\033[H"); // Clear screen
     printf("\x1b[1;31mScreen too small\x1b[0m\n");
     printf("\x1b[%s;%sm\x1b[2J", g_config->colors.bg, g_config->colors.fg);
@@ -537,7 +537,7 @@ static void print_footer() {
                  utf8len(g_config->strings.f_refresh) +
                  utf8len(KEY_NAMES[g_config->functions.refresh]);
 
-  bsize += 2 * 2 + 3 * 1;
+  bsize += (2 * 2) + (3 * 1);
 
   if (fido_enabled) {
     bsize += utf8len(g_config->strings.f_fido) +

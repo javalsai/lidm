@@ -1,3 +1,5 @@
+// TODO: rewrite properly
+// NOLINTBEGIN(clang-diagnostic-nullability-completeness)
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -133,6 +135,7 @@ int push_arg(struct ctx* st) {
    3 = syntax
   Important: call free_parsed_args afterwards to free the passed ***args
 */
+
 // NOLINTBEGIN(readability-function-cognitive-complexity)
 int parse_exec_string(const char* exec_s, int* arg_count, char*** args) {
   if (!exec_s || !args || !arg_count) return 1;
@@ -226,3 +229,4 @@ syntax_err:
   return 3;
 }
 // NOLINTEND(readability-function-cognitive-complexity)
+// NOLINTEND(clang-diagnostic-nullability-completeness)
