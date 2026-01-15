@@ -32,9 +32,11 @@ enum Keys {
   END,
   PAGE_UP,
   PAGE_DOWN,
+  NONE,
 };
 
 static const char* const KEY_NAMES[] = {
+    [NONE] = "NONE",
     [ESC] = "ESC",
     [F1] = "F1",
     [F2] = "F2",

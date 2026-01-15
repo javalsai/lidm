@@ -1,4 +1,4 @@
-// TODO: handle `fork() == -1`s
+// TODO: handle `fork() == -1`// TODO: handle `fork() == -1`s
 
 #include <errno.h>
 #include <grp.h>
@@ -240,9 +240,10 @@ bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
 
   pam_handle_t* pamh = get_pamh(user, passwd);
   if (pamh == NULL) {
-    print_err("error on pam authentication");
+    print_pam_msg("authentication failed", PAM_ERROR_MSG);
     return false;
   }
+  clear_pam_msg();
 
   struct pamh_getenv_status env_ret =
       pamh_get_complete_env(pamh, pw, session.type);

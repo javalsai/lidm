@@ -46,6 +46,8 @@ void setup(struct config* config);
 int load(struct Vector* users, struct Vector* sessions);
 void print_err(const char* /*msg*/);
 void print_errno(const char* /*descr*/);
+void print_pam_msg(const char* msg, int msg_style);
+void clear_pam_msg(void);
 
 void ui_update_field(enum Input focused_input);
 void ui_update_ffield();
