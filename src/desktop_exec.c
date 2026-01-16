@@ -18,6 +18,10 @@
 // returns NULL on any error
 // otherwise it returns the absolute path of the program that MUST BE FREED
 static char* NULLABLE search_path(const char* NNULLABLE for_binary) {
+  if (strchr(for_binary, '/') != NULL) {
+    // skip absolute paths
+    return strdup(for_binary);
+  }
   char* path_env = getenv("PATH");
   if (!path_env) return NULL;
   char* path = strdup(path_env);
@@ -56,7 +60,10 @@ int execvpe_desktop(char** args, char* NNULLABLE* NNULLABLE envlist) {
   free(args[0]);
   args[0] = new_arg;
 
-  return execve(args[0], args, envlist);
+  int status = execve(args[0], args, envlist);
+  free(new_arg);
+
+  return status;
 }
 
 // parse Exec=/bin/prog arg1 arg2\ with\ spaces
