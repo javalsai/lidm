@@ -252,7 +252,7 @@ bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
       putenv(envlist[i]);
     }
     // FIXME: path hotfix
-    putenv("PATH=/bin:/usr/bin");
+    // putenv("PATH=/bin:/usr/bin");
     if (term != NULL) {
       setenv("TERM", term, true);
       free(term);
