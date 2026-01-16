@@ -18,7 +18,9 @@
 // returns NULL on any error
 // otherwise it returns the absolute path of the program that MUST BE FREED
 static char* NULLABLE search_path(const char* NNULLABLE for_binary) {
-  char* path = strdup(getenv("PATH"));
+  char* path_env = getenv("PATH");
+  if (!path_env) return NULL;
+  char* path = strdup(path_env);
   if (!path) return NULL;
 
   char* tok = strtok(path, ":");
@@ -42,6 +44,7 @@ static char* NULLABLE search_path(const char* NNULLABLE for_binary) {
     tok = strtok(NULL, ":");
   }
 
+  free(path);
   return NULL;
 }
 

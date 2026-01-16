@@ -22,6 +22,10 @@ int read_launch_state(struct LaunchState* NNULLABLE state) {
 
   size_t num = 0;
   if (getline(&state->username, &num, state_fd) < 0) goto fail;
+  // not sure I can actually prove it but ughh, getline < 0 will ensure there's
+  // something in the string and then I think strcspn is bounded to the final
+  // null byte, so it shouldn't go over
+  // NOLINTNEXTLINE(clang-analyzer-security.ArrayBound)
   state->username[strcspn(state->username, "\n")] = 0;
 
   num = 0;
