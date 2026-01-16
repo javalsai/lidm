@@ -87,7 +87,7 @@ install-service:
 	fi
 
 install-service-systemd:
-	install -m644 ./assets/services/systemd.service ${DESTDIR}/usr/local/lib/systemd/system/lidm.service
+	install -Dm644 ./assets/services/systemd.service ${DESTDIR}/usr/local/lib/systemd/system/lidm.service
 	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'systemctl enable lidm'"
 install-service-dinit:
 	install -m644 ./assets/services/dinit ${DESTDIR}/etc/dinit.d/lidm
