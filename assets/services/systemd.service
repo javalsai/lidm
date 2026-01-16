@@ -11,6 +11,7 @@ StandardError=tty
 TTYPath=/dev/tty7
 TTYReset=yes
 TTYVHangup=yes
+Restart=always
 
 [Install]
 Alias=display-manager.service
