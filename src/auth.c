@@ -23,9 +23,10 @@
 #include "ui.h"
 #include "util.h"
 
-#define DEFAULT_XORG_DISPLAY 0
 // no PATH search for now
 #define XORG_COMMAND "/usr/bin/X"
+
+#define XORG_MESSAGE_LENGTH 16
 
 static void try_source_file(struct Vector* NNULLABLE vec_envlist,
                             char* NNULLABLE filepath) {
@@ -98,62 +99,103 @@ struct child_msg {
   bool err;
 };
 
-// TODO: OR check if xorg_pid fail exited
-static int wait_for_x_ready(const int xorg_pipefd[1], __pid_t xorg_pid) {
-  // TODO
-  UNUSED(xorg_pipefd);
-  UNUSED(xorg_pid);
-  sleep(2);
-  return 0;
+/// block until X returns the display number or an error occurs
+static bool x_get_display(const int xorg_pipefd[2], int* display) {
+  char buffer[XORG_MESSAGE_LENGTH];
+  bool status;
+
+  close(xorg_pipefd[1]);
+  ssize_t bytes_read = read(xorg_pipefd[0], buffer, sizeof(buffer) - 1);
+  buffer[bytes_read] = '\0';
+
+  if (bytes_read > 0) {
+    char* endptr;
+    int val = (int) strtol(buffer, &endptr, 10);
+    if (endptr == buffer) {
+      (void)fputs("failed to parse Xorg display response\n", stderr);
+      status = false;
+    } else {
+      *display = val;
+      status = true;
+    }
+  } else if (bytes_read == 0) {
+    (void)fputs("Xorg pipe closed\n", stderr);
+    status = false;
+  } else {
+    perror("read");
+    status = false;
+  }
+
+  close(xorg_pipefd[0]);
+  return status;
+}
+
+/// small helper to push dyn arr
+static void push_dyn_arr(void*** arr, void* item) {
+  struct Vector vec = vec_from_raw(*arr);
+  vec_push(&vec, item);
+  *arr = vec_as_raw(vec);
 }
 
 // TODO: properly pass this down
 extern int vt;
 // TODO: add error msgs
+/// returns on completion
 static void launch_with_xorg_server(struct session_exec* NNULLABLE exec,
                                     struct passwd* pw,
                                     char** NNULLABLE envlist) {
   int xorg_pipefd[2];
-  pipe(xorg_pipefd);
-  (void)fflush(NULL);
+  if (pipe(xorg_pipefd) == -1) _exit(EXIT_FAILURE);
+
   __pid_t xorg_pid = fork();
   if (xorg_pid == 0) {
+    close(xorg_pipefd[0]);
     if (!pw->pw_dir) _exit(EXIT_FAILURE);
     // !!!!!!!!!! ATTENTION: this fails silently, of course add failure msgs but
     // for now I can't so be careful
     if (vt == -1) _exit(EXIT_FAILURE);
 
-    char* display_thing;
-    asprintf(&display_thing, ":%d", DEFAULT_XORG_DISPLAY);
-    if (!display_thing) _exit(EXIT_FAILURE);
+    // pass the pipe so Xorg can write the DISPLAY value in there
+    char* fd_str;
+    asprintf(&fd_str, "%d", xorg_pipefd[1]);
+    if (!fd_str) _exit(EXIT_FAILURE);
 
     char* vt_path;
     asprintf(&vt_path, "vt%d", vt);
     if (!vt_path) {
-      free(display_thing);
+      free(fd_str);
       _exit(EXIT_FAILURE);
     }
 
-    // dup2(xorg_pipefd[1], STDERR_FILENO);
-    // dup2(xorg_pipefd[1], STDOUT_FILENO);
-    // close(xorg_pipefd[0]);
-    // close(xorg_pipefd[1]);
-
-    int exit = execle(XORG_COMMAND, XORG_COMMAND, display_thing, vt_path, NULL,
-                      envlist);
+    int exit = execle(XORG_COMMAND, XORG_COMMAND, "-displayfd", fd_str, vt_path,
+        NULL, envlist);
     perror("exec");
-    // execle("X", "X", display_thing, vt_path, "-auth", xauth_path,
-    //        "-nolisten", "tcp", "-background", "none", NULL, envlist);
-
-    printf("wtf3\n");
-    (void)fflush(stdout);
 
     free(vt_path);
-    free(display_thing);
+    free(fd_str);
     _exit(exit);
   }
 
-  wait_for_x_ready(xorg_pipefd, xorg_pid);
+  int display = 0;
+  if (!x_get_display(xorg_pipefd, &display)) {
+    (void)fputs("failed to get X display, aborting\n", stderr);
+    int status;
+    waitpid(xorg_pid, &status, 0);
+    _exit(EXIT_FAILURE);
+  }
+
+  char* display_env;
+  asprintf(&display_env, "DISPLAY=:%d", display);
+  if (!display_env) {
+    (void)fputs("failure allocating memory for DISPLAY string\n", stderr);
+    _exit(EXIT_FAILURE);
+  }
+  // convert back for convenient push-ing
+  push_dyn_arr((void***)&envlist, display_env);
+  if (!envlist) {
+    (void)fputs("failure allocating memory for DISPLAY env\n", stderr);
+    _exit(EXIT_FAILURE);
+  }
 
   __pid_t xorg_session_pid = fork();
   if (xorg_session_pid == 0) {
@@ -175,10 +217,6 @@ static void launch_with_xorg_server(struct session_exec* NNULLABLE exec,
 
       kill(pid_to_kill, SIGTERM);
       waitpid(pid_to_kill, &status, 0);
-      printf("wtf %d, x%d s%d - k%d\n", status, xorg_pid, xorg_session_pid,
-             pid_to_kill);
-      (void)fflush(stdout);
-      sleep(10);
 
       break;
     }
@@ -218,6 +256,7 @@ inline static void forked(int pipefd[2], struct passwd* pw,
 
   if (session->type == XORG) {
     launch_with_xorg_server(&session->exec, pw, envlist);
+    _exit(EXIT_SUCCESS);
   } else {
     int exit = session_exec_exec(&session->exec, envlist);
     perror("exec error");
@@ -259,16 +298,6 @@ bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
   }
 
   struct Vector envlist_vec = vec_from_raw((void**)env_ret.envlist);
-
-  if (session.type == XORG) {
-    char* display_env;
-    asprintf(&display_env, "DISPLAY=:%d", DEFAULT_XORG_DISPLAY);
-    if (!display_env) {
-      print_err("alloc error");
-      return false;
-    }
-    vec_push(&envlist_vec, display_env);
-  }
 
   source_paths(&envlist_vec, &config->behavior.source, pw->pw_dir,
                &config->behavior.user_source);

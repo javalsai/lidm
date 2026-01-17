@@ -186,6 +186,7 @@ void ui_update_ofield(struct opts_field* NNULLABLE self) {
   ui_update_field(input);
 }
 
+/// draw everything
 void scratch_print_ui() {
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &window);
   box_start = (struct uint_point){
@@ -313,6 +314,8 @@ int load(struct Vector* users, struct Vector* sessions) {
                       &restore_all, g_config)) {
             print_passwd(utf8len(of_passwd.efield.content), true);
             ui_update_cursor_focus();
+          } else {
+            scratch_print_ui();
           }
         } else if (ansi_key == A_UP || ansi_key == A_DOWN) {
           st_ch_focus(ansi_key == A_DOWN ? 1 : -1);
@@ -336,6 +339,8 @@ int load(struct Vector* users, struct Vector* sessions) {
                     &restore_all, g_config)) {
           print_passwd(utf8len(of_passwd.efield.content), true);
           ui_update_cursor_focus();
+        } else {
+          scratch_print_ui();
         }
       } else
         st_kbd_type(seq, g_config->behavior.include_defshell);
