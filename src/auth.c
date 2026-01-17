@@ -147,7 +147,7 @@ static void launch_with_xorg_server(struct session_exec* NNULLABLE exec,
   int xorg_pipefd[2];
   if (pipe(xorg_pipefd) == -1) _exit(EXIT_FAILURE);
 
-  __pid_t xorg_pid = fork();
+  pid_t xorg_pid = fork();
   if (xorg_pid == 0) {
     close(xorg_pipefd[0]);
     if (!pw->pw_dir) _exit(EXIT_FAILURE);
@@ -197,7 +197,7 @@ static void launch_with_xorg_server(struct session_exec* NNULLABLE exec,
     _exit(EXIT_FAILURE);
   }
 
-  __pid_t xorg_session_pid = fork();
+  pid_t xorg_session_pid = fork();
   if (xorg_session_pid == 0) {
     int exit = session_exec_exec(exec, envlist);
     perror("exec error");
@@ -207,11 +207,11 @@ static void launch_with_xorg_server(struct session_exec* NNULLABLE exec,
 
   // looks weird, waiting on -1 should wait on any child and then just check if
   // its xorg server or the session and kill the other waiting on it
-  __pid_t pid;
+  pid_t pid;
   int status; // not even read for now
   while ((pid = waitpid(-1, &status, 0)) > 0) {
     if (pid == xorg_pid || pid == xorg_session_pid) {
-      __pid_t pid_to_kill = pid ^ xorg_pid ^ xorg_session_pid;
+      pid_t pid_to_kill = pid ^ xorg_pid ^ xorg_session_pid;
       if (pid == xorg_pid) printf("Xorg server died\n");
       if (pid == xorg_session_pid) printf("Xorg session died\n");
 
