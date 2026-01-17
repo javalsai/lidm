@@ -17,7 +17,7 @@
 
 // returns NULL on any error
 // otherwise it returns the absolute path of the program that MUST BE FREED
-static char* NULLABLE search_path(const char* NNULLABLE for_binary) {
+char* NULLABLE search_path(const char* NNULLABLE for_binary) {
   if (strchr(for_binary, '/') != NULL) {
     // skip absolute paths
     return strdup(for_binary);

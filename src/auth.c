@@ -23,9 +23,6 @@
 #include "ui.h"
 #include "util.h"
 
-// no PATH search for now
-#define XORG_COMMAND "/usr/bin/X"
-
 #define XORG_MESSAGE_LENGTH 16
 
 static void try_source_file(struct Vector* NNULLABLE vec_envlist,
@@ -139,16 +136,8 @@ static void push_dyn_arr(void*** arr, void* item) {
 
 // TODO: properly pass this down
 extern int vt;
-// TODO: add error msgs
-/// returns on completion
-static void launch_with_xorg_server(struct session_exec* NNULLABLE exec,
-                                    struct passwd* pw,
-                                    char** NNULLABLE envlist) {
-  int xorg_pipefd[2];
-  if (pipe(xorg_pipefd) == -1) _exit(EXIT_FAILURE);
 
-  pid_t xorg_pid = fork();
-  if (xorg_pid == 0) {
+static void start_xorg_server(struct passwd* pw, char** NNULLABLE envlist, int xorg_pipefd[2]) {
     close(xorg_pipefd[0]);
     if (!pw->pw_dir) _exit(EXIT_FAILURE);
     // !!!!!!!!!! ATTENTION: this fails silently, of course add failure msgs but
@@ -167,13 +156,33 @@ static void launch_with_xorg_server(struct session_exec* NNULLABLE exec,
       _exit(EXIT_FAILURE);
     }
 
-    int exit = execle(XORG_COMMAND, XORG_COMMAND, "-displayfd", fd_str, vt_path,
+    char* xorg_path = search_path("Xorg");
+    if (!xorg_path) {
+      (void)fputs("couldn't find Xorg binary in PATH, sure it's installed?\n", stderr);
+      _exit(EXIT_FAILURE);
+    }
+
+    int exit = execle(xorg_path, xorg_path, "-displayfd", fd_str, vt_path,
                       NULL, envlist);
     perror("exec");
 
     free(vt_path);
     free(fd_str);
+    free(xorg_path);
     _exit(exit);
+}
+
+// TODO: add error msgs
+/// returns on completion
+static void launch_with_xorg_server(struct session_exec* NNULLABLE exec,
+                                    struct passwd* pw,
+                                    char** NNULLABLE envlist) {
+  int xorg_pipefd[2];
+  if (pipe(xorg_pipefd) == -1) _exit(EXIT_FAILURE);
+
+  pid_t xorg_pid = fork();
+  if (xorg_pid == 0) {
+    start_xorg_server(pw, envlist, xorg_pipefd);
   }
 
   int display = 0;
