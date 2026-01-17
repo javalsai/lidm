@@ -137,39 +137,41 @@ static void push_dyn_arr(void*** arr, void* item) {
 // TODO: properly pass this down
 extern int vt;
 
-static void start_xorg_server(struct passwd* pw, char** NNULLABLE envlist, int xorg_pipefd[2]) {
-    close(xorg_pipefd[0]);
-    if (!pw->pw_dir) _exit(EXIT_FAILURE);
-    // !!!!!!!!!! ATTENTION: this fails silently, of course add failure msgs but
-    // for now I can't so be careful
-    if (vt == -1) _exit(EXIT_FAILURE);
+static void start_xorg_server(struct passwd* pw, char** NNULLABLE envlist,
+                              int xorg_pipefd[2]) {
+  close(xorg_pipefd[0]);
+  if (!pw->pw_dir) _exit(EXIT_FAILURE);
+  // !!!!!!!!!! ATTENTION: this fails silently, of course add failure msgs but
+  // for now I can't so be careful
+  if (vt == -1) _exit(EXIT_FAILURE);
 
-    // pass the pipe so Xorg can write the DISPLAY value in there
-    char* fd_str;
-    asprintf(&fd_str, "%d", xorg_pipefd[1]);
-    if (!fd_str) _exit(EXIT_FAILURE);
+  // pass the pipe so Xorg can write the DISPLAY value in there
+  char* fd_str;
+  asprintf(&fd_str, "%d", xorg_pipefd[1]);
+  if (!fd_str) _exit(EXIT_FAILURE);
 
-    char* vt_path;
-    asprintf(&vt_path, "vt%d", vt);
-    if (!vt_path) {
-      free(fd_str);
-      _exit(EXIT_FAILURE);
-    }
-
-    char* xorg_path = search_path("Xorg");
-    if (!xorg_path) {
-      (void)fputs("couldn't find Xorg binary in PATH, sure it's installed?\n", stderr);
-      _exit(EXIT_FAILURE);
-    }
-
-    int exit = execle(xorg_path, xorg_path, "-displayfd", fd_str, vt_path,
-                      NULL, envlist);
-    perror("exec");
-
-    free(vt_path);
+  char* vt_path;
+  asprintf(&vt_path, "vt%d", vt);
+  if (!vt_path) {
     free(fd_str);
-    free(xorg_path);
-    _exit(exit);
+    _exit(EXIT_FAILURE);
+  }
+
+  char* xorg_path = search_path("Xorg");
+  if (!xorg_path) {
+    (void)fputs("couldn't find Xorg binary in PATH, sure it's installed?\n",
+                stderr);
+    _exit(EXIT_FAILURE);
+  }
+
+  int exit = execle(xorg_path, xorg_path, "-displayfd", fd_str, vt_path, NULL,
+                    envlist);
+  perror("exec");
+
+  free(vt_path);
+  free(fd_str);
+  free(xorg_path);
+  _exit(exit);
 }
 
 // TODO: add error msgs
