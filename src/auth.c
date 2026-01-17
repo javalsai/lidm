@@ -110,7 +110,7 @@ static bool x_get_display(const int xorg_pipefd[2], int* display) {
 
   if (bytes_read > 0) {
     char* endptr;
-    int val = (int) strtol(buffer, &endptr, 10);
+    int val = (int)strtol(buffer, &endptr, 10);
     if (endptr == buffer) {
       (void)fputs("failed to parse Xorg display response\n", stderr);
       status = false;
@@ -168,7 +168,7 @@ static void launch_with_xorg_server(struct session_exec* NNULLABLE exec,
     }
 
     int exit = execle(XORG_COMMAND, XORG_COMMAND, "-displayfd", fd_str, vt_path,
-        NULL, envlist);
+                      NULL, envlist);
     perror("exec");
 
     free(vt_path);
