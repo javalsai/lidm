@@ -180,6 +180,7 @@ static void launch_with_xorg_server(struct session_exec* NNULLABLE exec,
   int xorg_pipefd[2];
   if (pipe(xorg_pipefd) == -1) _exit(EXIT_FAILURE);
 
+  (void)fflush(NULL);
   pid_t xorg_pid = fork();
   if (xorg_pid == 0) {
     start_xorg_server(pw, envlist, xorg_pipefd);
@@ -206,6 +207,7 @@ static void launch_with_xorg_server(struct session_exec* NNULLABLE exec,
     _exit(EXIT_FAILURE);
   }
 
+  (void)fflush(NULL);
   pid_t xorg_session_pid = fork();
   if (xorg_session_pid == 0) {
     int exit = session_exec_exec(exec, envlist);
