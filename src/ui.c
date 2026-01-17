@@ -202,7 +202,7 @@ void scratch_print_ui() {
     return;
   }
 
-  printf("\033[2J\033[H"); // Clear screen
+  printf("\033[2J\033[H\033c"); // Clear screen
 
   /// PRINTING
   // printf box
