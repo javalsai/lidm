@@ -17,10 +17,10 @@ LDFLAGS?=-Wl,--gc-sections
 
 LIBS=-lpam
 
-_DEPS = version.h log.h util.h ui.h ui_state.h config.h pam.h desktop.h desktop_exec.h auth.h ofield.h efield.h keys.h users.h sessions.h chvt.h macros.h launch_state.h
+_DEPS = version.h log.h util.h ui.h ui_state.h config.h pam.h desktop.h desktop_exec.h auth.h ofield.h efield.h keys.h users.h sessions.h chvt.h macros.h launch_state.h signal_handler.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = main.o log.o util.o ui.o ui_state.o config.o pam.o desktop.o desktop_exec.o auth.o ofield.o efield.o users.o sessions.o chvt.o launch_state.o
+_OBJ = main.o log.o util.o ui.o ui_state.o config.o pam.o desktop.o desktop_exec.o auth.o ofield.o efield.o users.o sessions.o chvt.o launch_state.o signal_handler.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 INFO_GIT_REV?=$$(git describe --long --tags --always || echo '?')
