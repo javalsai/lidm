@@ -3,9 +3,10 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-static void handle_sigterm(int) {
-  signal(SIGTERM, SIG_IGN);
+static void handle_sigterm(int sig) {
+  (void)sig;
 
+  (void)signal(SIGTERM, SIG_IGN);
   kill(-getpgrp(), SIGTERM);
 
   int status;
