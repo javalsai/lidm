@@ -3,6 +3,8 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "signal_handler.h"
+
 static void handle_sigterm(int sig) {
   (void)sig;
 
