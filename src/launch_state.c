@@ -22,7 +22,7 @@ int read_launch_state(struct LaunchState* NNULLABLE state) {
 
   size_t num = 0;
   ssize_t chars = getline(&state->username, &num, state_fd);
-  if (chars  < 0) goto fail;
+  if (chars < 0) goto fail;
   if (state->username[chars] == '\n') state->username[chars] = 0;
 
   num = 0;
