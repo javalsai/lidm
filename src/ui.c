@@ -67,6 +67,11 @@ static void process_sigwinch(int signal) {
   need_resize = 1;
 }
 
+inline void draw_bg() {
+  // apply bg color to all screen
+  printf("\x1b[%sm\x1b[2J", g_config->colors.bg);
+}
+
 void setup(struct config* config) {
   g_config = config;
 
@@ -76,10 +81,9 @@ void setup(struct config* config) {
   term.c_lflag &= ~(ICANON | ECHO);
   tcsetattr(STDOUT_FILENO, TCSANOW, &term);
 
-  // save cursor pos, save screen, set color and reset screen
-  // (applying color to all screen)
-  printf("\x1b[s\x1b[?47h\x1b[%s;%sm\x1b[2J", g_config->colors.bg,
-         g_config->colors.fg);
+  // save cursor pos, save screen
+  printf("\x1b[s\x1b[?47h");
+  draw_bg();
 
   (void)atexit(restore_all);
   (void)signal(SIGINT, signal_handler);
@@ -202,9 +206,8 @@ void scratch_print_ui() {
     return;
   }
 
-  // printf("\033[2J\033[H\033c");
-  // don't "\x1bc" because that clears the bg color too
-  printf("\033[2J\033[H"); // Clear screen
+  printf("\033[2J\033[H\033c"); // Clear screen
+  draw_bg();
 
   /// PRINTING
   // printf box
