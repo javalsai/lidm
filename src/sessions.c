@@ -20,13 +20,19 @@ struct source_dir {
 #ifndef SESSIONS_XSESSIONS
   #define SESSIONS_XSESSIONS "/usr/share/xsessions"
 #endif
+#ifndef SESSIONS_XSESSIONS_LOCAL
+  #define SESSIONS_XSESSIONS_LOCAL "/usr/local/share/xsessions"
+#endif
 #ifndef SESSIONS_WAYLAND
   #define SESSIONS_WAYLAND "/usr/share/wayland-sessions"
 #endif
-static const struct source_dir SOURCES[] = {
-    {XORG, SESSIONS_XSESSIONS},
-    {WAYLAND, SESSIONS_WAYLAND},
-};
+#ifndef SESSIONS_WAYLAND_LOCAL
+  #define SESSIONS_WAYLAND_LOCAL "/usr/local/share/wayland-sessions"
+#endif
+static const struct source_dir SOURCES[] = {{XORG, SESSIONS_XSESSIONS},
+                                            {XORG, SESSIONS_XSESSIONS_LOCAL},
+                                            {WAYLAND, SESSIONS_WAYLAND},
+                                            {WAYLAND, SESSIONS_WAYLAND_LOCAL}};
 
 static struct Vector* cb_sessions = NULL;
 

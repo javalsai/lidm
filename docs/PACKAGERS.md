@@ -21,12 +21,14 @@ make \
 
 The list of possible `#define`s is:
 
-| Name                   | Default                         | Description                                                                | Env Override?            |
-| ---------------------- | ------------------------------- | -------------------------------------------------------------------------- | ------------------------ |
-| `PAM_SERVICE_FALLBACK` | `"login"`                       | Name of the default PAM module to use. Defaults to the distro's `"login"`. | Yes (`LIDM_PAM_SERVICE`) |
-| `SESSIONS_XSESSIONS`   | `"/usr/share/xsessions"`        |                                                                            | No                       |
-| `SESSIONS_WAYLAND`     | `"/usr/share/wayland-sessions"` |                                                                            | No                       |
-| `LIDM_CONF_PATH`       | `"/etc/lidm.ini"`               | Path of the default configuration.                                         | Yes (`LIDM_CONF`)        |
+| Name                       | Default                               | Description                                                                | Env Override?            |
+| -------------------------- | ------------------------------------- | -------------------------------------------------------------------------- | ------------------------ |
+| `PAM_SERVICE_FALLBACK`     | `"login"`                             | Name of the default PAM module to use. Defaults to the distro's `"login"`. | Yes (`LIDM_PAM_SERVICE`) |
+| `SESSIONS_XSESSIONS`       | `"/usr/share/xsessions"`              |                                                                            | No                       |
+| `SESSIONS_XSESSIONS_LOCAL` | `"/usr/local/share/xsessions"`        |                                                                            | No                       |
+| `SESSIONS_WAYLAND`         | `"/usr/share/wayland-sessions"`       |                                                                            | No                       |
+| `SESSIONS_WAYLAND_LOCAL`   | `"/usr/local/share/wayland-sessions"` |                                                                            | No                       |
+| `LIDM_CONF_PATH`           | `"/etc/lidm.ini"`                     | Path of the default configuration.                                         | Yes (`LIDM_CONF`)        |
 
 # Other Build Settings
 
