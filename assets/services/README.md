@@ -13,7 +13,7 @@ The manual steps for installation are:
 
 ## Systemd
 
-- Copy `systemd.service` to `/usr/local/lib/systemd/system/lidm.service` (if the directory doesn't exist, create it first)
+- Copy `systemd.service` to `/usr/local/lib/systemd/system/lidm.service` (if the directory doesn't exist, create it first) or `/usr/lib/systemd/system/lidm.service` (if you wish to install along your system files).
 - To enable it you can run `systemctl enable lidm`
 
 ## Dinit
@@ -23,8 +23,10 @@ The manual steps for installation are:
 
 ## Runit
 
-- Copy `runit/` to `/etc/runit/sv/lidm/`
-- Add the service with `ln -s /etc/runit/sv/lidm /run/runit/service`
+Your runit service path can be either `/etc/runit/sv` or `/etc/sv`.
+
+- Copy `runit/` to `runit-path/lidm/`
+- Add the service with `ln -s runit-path/lidm /run/runit/service`
 - And to enable it `sv enable lidm`
 
 ## OpenRC
@@ -34,7 +36,9 @@ The manual steps for installation are:
 
 ## S6
 
-- Copy `s6/` to `/etc/s6/sv/lidm/`
+Your S6 service path can be either `/etc/s6/sv` or `/etc/sv`.
+
+- Copy `s6/` to `s6-path/lidm/`
 - Add the service with `s6-service add default lidm`
 - Reload the database with `s6-db-reload` (you might have to run this every time the service file changes)
 

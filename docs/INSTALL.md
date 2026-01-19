@@ -131,6 +131,8 @@ Then you can install the files onto your filesystem with:
 make install
 ```
 
+This will install mostly into `/usr/local` by default, this path is mostly unused nowadays and could feel like lidm didn't install at all. You can add `PREFIX=/usr` to install along the rest of your system packages if you wish.
+
 And additionally, to install service files (start-up behavior). <sup>[more docs](../assets/services/README.md)</sup>
 
 ```sh

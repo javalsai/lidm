@@ -6,7 +6,7 @@ LDIR=lib
 IDIR=include
 ODIR=dist
 
-PREFIX=/usr
+PREFIX=/usr/local
 
 CC?=gcc
 CFLAGS?=-O3 -Wall -Wextra -fdata-sections -ffunction-sections
@@ -47,7 +47,6 @@ lidm: $(OBJ)
 clean:
 	rm -f $(ODIR)/*.o lidm
 
-# Copy lidm to ${DESTDIR}${PREFIX}/bin (/usr/bin)
 install: lidm
 	mkdir -p ${DESTDIR}${PREFIX}/bin ${DESTDIR}${PREFIX}/share/man/man{1,5}
 	install -Dm755 ./lidm ${DESTDIR}${PREFIX}/bin/
@@ -57,8 +56,14 @@ install: lidm
 
 uninstall:
 	rm -rf ${DESTDIR}${PREFIX}/bin/lidm ${DESTDIR}/etc/lidm.ini
-	rm -rf ${DESTDIR}/usr/share/man/man{1/lidm.1,5/lidm-config.5}.gz
-	rm -rf ${DESTDIR}/usr/local/lib/systemd/system/lidm.service ${DESTDIR}/etc/dinit.d/lidm ${DESTDIR}/etc/runit/sv/lidm
+	rm -rf ${DESTDIR}${PREFIX}/share/man/man{1/lidm.1,5/lidm-config.5}.gz
+	rm -rf \
+		${DESTDIR}${PREFIX}/lib/systemd/system/lidm.service \
+		${DESTDIR}/etc/dinit.d/lidm \
+		${DESTDIR}/etc/sv/lidm \
+		${DESTDIR}/etc/runit/sv/lidm \
+		${DESTDIR}/etc/init.d/lidm \
+		${DESTDIR}/etc/s6/sv/lidm
 
 install-service:
 	@if command -v systemctl &> /dev/null; then \
@@ -88,13 +93,13 @@ install-service:
 	fi
 
 install-service-systemd:
-	install -Dm644 ./assets/services/systemd.service ${DESTDIR}/usr/local/lib/systemd/system/lidm.service
+	install -Dm644 ./assets/services/systemd.service ${DESTDIR}${PREFIX}/lib/systemd/system/lidm.service
 	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'systemctl enable lidm'"
 install-service-dinit:
 	install -m644 ./assets/services/dinit ${DESTDIR}/etc/dinit.d/lidm
 	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'dinitctl enable lidm'"
 install-service-runit:
-	@if [ ! -e /etc/sv ] && [ -d /etc/runit/sv ] && [ -z "$FORCE" ]; then \
+	@if [ ! -e /etc/sv ] && [ -d /etc/runit/sv ] && [ -z "$$FORCE" ]; then \
 		printf '\033[31m%s\033[0m\n' "/etc/sv doesn't exist but /etc/runit/sv does" >&2; \
 		printf '\033[31m%s\033[0m\n' "you probably meant to 'make install-service-runit-etc'" >&2; \
 		exit 1; \
@@ -103,7 +108,7 @@ install-service-runit:
 	cp -r --update=all ./assets/services/runit/* ${DESTDIR}/etc/sv/lidm/
 	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'ln -s ${DESTDIR}/etc/sv/lidm /var/service' or your distro equivalent"
 install-service-runit-etc:
-	@if [ ! -e /etc/runit/sv ] && [ -d /etc/sv ] && [ -z "$FORCE" ]; then \
+	@if [ ! -e /etc/runit/sv ] && [ -d /etc/sv ] && [ -z "$$FORCE" ]; then \
 		printf '\033[31m%s\033[0m\n' "/etc/runit/sv doesn't exist but /etc/sv does" >&2; \
 		printf '\033[31m%s\033[0m\n' "you probably meant to 'make install-service-runit'" >&2; \
 		exit 1; \
@@ -115,7 +120,7 @@ install-service-openrc:
 	install -m755 ./assets/services/openrc ${DESTDIR}/etc/init.d/lidm
 	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'rc-update add lidm'"
 install-service-s6:
-	@if [ ! -e /etc/sv ] && [ -d /etc/s6/sv ] && [ -z "$FORCE" ]; then \
+	@if [ ! -e /etc/sv ] && [ -d /etc/s6/sv ] && [ -z "$$FORCE" ]; then \
 		printf '\033[31m%s\033[0m\n' "/etc/sv doesn't exist but /etc/s6/sv does" >&2; \
 		printf '\033[31m%s\033[0m\n' "you probably meant to 'make install-service-s6-etc'" >&2; \
 		exit 1; \
@@ -124,7 +129,7 @@ install-service-s6:
 	cp -r --update=all ./assets/services/s6/* ${DESTDIR}/etc/sv/lidm/
 	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 's6-service add default lidm' and 's6-db-reload'"
 install-service-s6-etc:
-	@if [ ! -e /etc/s6/sv ] && [ -d /etc/sv ] && [ -z "$FORCE" ]; then \
+	@if [ ! -e /etc/s6/sv ] && [ -d /etc/sv ] && [ -z "$$FORCE" ]; then \
 		printf '\033[31m%s\033[0m\n' "/etc/s6/sv doesn't exist but /etc/sv does" >&2; \
 		printf '\033[31m%s\033[0m\n' "you probably meant to 'make install-service-s6'" >&2; \
 		exit 1; \
