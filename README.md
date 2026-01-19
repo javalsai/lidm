@@ -44,6 +44,7 @@ kmscon -l --vt /dev/tty7 --font-name "Cascadia Code" -- /usr/bin/lidm
 - [Configuring](#configuring)
 - [PAM](#pam)
 - [Contributing](#contributing)
+- [License](#license)
 - [Inspiration](#inspiration)
 - [Contributors](#contributors)
 
@@ -116,6 +117,10 @@ When the env variable is empty it defaults to the `login` PAM service or whateve
 # Contributing
 
 If you want to contribute check the [contribution guide](docs/CONTRIBUTING.md).
+
+# License
+
+This project is licensed under the GNU General Public License v3.0 **only**.
 
 # Inspiration
 
