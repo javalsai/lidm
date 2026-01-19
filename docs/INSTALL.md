@@ -1,68 +1,46 @@
 # Table of Contents
 
+- [Packages](#packages)
+    - [Fedora](#fedora)
+    - [AUR](#aur)
+    - [Nix Flake](#nix-flake)
+    - [Nix Module](#nix-module)
 - [Installing from Source](#installing-from-source)
-- [Fedora](#fedora)
-- [AUR](#aur)
-- [Nix Flake](#nix-flake)
-- [Nix Module](#nix-module)
 
-> [!CAUTION]
-> I encourage you to read the manual installation steps to understand what will get installed in your computer by this package.
+# Packages
 
-# Installing from Source
+Lidm relies on its community to package lidm for distributions and make the installation easier for everyone. Please raise any issues on the packages themselves and not the source repository.
 
-Firstly, you'll need to build the package, this also includes man pages, default config, themes and other files you might need.
+If you packaged lidm for any distribution not listed here or keep your own version of an inactive package, feel free to contact me to be added here. (could be a GitHub discussion or an email if you don't use GitHub)
 
-To build it you only need to have some basic packages (should come pre-installed in almost all distros): `make`, `gcc` or another `gcc`ish compiler, and libpam headers. If it builds, it surely works anyways.
+These packages just install lidm, once installed you have to enable it. It depends on your init system, but if you're using systemd (most likely), first find your currently active display manager (if any, examples are `sddm`, `gdm`, `ly`) and disable it:
 
 ```sh
-git clone https://github.com/javalsai/lidm.git
-cd lidm
-make # 👍
+systemctl disable <display manager name here>
 ```
 
-> [!NOTE]
-> There's pre-built binaries on the [releases tab](https://github.com/javalsai/lidm/releases) too.
-
-Then you can install the files onto your filesystem with:
+And then enable lidm:
 
 ```sh
-make install
+systemctl enable lidm
 ```
 
-And additionally, to install service files (start-up behavior). <sup>[more docs](../assets/services/README.md)</sup>
+Lidm now should show on the next boot!
 
-```sh
-# automatically detects your init system
-# and install service file (for tty7)
-make install-service
+If you are on a TTY and don't wish to reboot, you should be able to use `--now` with both commands. It's likely to kill your current desktop evironment if it was launched from it.
 
-# or if you don't like autodetection
-make install-service-systemd # systemd
-make install-service-dinit # dinit
-make install-service-runit # runit (/etc/sv)
-make install-service-runit-etc # runit (/etc/runit/sv)
-make install-service-openrc # openrc
-make install-service-s6 # s6 (/etc/sv)
-make install-service-s6-etc # s6 (/etc/s6/sv)
-
-#  For runit and s6, some distros (e.g. Artix) like to put it in /etc/<init>/sv
-# to better isolate their packages while other distros (e.g. Void) just put it
-# in /etc/sv
-```
-
-# Fedora
+## Fedora
 
 Thanks to @KernelFreeze there's a COPR repo available at <https://copr.fedorainfracloud.org/coprs/celestelove/lidm/> to install lidm. (<https://github.com/javalsai/lidm/discussions/92>)
 
-# AUR
+## AUR
 
 [AUR packages](https://aur.archlinux.org/packages?K=lidm&SeB=n) will automatically install most files.
 
 > [!CAUTION]
 > [service files](../assets/pkg/aur#services) have to be manually installed by now.
 
-# Nix Flake
+## Nix Flake
 
 You can install by doing
 
@@ -79,7 +57,7 @@ nix run github:javalsai/lidm
 > [!CAUTION]
 > This doesn't include [service files](../assets/pkg/aur#services) neither
 
-# Nix Module
+## Nix Module
 
 <details>
 <summary>Sidenote</summary>
@@ -131,3 +109,45 @@ with config.lidm.keysEnum; {
 
 > [!NOTE]
 > [service files](../assets/pkg/aur#services) **are** included and enabled
+
+# Installing from Source
+
+Firstly, you'll need to build the package, this also includes man pages, default config, themes and other files you might need.
+
+To build it you only need to have some basic packages (should come pre-installed in almost all distros): `make`, `gcc` or another `gcc`ish compiler, and libpam headers. If it builds, it surely works anyways.
+
+```sh
+git clone https://github.com/javalsai/lidm.git
+cd lidm
+make # 👍
+```
+
+> [!NOTE]
+> There's pre-built binaries on the [releases tab](https://github.com/javalsai/lidm/releases) too.
+
+Then you can install the files onto your filesystem with:
+
+```sh
+make install
+```
+
+And additionally, to install service files (start-up behavior). <sup>[more docs](../assets/services/README.md)</sup>
+
+```sh
+# automatically detects your init system
+# and install service file (for tty7)
+make install-service
+
+# or if you don't like autodetection
+make install-service-systemd # systemd
+make install-service-dinit # dinit
+make install-service-runit # runit (/etc/sv)
+make install-service-runit-etc # runit (/etc/runit/sv)
+make install-service-openrc # openrc
+make install-service-s6 # s6 (/etc/sv)
+make install-service-s6-etc # s6 (/etc/s6/sv)
+
+#  For runit and s6, some distros (e.g. Artix) like to put it in /etc/<init>/sv
+# to better isolate their packages while other distros (e.g. Void) just put it
+# in /etc/sv
+```
