@@ -1,6 +1,7 @@
 # Table of Contents
 
 - [Installing from Source](#installing-from-source)
+- [Fedora](#fedora)
 - [AUR](#aur)
 - [Nix Flake](#nix-flake)
 - [Nix Module](#nix-module)
@@ -49,6 +50,10 @@ make install-service-s6-etc # s6 (/etc/s6/sv)
 # to better isolate their packages while other distros (e.g. Void) just put it
 # in /etc/sv
 ```
+
+# Fedora
+
+Thanks to @KernelFreeze there's a COPR repo available at <https://copr.fedorainfracloud.org/coprs/celestelove/lidm/> to install lidm. (<https://github.com/javalsai/lidm/discussions/92>)
 
 # AUR
 
