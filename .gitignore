@@ -8,5 +8,3 @@ valgrind-out.txt
 
 # nix build result
 result
-
-include/version.h

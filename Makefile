@@ -1,41 +1,32 @@
 VERSION = 1.2.3
 .DEFAULT_GOAL := lidm
 
-CDIR=src
-LDIR=lib
-IDIR=include
-ODIR=dist
+CDIR = src
+LDIR = lib
+IDIR = include
+ODIR = dist
 
-PREFIX=/usr/local
+PREFIX = /usr/local
 
-CC?=gcc
-CFLAGS?=-O3 -Wall -Wextra -fdata-sections -ffunction-sections
+INFO_GIT_REV ?= $(shell git describe --long --tags --always || echo '?')
+INFO_BUILD_TS ?= $(shell date +%s)
+
+CFLAGS ?= -O3 -Wall -Wextra -fdata-sections -ffunction-sections
 # C PreProcessor flags, not C Plus Plus
-CPPFLAGS?=
-ALLFLAGS=$(CFLAGS) $(CPPFLAGS) -I$(IDIR)
-LDFLAGS?=-Wl,--gc-sections
+CPPFLAGS ?=
+_DFLAGS?= \
+	-DLIDM_VERSION=\"$(VERSION)\" \
+	-DLIDM_GIT_REV=\"$(INFO_GIT_REV)\" \
+	-DLIDM_BUILD_TS=$(INFO_BUILD_TS)
+ALLFLAGS = $(_DFLAGS) $(CFLAGS) $(CPPFLAGS) -I$(IDIR)
+LDFLAGS ?= -Wl,--gc-sections
 
-LIBS=-lpam
+LIBS = -lpam
 
-_DEPS = version.h log.h util.h ui.h ui_state.h config.h pam.h desktop.h desktop_exec.h auth.h ofield.h efield.h keys.h users.h sessions.h chvt.h macros.h launch_state.h signal_handler.h
-DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
-
-_OBJ = main.o log.o util.o ui.o ui_state.o config.o pam.o desktop.o desktop_exec.o auth.o ofield.o efield.o users.o sessions.o chvt.o launch_state.o signal_handler.o
-OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
-
-INFO_GIT_REV?=$$(git describe --long --tags --always || echo '?')
-INFO_BUILD_TS?=$$(date +%s)
-
-$(IDIR)/version.h: Makefile
-	@tmp=$$(mktemp); \
-	printf '' > $$tmp; \
-	echo '#define LIDM_VERSION "'$(VERSION)'"' >> $$tmp; \
-	echo '#define LIDM_GIT_REV "'$(INFO_GIT_REV)'"' >> $$tmp; \
-	echo '#define LIDM_BUILD_TS '$(INFO_BUILD_TS) >> $$tmp; \
-	if ! cmp -s $$tmp $@; then \
-		mv $$tmp $@; \
-	fi; \
-	rm -f $$tmp;
+# includes all headers in `$(IDIR)` and compiles everything in `$(CDIR)`
+DEPS = $(wildcard $(IDIR)/*.h)
+_SOURCES = $(notdir $(wildcard $(CDIR)/*.c))
+OBJ = $(patsubst %.c,$(ODIR)/%.o,$(_SOURCES))
 
 $(ODIR)/%.o: $(CDIR)/%.c $(DEPS)
 	@mkdir -p $(ODIR)
