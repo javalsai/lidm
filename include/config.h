@@ -8,7 +8,7 @@
 #include "macros.h"
 #include "util.h"
 
-enum introspection_type {
+enum IntrospectionType {
   STRING,
   BOOL,
   NUMBER,
@@ -26,7 +26,7 @@ static const char* NNULLABLE const INTROS_TYS_NAMES[] = {
 struct introspection_item {
   char* NNULLABLE name;
   size_t offset;
-  enum introspection_type typ;
+  enum IntrospectionType typ;
 };
 
 #define INTROS_ITEM(key, table, ty)   \
@@ -90,10 +90,10 @@ BUILD(colors, COLORS, TABLE_COLORS);
 BUILD(chars, CHARS, TABLE_CHARS);
 
 #define TABLE_FUNCTIONS(F, name)        \
-  F(enum keys, poweroff, KEY, F1, name) \
-  F(enum keys, reboot, KEY, F2, name)   \
-  F(enum keys, fido, KEY, NONE, name)   \
-  F(enum keys, refresh, KEY, F5, name)
+  F(enum Keys, poweroff, KEY, F1, name) \
+  F(enum Keys, reboot, KEY, F2, name)   \
+  F(enum Keys, fido, KEY, NONE, name)   \
+  F(enum Keys, refresh, KEY, F5, name)
 
 BUILD(functions, FUNCTIONS, TABLE_FUNCTIONS);
 
@@ -152,15 +152,15 @@ struct introspection_table {
 
 static const struct introspection_table CONFIG_INSTROSPECTION[] = {
     {"colors", offsetof(struct config, colors), INTROS_TABLE_COLORS,
-     sizeof(INTROS_TABLE_COLORS) / sizeof(INTROS_TABLE_COLORS[0])},
+     LEN(INTROS_TABLE_COLORS)},
     {"chars", offsetof(struct config, chars), INTROS_TABLE_CHARS,
-     sizeof(INTROS_TABLE_CHARS) / sizeof(INTROS_TABLE_CHARS[0])},
+     LEN(INTROS_TABLE_CHARS)},
     {"functions", offsetof(struct config, functions), INTROS_TABLE_FUNCTIONS,
-     sizeof(INTROS_TABLE_FUNCTIONS) / sizeof(INTROS_TABLE_FUNCTIONS[0])},
+     LEN(INTROS_TABLE_FUNCTIONS)},
     {"strings", offsetof(struct config, strings), INTROS_TABLE_STRINGS,
-     sizeof(INTROS_TABLE_STRINGS) / sizeof(INTROS_TABLE_STRINGS[0])},
+     LEN(INTROS_TABLE_STRINGS)},
     {"behavior", offsetof(struct config, behavior), INTROS_TABLE_BEHAVIOR,
-     sizeof(INTROS_TABLE_BEHAVIOR) / sizeof(INTROS_TABLE_BEHAVIOR[0])},
+     LEN(INTROS_TABLE_BEHAVIOR)},
 };
 
 //// FUNCTIONS

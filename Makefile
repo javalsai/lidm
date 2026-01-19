@@ -9,17 +9,18 @@ ODIR=dist
 PREFIX=/usr
 
 CC?=gcc
-CFLAGS?=-O3 -Wall
+CFLAGS?=-O3 -Wall -Wextra -fdata-sections -ffunction-sections
 # C PreProcessor flags, not C Plus Plus
 CPPFLAGS?=
 ALLFLAGS=$(CFLAGS) $(CPPFLAGS) -I$(IDIR)
+LDFLAGS?=-Wl,--gc-sections
 
 LIBS=-lpam
 
-_DEPS = version.h log.h util.h ui.h ui_state.h config.h desktop.h desktop_exec.h auth.h ofield.h efield.h keys.h users.h sessions.h chvt.h macros.h launch_state.h
+_DEPS = version.h log.h util.h ui.h ui_state.h config.h pam.h desktop.h desktop_exec.h auth.h ofield.h efield.h keys.h users.h sessions.h chvt.h macros.h launch_state.h signal_handler.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = main.o log.o util.o ui.o ui_state.o config.o desktop.o desktop_exec.o auth.o ofield.o efield.o users.o sessions.o chvt.o launch_state.o
+_OBJ = main.o log.o util.o ui.o ui_state.o config.o pam.o desktop.o desktop_exec.o auth.o ofield.o efield.o users.o sessions.o chvt.o launch_state.o signal_handler.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 INFO_GIT_REV?=$$(git describe --long --tags --always || echo '?')
@@ -41,7 +42,7 @@ $(ODIR)/%.o: $(CDIR)/%.c $(DEPS)
 	$(CC) -c -o $@ $< $(ALLFLAGS)
 
 lidm: $(OBJ)
-	$(CC) -o $@ $^ $(ALLFLAGS) $(LIBS)
+	$(CC) -o $@ $^ $(ALLFLAGS) $(LIBS) $(LDFLAGS)
 
 clean:
 	rm -f $(ODIR)/*.o lidm
@@ -137,8 +138,8 @@ pre-commit:
 	prettier -c "**/*.md"
 	git ls-files "*.sh" "*/PKGBUILD" | xargs shellcheck --shell=bash
 	clang-format -i $$(git ls-files "*.c" "*.h")
-	git ls-files -z "*.h" | \
-		parallel -j$$(nproc) -q0 --no-notice --will-cite --tty clang-tidy --quiet |& \
+	git ls-files -z "*.c" "*.h" | \
+		parallel -j$$(nproc) -q0 --no-notice --will-cite --tty clang-tidy -warnings-as-errors=\* --quiet |& \
 		grep -v "warnings generated." || true
 
 print-version:

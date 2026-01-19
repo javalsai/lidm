@@ -1,4 +1,3 @@
-// NOLINTBEGIN(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,readability-function-cognitive-complexity)
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,6 +19,7 @@ char* trim_str(char* str) {
   return str;
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 int read_desktop(FILE* fd, void* ctx,
                  struct status (*cb)(void* ctx, char* table, char* key,
                                      char* value)) {
@@ -82,4 +82,3 @@ int read_desktop(FILE* fd, void* ctx,
   if (buf != NULL) free(buf);
   return ret;
 }
-// NOLINTEND(clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,readability-function-cognitive-complexity)

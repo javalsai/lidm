@@ -26,6 +26,7 @@
 #include "keys.h"
 #include "launch_state.h"
 #include "log.h"
+#include "macros.h"
 #include "ofield.h"
 #include "sessions.h"
 #include "ui.h"
@@ -62,7 +63,13 @@ struct config* g_config = NULL;
 static volatile sig_atomic_t need_resize = 0;
 
 static void process_sigwinch(int signal) {
+  UNUSED(signal);
   need_resize = 1;
+}
+
+inline void draw_bg() {
+  // apply bg color to all screen
+  printf("\x1b[%sm\x1b[2J", g_config->colors.bg);
 }
 
 void setup(struct config* config) {
@@ -74,10 +81,9 @@ void setup(struct config* config) {
   term.c_lflag &= ~(ICANON | ECHO);
   tcsetattr(STDOUT_FILENO, TCSANOW, &term);
 
-  // save cursor pos, save screen, set color and reset screen
-  // (applying color to all screen)
-  printf("\x1b[s\x1b[?47h\x1b[%s;%sm\x1b[2J", g_config->colors.bg,
-         g_config->colors.fg);
+  // save cursor pos, save screen
+  printf("\x1b[s\x1b[?47h");
+  draw_bg();
 
   (void)atexit(restore_all);
   (void)signal(SIGINT, signal_handler);
@@ -152,7 +158,7 @@ void ui_update_cursor_focus() {
   (void)printf("\x1b[%d;%dH", line, col);
 }
 
-void ui_update_field(enum input focused_input) {
+void ui_update_field(enum Input focused_input) {
   if (focused_input == PASSWD) {
     print_passwd(utf8len(of_passwd.efield.content), false);
   } else if (focused_input == SESSION) {
@@ -171,7 +177,7 @@ void ui_update_ffield() {
 }
 
 void ui_update_ofield(struct opts_field* NNULLABLE self) {
-  enum input input;
+  enum Input input;
   if (self == &of_session)
     input = SESSION;
   else if (self == &of_user)
@@ -184,6 +190,7 @@ void ui_update_ofield(struct opts_field* NNULLABLE self) {
   ui_update_field(input);
 }
 
+/// draw everything
 void scratch_print_ui() {
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &window);
   box_start = (struct uint_point){
@@ -191,15 +198,16 @@ void scratch_print_ui() {
       .y = ((window.ws_row - BOX_HEIGHT) / 2),    // leave more space under
   };
 
-  if (window.ws_row < BOX_HEIGHT + INNER_BOX_OUT_MARGIN * 2 ||
-      window.ws_col < BOX_WIDTH + INNER_BOX_OUT_MARGIN * 2) {
+  if (window.ws_row < BOX_HEIGHT + (INNER_BOX_OUT_MARGIN * 2) ||
+      window.ws_col < BOX_WIDTH + (INNER_BOX_OUT_MARGIN * 2)) {
     printf("\033[2J\033[H"); // Clear screen
     printf("\x1b[1;31mScreen too small\x1b[0m\n");
     printf("\x1b[%s;%sm\x1b[2J", g_config->colors.bg, g_config->colors.fg);
     return;
   }
 
-  printf("\033[2J\033[H"); // Clear screen
+  printf("\033[2J\033[H\033c"); // Clear screen
+  draw_bg();
 
   /// PRINTING
   // printf box
@@ -281,23 +289,24 @@ int load(struct Vector* users, struct Vector* sessions) {
     (void)fflush(stdout);
     if (!read_press_nb(&len, seq, &tv)) continue;
     if (*seq == '\x1b') {
-      enum keys ansi_code = find_ansi(seq);
-      if (ansi_code != -1) {
-        if (ansi_code == ESC) {
+      struct option_keys ansi_code = find_ansi(seq);
+      if (ansi_code.is_some) {
+        enum Keys ansi_key = ansi_code.key;
+        if (ansi_key == ESC) {
           esc = 2;
-        } else if (ansi_code == g_config->functions.refresh) {
+        } else if (ansi_key == g_config->functions.refresh) {
           restore_all();
           return 0;
-        } else if (ansi_code == g_config->functions.reboot) {
+        } else if (ansi_key == g_config->functions.reboot) {
           restore_all();
           reboot(RB_AUTOBOOT);
           exit(0);
-        } else if (ansi_code == g_config->functions.poweroff) {
+        } else if (ansi_key == g_config->functions.poweroff) {
           restore_all();
           reboot(RB_POWER_OFF);
           exit(0);
         } else if (g_config->functions.fido != NONE &&
-                   ansi_code == g_config->functions.fido) {
+                   ansi_key == g_config->functions.fido) {
           bool successful_write = write_launch_state((struct LaunchState){
               .username = st_user().username,
               .session_opt =
@@ -310,14 +319,16 @@ int load(struct Vector* users, struct Vector* sessions) {
                       &restore_all, g_config)) {
             print_passwd(utf8len(of_passwd.efield.content), true);
             ui_update_cursor_focus();
+          } else {
+            scratch_print_ui();
           }
-        } else if (ansi_code == A_UP || ansi_code == A_DOWN) {
-          st_ch_focus(ansi_code == A_DOWN ? 1 : -1);
-        } else if (ansi_code == A_RIGHT || ansi_code == A_LEFT) {
+        } else if (ansi_key == A_UP || ansi_key == A_DOWN) {
+          st_ch_focus(ansi_key == A_DOWN ? 1 : -1);
+        } else if (ansi_key == A_RIGHT || ansi_key == A_LEFT) {
           if (esc)
-            st_ch_of_opts(ansi_code == A_RIGHT ? 1 : -1);
+            st_ch_of_opts(ansi_key == A_RIGHT ? 1 : -1);
           else
-            st_ch_ef_col(ansi_code == A_RIGHT ? 1 : -1);
+            st_ch_ef_col(ansi_key == A_RIGHT ? 1 : -1);
         }
       }
     } else {
@@ -333,6 +344,8 @@ int load(struct Vector* users, struct Vector* sessions) {
                     &restore_all, g_config)) {
           print_passwd(utf8len(of_passwd.efield.content), true);
           ui_update_cursor_focus();
+        } else {
+          scratch_print_ui();
         }
       } else
         st_kbd_type(seq, g_config->behavior.include_defshell);
@@ -368,7 +381,7 @@ void print_head() {
   // hostname doesn't just change on runtime,
   // but the length of the time string might
   static char* NULLABLE hostname = NULL;
-  static size_t hostname_calcd_size;
+  static ssize_t hostname_calcd_size;
 
   // save the truncated hostname and the length it truncated to,
   // if said length changes recalculate this (and free previous str)
@@ -534,7 +547,7 @@ static void print_footer() {
                  utf8len(g_config->strings.f_refresh) +
                  utf8len(KEY_NAMES[g_config->functions.refresh]);
 
-  bsize += 2 * 2 + 3 * 1;
+  bsize += (2 * 2) + (3 * 1);
 
   if (fido_enabled) {
     bsize += utf8len(g_config->strings.f_fido) +

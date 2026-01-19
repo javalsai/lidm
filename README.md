@@ -29,7 +29,7 @@ kmscon -l --vt /dev/tty7 --font-name "Cascadia Code" -- /usr/bin/lidm
 
 - Simple as C, meant to depend only on standard libc and basic unix system headers.
 - Fully customizable: ALL strings, colors (with its ANSI keys) and most behavior.
-- Xorg[\*](https://github.com/javalsai/lidm/issues/79) and wayland sessions, while supporting the default user shell (if enabled in config)
+- Experimental Xorg support[\*](https://github.com/javalsai/lidm/pull/80?#issuecomment-3764073217) and wayland sessions, while supporting the default user shell (if enabled in config)
 - Init agnostinc (systemd, dinit, runit, openrc and s6).
 - Supports [fido yubikeys](./docs/yubikey.md) (via pam_u2f).
 

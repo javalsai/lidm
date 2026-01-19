@@ -13,10 +13,10 @@
 
 static int selret_magic();
 
-int find_keyname(enum keys* at, const char* name) {
+int find_keyname(enum Keys* at, const char* name) {
   for (size_t i = 0; i < LEN(KEY_MAPPINGS); i++) {
     if (strcmp(KEY_NAMES[i], name) == 0) {
-      *at = (enum keys)i;
+      *at = (enum Keys)i;
       return 0;
     }
   }
@@ -24,16 +24,19 @@ int find_keyname(enum keys* at, const char* name) {
   return -1;
 }
 
-enum keys find_ansi(const char* seq) {
+struct option_keys find_ansi(const char* seq) {
   for (size_t i = 0; i < LEN(KEY_MAPPINGS); i++) {
     struct key_mapping mapping = KEY_MAPPINGS[i];
     for (size_t j = 0; mapping.sequences[j] != NULL; j++) {
       if (strcmp(mapping.sequences[j], seq) == 0) {
-        return (enum keys)i;
+        return (struct option_keys){
+            .is_some = true,
+            .key = (enum Keys)i,
+        };
       }
     }
   }
-  return -1;
+  return (struct option_keys){.is_some = false};
 }
 
 void read_press(u_char* length, char* out) {
@@ -146,6 +149,23 @@ const struct Vector VEC_NEW = {
     .capacity = 0,
     .pages = NULL,
 };
+
+struct Vector vec_from_raw(void** raw) {
+  size_t len = 0;
+  while (raw[len])
+    len++;
+
+  return (struct Vector){
+      .length = len,
+      .capacity = len,
+      .pages = raw,
+  };
+}
+
+void** vec_as_raw(struct Vector self) {
+  if (vec_push(&self, NULL) != 0) return NULL;
+  return self.pages;
+}
 
 int vec_resize(struct Vector* self, size_t size) {
   void** new_location =

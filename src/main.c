@@ -12,12 +12,14 @@
 #include "log.h"
 #include "macros.h"
 #include "sessions.h"
+#include "signal_handler.h"
 #include "ui.h"
 #include "users.h"
 #include "util.h"
 #include "version.h"
 
 #define DATESTR_MAXBUFSIZE 0x20
+
 int main(int argc, char* argv[]) {
   // Logger
   char* log_output = getenv("LIDM_LOG");
@@ -84,6 +86,8 @@ int main(int argc, char* argv[]) {
 
   struct Vector users = get_human_users();
   struct Vector sessions = get_avaliable_sessions();
+
+  setup_sigterm();
 
   int ret = load(&users, &sessions);
   if (ret == 0) execl(argv[0], argv[0], NULL);
