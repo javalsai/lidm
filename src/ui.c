@@ -202,7 +202,9 @@ void scratch_print_ui() {
     return;
   }
 
-  printf("\033[2J\033[H\033c"); // Clear screen
+  // printf("\033[2J\033[H\033c");
+  // don't "\x1bc" because that clears the bg color too
+  printf("\033[2J\033[H"); // Clear screen
 
   /// PRINTING
   // printf box
