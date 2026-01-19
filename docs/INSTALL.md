@@ -1,10 +1,10 @@
 # Table of Contents
 
 - [Packages](#packages)
-    - [Fedora](#fedora)
-    - [AUR](#aur)
-    - [Nix Flake](#nix-flake)
-    - [Nix Module](#nix-module)
+  - [Fedora](#fedora)
+  - [AUR](#aur)
+  - [Nix Flake](#nix-flake)
+  - [Nix Module](#nix-module)
 - [Installing from Source](#installing-from-source)
 
 # Packages
@@ -27,7 +27,7 @@ systemctl enable lidm
 
 Lidm now should show on the next boot!
 
-If you are on a TTY and don't wish to reboot, you should be able to use `--now` with both commands. It's likely to kill your current desktop evironment if it was launched from it.
+If you are on a TTY and don't wish to reboot, you should be able to use `--now` with both commands. It's likely to kill your current desktop environment if it was launched from it.
 
 ## Fedora
 

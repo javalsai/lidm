@@ -1,4 +1,4 @@
-<!-- Unsepcified dates shall be in CET/CEST -->
+<!-- Unspecified dates shall be in CET/CEST -->
 
 <!-- Add only very relevant changes, bottom to top -->
 <!-- By "very relevant" I mean big features or something manual packagers should know, like leftover files -->
