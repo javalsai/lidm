@@ -57,10 +57,15 @@ Thanks to @KernelFreeze there's a COPR repo available at <https://copr.fedorainf
 
 ## AUR
 
-[AUR packages](https://aur.archlinux.org/packages?K=lidm&SeB=n) will automatically install most files.
+There are several [AUR packages](https://aur.archlinux.org/packages?K=lidm&SeB=n) for most things. You only need to install one of the following:
 
-> [!CAUTION]
-> [service files](../assets/pkg/aur#services) have to be manually installed by now.
+* `lidm`
+* `lidm-bin`
+* `lidm-git`
+
+Each of those depend on `lidm-service` which is provided by `lidm-systemd` and `lidm-dinit` (you'll have to pick one). I maintain both but I'm open to anyone that actually uses systemd to take the first one.
+
+There's packagers needed for openrc, s6 and runit. If you know how to make AUR packages, feel free to take any of those if you use each init system.
 
 ## Nix Flake
 
@@ -77,7 +82,7 @@ nix run github:javalsai/lidm
 ```
 
 > [!CAUTION]
-> This doesn't include [service files](../assets/pkg/aur#services) neither
+> This doesn't include [service files](../assets/pkg/aur#services)
 
 ## Nix Module
 

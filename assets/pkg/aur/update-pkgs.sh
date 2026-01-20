@@ -11,7 +11,7 @@ fi
 version="$1"
 printf "\x1b[34mINF: Using '%s' version\x1b[0m\n" "$version"
 
-for pkg in "$MYDIR"/lidm{,-bin}/; do
+for pkg in "$MYDIR"/lidm{,-bin,-systemd,-dinit}/; do
     cd "$pkg"
     printf "\x1b[1mEntering '%s'\x1b[0m\n" "$pkg"
     sed -i "s/pkgver=.*/pkgver=$1/" PKGBUILD

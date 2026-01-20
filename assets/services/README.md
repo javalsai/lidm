@@ -2,14 +2,13 @@
 
 This folder contains the files necessary to set up lidm on start up for the supported init systems, all of them are configured for tty7.
 
+If you're using lidm from a packaged source, this should be included with the package. Only read this for manual installations, if you are packaging or if your package exceptionally doesn't them.
+
 If you don't know what a init system is, you're certainly using `systemd`.
 
 There's make scripts to automatically copy the service files to the proper locations, you just have to run `make install-service-$INIT` (or `make install-service-$INIT-etc`). `make install-service` will attempt to detect the init system in use and install for it.
 
 The manual steps for installation are:
-
-> [!IMPORTANT]
-> If you think this should be packaged too, there's [a discussion](https://github.com/javalsai/lidm/discussions/39) to talk about this.
 
 ## Systemd
 
