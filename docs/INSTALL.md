@@ -150,7 +150,7 @@ make # 👍
 ```
 
 > [!NOTE]
-> There's pre-built binaries on the [releases tab](https://github.com/javalsai/lidm/releases) too.
+> There are pre-built binaries on the [releases tab](https://github.com/javalsai/lidm/releases) too.
 
 Then you can install the files onto your filesystem with:
 
@@ -158,7 +158,7 @@ Then you can install the files onto your filesystem with:
 make install
 ```
 
-This will install mostly into `/usr/local` by default, this path is mostly unused nowadays and could feel like lidm didn't install at all. You can add `PREFIX=/usr` to install along the rest of your system packages if you wish.
+This will install mostly into `/usr/local` by default, this path is mostly unused nowadays (systemd can load services from it but man usually doesn't find manual pages in there) and could feel like lidm didn't install at all. You can add `PREFIX=/usr` to install along the rest of your system packages if you wish.
 
 And additionally, to install service files (start-up behavior). <sup>[more docs](../assets/services/README.md)</sup>
 
