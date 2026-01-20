@@ -67,7 +67,7 @@ static void process_sigwinch(int signal) {
   need_resize = 1;
 }
 
-inline void draw_bg() {
+static inline void draw_bg() {
   // apply bg color to all screen
   printf("\x1b[%sm\x1b[2J", g_config->colors.bg);
 }
