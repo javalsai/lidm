@@ -15,11 +15,15 @@ LiDM is like any [Display Manager](https://en.wikipedia.org/wiki/X_display_manag
 shown as in a featured terminal emulator, actual linux console doesn't support as much color and decorations
 </i></summary>
 
-If you want to add fancy color and font support to your TTYs you can wrap lidm in [`kmscon`](https://wiki.archlinux.org/title/KMSCON). (edit appropriate service files). e.g:
+If you want to add fancy color and font support to your TTYs you can try wrapping lidm in [`kmscon`](https://wiki.archlinux.org/title/KMSCON). (edit appropriate service files). e.g:
 
 ```sh
 kmscon -l --vt /dev/tty7 --font-name "Cascadia Code" -- /usr/bin/lidm
 ```
+
+Kmscon is NOT officially supported so you are on your own when trying this, [according to the arch wiki](https://wiki.archlinux.org/title/KMSCON#Window_managers_cannot_be_started_from_KMS_console) it's not possible to start window managers if you do this.
+
+But [according to farouk](https://github.com/javalsai/lidm/issues/91#issuecomment-3708503568) you can make it work if you tell kmscon to work in `no-drm` mode. There's still input grabbing issues which cause <kbd><kbd>Ctrl</kbd> + <kbd>C</kbd></kbd> to kill lidm, they are likely fixable though.
 
 </details></blockquote>
 
