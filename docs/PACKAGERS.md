@@ -53,7 +53,9 @@ But this can be changed by just passing those env variables, for example, in the
 
 ## Target Directory
 
-`DESTDIR` can be used to for installation recipes to install on alternative root directories. Along with `PREFIX` (defaults to `/usr`) for systems which don't use the common `/usr` structure. e.g. `make install DESTDIR=$out PREFIX=`
+`DESTDIR` can be used to for installation recipes to install on alternative root directories. Along with `PREFIX` (defaults to `/usr/local`, packaging this you'll probably want to make it `/usr`) for systems which don't use the common `/usr` structure. e.g. `make install DESTDIR=$out PREFIX=`
+
+`/etc` is sometimes in that `PREFIX` and sometimes not, be careful.
 
 ```txt
 $ fd -t f . --base-directory $out
@@ -69,7 +71,7 @@ To ease most of the installation process there's several `make` recipes to insta
 
 - `make` / `make lidm`: Builds the app binary.
 - `make install`: Attempts to install the binary, place a default config file in `/etc/lidm.ini` and install the man pages.
-- `make install-service-(systemd|dinit|runit|openrc|s6)(|-etc)`: Just check the source, service files for different init systems and `-etc` variants for alternative paths.
+- `make install-service-(systemd|dinit|runit|openrc|s6)(|-etc)`: Just check the source, service files for different init systems and `-etc` variants for alternative paths. You might need `FORCE=1` in the environment if you are packaging for other init system or scripting.
 - `make print-version`: Outputs the current version in the `Makefile` for scripts that might want to extract that info.
 
 You can choose to use these packages or create your own service files / etc. There's are merely suggestions on what to use.

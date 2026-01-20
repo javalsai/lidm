@@ -16,7 +16,6 @@
 #include "ui.h"
 #include "users.h"
 #include "util.h"
-#include "version.h"
 
 #define DATESTR_MAXBUFSIZE 0x20
 
