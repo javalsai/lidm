@@ -1,6 +1,7 @@
 # Table of Contents
 
 - [Packages](#packages)
+  - [Void Linux](#void-linux)
   - [Fedora](#fedora)
   - [AUR](#aur)
   - [Nix Flake](#nix-flake)
@@ -28,6 +29,27 @@ systemctl enable lidm
 Lidm now should show on the next boot!
 
 If you are on a TTY and don't wish to reboot, you should be able to use `--now` with both commands. It's likely to kill your current desktop environment if it was launched from it.
+
+## Void Linux
+
+Lidm can be installed from the official Void Linux packages:
+
+```sh
+xbps-install lidm
+```
+
+To enable the service that starts on boot:
+
+```sh
+ln -s /etc/sv/lidm /var/service/
+```
+
+It is recommended to disable any other display managers that are still enabled:
+
+```sh
+touch /etc/sv/lightdm/down # replace lightdm with your previous display manager (e.g., sddm, gdm)
+```
+
 
 ## Fedora
 
