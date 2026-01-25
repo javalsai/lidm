@@ -26,9 +26,8 @@ install-service:
 	fi
 
 install-service-systemd:
-	@sed -e 's|ExecStart=/usr/bin/lidm|ExecStart=${DESTDIR}${PREFIX}/bin/lidm|' ./assets/services/systemd.service > ./assets/services/systemd-temp.service
-	install -Dm644 ./assets/services/systemd-temp.service ${DESTDIR}${PREFIX}/lib/systemd/system/lidm.service
-	@rm ./assets/services/systemd-temp.service
+	@sed -e 's|ExecStart=/usr/bin/lidm|ExecStart=${DESTDIR}${PREFIX}/bin/lidm|' ./assets/services/systemd.service > ./assets/services/lidm.service
+	install -Dm644 ./assets/services/lidm.service ${DESTDIR}${PREFIX}/lib/systemd/system/lidm.service
 	@printf '\033[1m%s\033[0m\n\n' " don't forget to run 'systemctl enable lidm'"
 install-service-dinit:
 	install -m644 ./assets/services/dinit ${DESTDIR}/etc/dinit.d/lidm
