@@ -9,6 +9,15 @@ whiskers:
 2;{{ col.rgb.r }};{{ col.rgb.g }};{{ col.rgb.b }}
 {%- endmacro rgb -%}
 
+##############################################
+#                                            #
+#              Catppuccin Theme              #
+#                                            #
+##############################################
+
+# Catppuccin {{flavor.name}}
+# This theme was created by: Catppuccin Org! <3
+
 [colors]
 bg          = "23;24;25;48;{{ self::rgb(col=base) }}"
 fg          = "22;23;24;25;29;38;{{ self::rgb(col=text) }}"
