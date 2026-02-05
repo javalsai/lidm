@@ -36,7 +36,9 @@ lidm: $(OBJ)
 	$(CC) -o $@ $^ $(ALLFLAGS) $(LIBS) $(LDFLAGS)
 
 clean:
-	rm -f $(ODIR)/*.o lidm
+	rm -f \
+		$(ODIR)/* \
+		lidm
 
 install: lidm
 	mkdir -p ${DESTDIR}${PREFIX}/bin ${DESTDIR}${PREFIX}/share/man/man{1,5}
