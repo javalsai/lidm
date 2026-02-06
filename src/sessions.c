@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <ftw.h>
 #include <limits.h>
 #include <spawn.h>
@@ -15,6 +16,7 @@
 #include "log.h"
 #include "macros.h"
 #include "sessions.h"
+#include "util/path.h"
 #include "util/vec.h"
 
 struct source_dir {
@@ -165,4 +167,55 @@ struct Vector get_avaliable_sessions() {
   cb_sessions = NULL;
 
   return sessions;
+}
+
+int session_exec_exec(struct session_exec* NNULLABLE exec,
+                      char* NULLABLE* NNULLABLE envp) {
+  switch (exec->typ) {
+    case EXEC_SHELL: {
+      char* argv[] = {exec->shell, NULL};
+      return execvpe(exec->shell, argv, envp);
+    }
+    case EXEC_DESKTOP:
+      return execvpe(exec->desktop.args[0], exec->desktop.args, envp);
+    default:
+      __builtin_unreachable();
+  }
+}
+
+/// So the reason this doesn't use the user shell is because that can really be
+/// anything, also assuming it were fish for example, it can't execute posix
+/// shell files and that leaves it out of most `/etc/profile.d/` scripts.
+///
+/// I'll just default to bash for now as it's able to source almsot everything
+/// and takes most flags. Maybe will try to make this more sophisticated in the
+/// future.
+///
+/// This respects errno. Even also works as any exec family function.
+#ifndef LOGIN_SHELL
+  #define LOGIN_SHELL "bash"
+#endif
+// This triggers login behavior
+#define LOGIN_SHELL_ARG0 "-" LOGIN_SHELL
+int session_exec_login_through_shell(struct session_exec* NNULLABLE exec,
+                                     char* NULLABLE* NNULLABLE envp) {
+  switch (exec->typ) {
+    case EXEC_SHELL: {
+      char* argv[] = {LOGIN_SHELL_ARG0, "-c", exec->shell, NULL};
+      return execvpe(LOGIN_SHELL, argv, envp);
+    }
+    case EXEC_DESKTOP: {
+      char* name = desktop_as_cmdline(exec->desktop.args);
+      if (!name) {
+        errno = EINVAL;
+        return -1;
+      }
+      char* argv[] = {LOGIN_SHELL_ARG0, "-c", name, NULL};
+      int ret = execvpe(LOGIN_SHELL, argv, envp);
+      free(name);
+      return ret;
+    }
+    default:
+      __builtin_unreachable();
+  }
 }

@@ -1,10 +1,12 @@
-// TODO: handle `fork() == -1`// TODO: handle `fork() == -1`s
+// TODO: handle `fork() == -1`
 
 #include <errno.h>
 #include <grp.h>
 #include <pwd.h>
 #include <security/pam_misc.h>
 #include <signal.h>
+#include <spawn.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,6 +23,7 @@
 #include "pam.h"
 #include "sessions.h"
 #include "ui.h"
+#include "util/path.h"
 #include "util/vec.h"
 
 #define XORG_MESSAGE_LENGTH 16
@@ -176,7 +179,8 @@ static void start_xorg_server(struct passwd* pw, char** NNULLABLE envlist,
 
 // TODO: add error msgs
 /// returns on completion
-static void launch_with_xorg_server(struct session_exec* NNULLABLE exec,
+static void launch_with_xorg_server(struct config* config,
+                                    struct session_exec* NNULLABLE exec,
                                     struct passwd* pw,
                                     char** NNULLABLE envlist) {
   int xorg_pipefd[2];
@@ -212,10 +216,17 @@ static void launch_with_xorg_server(struct session_exec* NNULLABLE exec,
   (void)fflush(NULL);
   pid_t xorg_session_pid = fork();
   if (xorg_session_pid == 0) {
-    int exit = session_exec_exec(exec, envlist);
-    perror("exec error");
-    (void)fputs("failure calling session\n", stderr);
-    _exit(exit);
+    int spawn_status;
+    if (config->behavior.bypass_shell_login)
+      spawn_status = session_exec_exec(exec, envlist);
+    else
+      spawn_status = session_exec_login_through_shell(exec, envlist);
+
+    if (spawn_status != 0) {
+      perror("session exec");
+      (void)fputs("failure calling session\n", stderr);
+      _exit(EXIT_FAILURE);
+    }
   }
 
   // looks weird, waiting on -1 should wait on any child and then just check if
@@ -254,8 +265,8 @@ static void launch_with_xorg_server(struct session_exec* NNULLABLE exec,
     char _dummy;                              \
     read(pipefd[0], &_dummy, sizeof(_dummy)); \
   }
-inline static void forked(int pipefd[2], struct passwd* pw,
-                          char* NNULLABLE user,
+inline static void forked(struct config* config, int pipefd[2],
+                          struct passwd* pw, char* NNULLABLE user,
                           struct session* NNULLABLE session,
                           char** NNULLABLE envlist) {
   if (chdir(pw->pw_dir) == -1) SEND_ERR("chdir");
@@ -267,13 +278,26 @@ inline static void forked(int pipefd[2], struct passwd* pw,
   DUMMY_READ();
   close(pipefd[0]);
 
+  if (!getenv("PATH")) {
+    size_t path_size = confstr(_CS_PATH, NULL, 0);
+    char* path_env = malloc(path_size);
+    confstr(_CS_PATH, path_env, path_size);
+    setenv("PATH", path_env, 1);
+    free(path_env);
+  }
+
+  log_printf(" [I] using shell login?: %s",
+             config->behavior.bypass_shell_login ? "true" : "false");
   if (session->type == XORG) {
-    launch_with_xorg_server(&session->exec, pw, envlist);
+    launch_with_xorg_server(config, &session->exec, pw, envlist);
     _exit(EXIT_SUCCESS);
   } else {
-    int exit = session_exec_exec(&session->exec, envlist);
-    perror("exec error");
-    (void)fputs("failure calling session\n", stderr);
+    int exit;
+    if (config->behavior.bypass_shell_login)
+      exit = session_exec_exec(&session->exec, envlist);
+    else
+      exit = session_exec_login_through_shell(&session->exec, envlist);
+    perror("session exec error");
     _exit(exit);
   }
 }
@@ -325,7 +349,7 @@ bool launch(char* user, char* passwd, struct session session, void (*cb)(void),
 
   uint pid = fork();
   if (pid == 0)
-    forked(pipefd, pw, user, &session, envlist);
+    forked(config, pipefd, pw, user, &session, envlist);
   else {
     struct child_msg msg;
     read(pipefd[0], &msg, sizeof(struct child_msg));

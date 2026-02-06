@@ -122,7 +122,8 @@ BUILD(strings, STRINGS, TABLE_STRINGS);
   F(struct Vector, source, STRING_ARRAY, NULL_VEC, name)      \
   F(struct Vector, user_source, STRING_ARRAY, NULL_VEC, name) \
   F(char* NNULLABLE, timefmt, STRING, "%X %x", name)          \
-  F(long long, refresh_rate, NUMBER, 100, name)
+  F(long long, refresh_rate, NUMBER, 100, name)               \
+  F(bool, bypass_shell_login, BOOL, false, name)
 
 BUILD(behavior, BEHAVIOR, TABLE_BEHAVIOR);
 

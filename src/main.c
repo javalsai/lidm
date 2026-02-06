@@ -31,6 +31,7 @@ int main(int argc, char* argv[]) {
     }
 
     log_init(log_fd);
+    log_puts("Starting log:");
   }
 
   if (argc == 2) {
