@@ -472,8 +472,9 @@ void print_user(struct user user, bool multiple) {
     toprint += get_render_pos_offset(&of_session, maxlen);
     size_t printlen = utf8seekn(toprint, maxlen) - toprint;
 
-    printf("\r\x1b[%dC< \x1b[%sm%.*s\x1b[%sm >", box_start.x + VALUES_COL - 1,
-           user_color, (int)printlen, toprint, g_config->colors.fg);
+    printf("\r\x1b[%dC%s\x1b[%sm%.*s\x1b[%sm%s", box_start.x + VALUES_COL - 1,
+           g_config->strings.opts_pre, user_color, (int)printlen, toprint,
+           g_config->colors.fg, g_config->strings.opts_post);
   } else {
     toprint += get_render_pos_offset(&of_user, VALUE_MAXLEN);
     size_t printlen = utf8seekn(toprint, VALUE_MAXLEN) - toprint;

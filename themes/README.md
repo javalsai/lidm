@@ -1,5 +1,21 @@
 # Themes
 
+## catppuccin-frappe.ini
+
+![catppuccin-frappe.ini theme](./screenshots/catppuccin-frappe.png)
+
+## catppuccin-latte.ini
+
+![catppuccin-latte.ini theme](./screenshots/catppuccin-latte.png)
+
+## catppuccin-macchiato.ini
+
+![catppuccin-macchiato.ini theme](./screenshots/catppuccin-macchiato.png)
+
+## catppuccin-mocha.ini
+
+![catppuccin-mocha.ini theme](./screenshots/catppuccin-mocha.png)
+
 ## cherry.ini
 
 ![cherry.ini theme](./screenshots/cherry.png)
