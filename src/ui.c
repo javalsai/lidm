@@ -32,7 +32,8 @@
 #include "ui.h"
 #include "ui_state.h"
 #include "users.h"
-#include "util.h"
+#include "util/keys.h"
+#include "util/utf8.h"
 
 const u_char INPUTS_N = 3;
 

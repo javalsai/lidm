@@ -6,7 +6,7 @@
 
 #include "desktop_exec.h"
 #include "macros.h"
-#include "util.h"
+#include "util/vec.h"
 
 enum SessionType {
   XORG,

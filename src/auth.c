@@ -21,7 +21,7 @@
 #include "pam.h"
 #include "sessions.h"
 #include "ui.h"
-#include "util.h"
+#include "util/vec.h"
 
 #define XORG_MESSAGE_LENGTH 16
 

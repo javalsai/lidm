@@ -13,7 +13,8 @@
 #include "desktop.h"
 #include "log.h"
 #include "macros.h"
-#include "util.h"
+#include "util/vec.h"
+#include "util/keys.h"
 
 #define UPPER_HALF_BYTE 4
 int parse_hex(char* _at, char x1, char x2) {

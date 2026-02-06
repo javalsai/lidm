@@ -2,7 +2,7 @@
 
 #include "efield.h"
 #include "ui.h"
-#include "util.h"
+#include "util/utf8.h"
 
 struct editable_field efield_new(char* content) {
   struct editable_field efield;

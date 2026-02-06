@@ -3,7 +3,7 @@
 
 #include "config.h"
 #include "ofield.h"
-#include "util.h"
+#include "util/vec.h"
 
 //    [box_start]
 //    ↓

@@ -6,7 +6,7 @@
 
 #include "keys.h"
 #include "macros.h"
-#include "util.h"
+#include "util/vec.h"
 
 enum IntrospectionType {
   STRING,

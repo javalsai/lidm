@@ -7,7 +7,7 @@
 #include "log.h"
 #include "macros.h"
 #include "users.h"
-#include "util.h"
+#include "util/vec.h"
 
 // NOLINTNEXTLINE(readability-identifier-length)
 int build_user(struct user* NNULLABLE user, struct passwd* p) {

@@ -1,18 +1,21 @@
 #include <ftw.h>
 #include <limits.h>
+#include <spawn.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 
+#include "config.h"
 #include "desktop.h"
 #include "desktop_exec.h"
 #include "log.h"
 #include "macros.h"
 #include "sessions.h"
-#include "util.h"
+#include "util/vec.h"
 
 struct source_dir {
   enum SessionType type;

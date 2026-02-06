@@ -1,10 +1,9 @@
 #include <stddef.h>
 
-#include "config.h"
 #include "efield.h"
 #include "ofield.h"
 #include "ui.h"
-#include "util.h"
+#include "util/utf8.h"
 
 struct opts_field ofield_new(size_t opts) {
   if (opts == 0) {

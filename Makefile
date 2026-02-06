@@ -24,21 +24,19 @@ LDFLAGS ?= -Wl,--gc-sections
 LIBS = -lpam
 
 # includes all headers in `$(IDIR)` and compiles everything in `$(CDIR)`
-DEPS = $(wildcard $(IDIR)/*.h)
-_SOURCES = $(notdir $(wildcard $(CDIR)/*.c))
-OBJ = $(patsubst %.c,$(ODIR)/%.o,$(_SOURCES))
+DEPS = $(wildcard $(IDIR)/*.h $(IDIR)/**/*.h)
+_SOURCES = $(wildcard $(CDIR)/*.c) $(wildcard $(CDIR)/**/*.c)
+OBJ = $(patsubst $(CDIR)/%.c,$(ODIR)/%.o,$(_SOURCES))
 
 $(ODIR)/%.o: $(CDIR)/%.c $(DEPS)
-	@mkdir -p $(ODIR)
+	@mkdir -p $(dir $@)
 	$(CC) -c -o $@ $< $(ALLFLAGS)
 
 lidm: $(OBJ)
 	$(CC) -o $@ $^ $(ALLFLAGS) $(LIBS) $(LDFLAGS)
 
 clean:
-	rm -f \
-		$(ODIR)/* \
-		lidm
+	rm -rf $(ODIR) lidm
 
 install: lidm
 	mkdir -p ${DESTDIR}${PREFIX}/bin ${DESTDIR}${PREFIX}/share/man/man{1,5}
