@@ -187,7 +187,7 @@ int session_exec_exec(struct session_exec* NNULLABLE exec,
 /// anything, also assuming it were fish for example, it can't execute posix
 /// shell files and that leaves it out of most `/etc/profile.d/` scripts.
 ///
-/// I'll just default to bash for now as it's able to source almsot everything
+/// I'll just default to bash for now as it's able to source almost everything
 /// and takes most flags. Maybe will try to make this more sophisticated in the
 /// future.
 ///

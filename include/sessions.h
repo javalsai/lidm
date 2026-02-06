@@ -58,7 +58,7 @@ struct session {
 
 struct Vector get_avaliable_sessions();
 int session_exec_exec(struct session_exec* NNULLABLE exec,
-                                    char* NULLABLE* NNULLABLE envp);
+                      char* NULLABLE* NNULLABLE envp);
 int session_exec_login_through_shell(struct session_exec* NNULLABLE exec,
                                      char* NULLABLE* NNULLABLE envp);
 

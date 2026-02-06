@@ -12,7 +12,7 @@
 // returns NULL on any error
 // otherwise it returns the absolute path of the program that MUST BE FREED
 //
-// Should be almost completly posix compliant, except it won't resolve empty
+// Should be almost completely posix compliant, except it won't resolve empty
 // PATH entries relative to the cwd
 char* NULLABLE search_path(const char* NNULLABLE for_binary) {
   if (strchr(for_binary, '/') != NULL) {
@@ -51,7 +51,8 @@ char* NULLABLE search_path(const char* NNULLABLE for_binary) {
 // musl compatible variant.
 //
 // Respects errno of exec functions family.
-int execvpe(const char* NNULLABLE file, char* const argv[], char* const envp[]) {
+int execvpe(const char* NNULLABLE file, char* const argv[],
+            char* const envp[]) {
   char* path = search_path(file);
   if (!path) {
     errno = ENOENT;
