@@ -19,7 +19,7 @@
 #define UPPER_HALF_BYTE 4
 int parse_hex(char* _at, char x1, char x2) {
   // make linter happy
-  u_char* at = (u_char*)_at;
+  uint8_t* at = (uint8_t*)_at;
 
   *at = 0;
 

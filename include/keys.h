@@ -2,6 +2,7 @@
 #define KEYSH_
 
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 enum Keys {
@@ -111,8 +112,8 @@ struct option_keys {
 
 int find_keyname(enum Keys* at, const char* name);
 struct option_keys find_ansi(const char* seq);
-void read_press(u_char* length, char* out);
+void read_press(uint8_t* length, char* out);
 // non blocking, waits up to tv or interrupt, returns true if actually read
-bool read_press_nb(u_char* length, char* out, struct timeval* tv);
+bool read_press_nb(uint8_t* length, char* out, struct timeval* tv);
 
 #endif

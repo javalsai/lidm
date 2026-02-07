@@ -34,7 +34,7 @@ struct option_keys find_ansi(const char* seq) {
   return (struct option_keys){.is_some = false};
 }
 
-void read_press(u_char* length, char* out) {
+void read_press(uint8_t* length, char* out) {
   *length = 0;
 
   while (true) {
@@ -53,7 +53,7 @@ void read_press(u_char* length, char* out) {
   }
 }
 
-bool read_press_nb(u_char* length, char* out, struct timeval* tv) {
+bool read_press_nb(uint8_t* length, char* out, struct timeval* tv) {
   fd_set fds;
   FD_ZERO(&fds);
   FD_SET(STDIN_FILENO, &fds);
