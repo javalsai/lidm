@@ -366,7 +366,7 @@ uint8_t get_render_pos_offset(struct opts_field* self, uint8_t maxlen) {
   if (self->current_opt != 0) return 0;
 
   uint8_t pos = utf8len_until(self->efield.content,
-                             &self->efield.content[self->efield.pos]);
+                              &self->efield.content[self->efield.pos]);
   return pos - ofield_display_cursor_col(self, maxlen);
 }
 
@@ -440,7 +440,7 @@ void print_session(struct session session, bool multiple) {
   char* toprint = session.name;
   if (multiple) {
     uint8_t maxlen = VALUE_MAXLEN - utf8len(g_config->strings.opts_pre) -
-                    utf8len(g_config->strings.opts_post);
+                     utf8len(g_config->strings.opts_post);
     toprint += get_render_pos_offset(&of_session, maxlen);
     size_t printlen = utf8seekn(toprint, maxlen) - toprint;
 
@@ -468,7 +468,7 @@ void print_user(struct user user, bool multiple) {
   char* toprint = user.display_name;
   if (multiple) {
     uint8_t maxlen = VALUE_MAXLEN - utf8len(g_config->strings.opts_pre) -
-                    utf8len(g_config->strings.opts_post);
+                     utf8len(g_config->strings.opts_post);
     toprint += get_render_pos_offset(&of_session, maxlen);
     size_t printlen = utf8seekn(toprint, maxlen) - toprint;
 

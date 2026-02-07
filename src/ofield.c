@@ -58,7 +58,7 @@ uint8_t ofield_display_cursor_col(struct opts_field* self, uint8_t maxlen) {
   if (self->current_opt == 0) {
     uint8_t display_len = utf8len(self->efield.content);
     uint8_t pos = utf8len_until(self->efield.content,
-                               &self->efield.content[self->efield.pos]);
+                                &self->efield.content[self->efield.pos]);
 
     if (display_len > maxlen) {
       if (pos < maxlen / 2) {
