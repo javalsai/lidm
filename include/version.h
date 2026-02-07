@@ -1,3 +1,0 @@
-#define LIDM_VERSION "1.2.3"
-#define LIDM_GIT_REV "v1.2.3-24-ge615968"
-#define LIDM_BUILD_TS 1768649222
