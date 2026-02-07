@@ -1,4 +1,4 @@
-VERSION = 2.0.0
+VERSION := 2.0.0
 .DEFAULT_GOAL := lidm
 
 CDIR = src
@@ -9,7 +9,9 @@ ODIR = dist
 PREFIX = /usr/local
 
 INFO_GIT_REV ?= $(shell git describe --long --tags --always || echo '?')
+INFO_GIT_REV := $(INFO_GIT_REV)
 INFO_BUILD_TS ?= $(shell date +%s)
+INFO_BUILD_TS := $(INFO_BUILD_TS)
 
 CFLAGS ?= -O3 -Wall -Wextra -fdata-sections -ffunction-sections
 # C PreProcessor flags, not C Plus Plus
