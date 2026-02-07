@@ -9,61 +9,39 @@
 
 #include "desktop_exec.h"
 #include "macros.h"
+#include "util/path.h"
 
 // constants for exec string parsing
 #define MAX_ARGS 100
 // ARG_LENGTH is the initial length of a parsed argument
 #define ARG_LENGTH 64
 
-// returns NULL on any error
-// otherwise it returns the absolute path of the program that MUST BE FREED
-char* NULLABLE search_path(const char* NNULLABLE for_binary) {
-  if (strchr(for_binary, '/') != NULL) {
-    // skip absolute paths
-    return strdup(for_binary);
+char* NULLABLE desktop_as_cmdline(char** args) {
+  if (args[0] == NULL) return NULL;
+  size_t fmtd_len = 0;
+
+  char** ptr = args;
+  while (*ptr) {
+    fmtd_len += strlen(*ptr) + 1;
+    ptr++;
   }
-  char* path_env = getenv("PATH");
-  if (!path_env) return NULL;
-  char* path = strdup(path_env);
-  if (!path) return NULL;
+  fmtd_len -= 1;
 
-  char* tok = strtok(path, ":");
-  while (tok) {
-    char* bin_path;
-    asprintf(&bin_path, "%s/%s", tok, for_binary);
-    if (!bin_path) {
-      free(path);
-      return NULL;
-    }
+  char* fmt_cmdline = malloc(fmtd_len + 1);
+  if (!fmt_cmdline) return NULL;
 
-    struct stat stat_buf;
-    if (stat(bin_path, &stat_buf) == 0) {
-      // TODO: check exec bit ig
-      // if(stat_buf.) {}
-      free(path);
-      return bin_path;
-    }
+  size_t fmting_len = 0;
+  ptr = args;
+  while (*ptr) {
+    char* nbyte = stpcpy(&fmt_cmdline[fmting_len], *ptr);
+    *nbyte = ' ';
 
-    free(bin_path);
-    tok = strtok(NULL, ":");
+    fmting_len += nbyte - &fmt_cmdline[fmting_len] + 1;
+    ptr++;
   }
+  fmt_cmdline[fmting_len - 1] = '\0';
 
-  free(path);
-  return NULL;
-}
-
-// returns -1 on exec failure and -2 on search failure
-int execvpe_desktop(char** args, char* NNULLABLE* NNULLABLE envlist) {
-  char* new_arg = search_path(args[0]);
-  if (!new_arg) return -2;
-
-  free(args[0]);
-  args[0] = new_arg;
-
-  int status = execve(args[0], args, envlist);
-  free(new_arg);
-
-  return status;
+  return fmt_cmdline;
 }
 
 // parse Exec=/bin/prog arg1 arg2\ with\ spaces

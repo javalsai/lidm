@@ -11,14 +11,15 @@
 
 #include "config.h"
 #include "desktop.h"
+#include "keys.h"
 #include "log.h"
 #include "macros.h"
-#include "util.h"
+#include "util/vec.h"
 
 #define UPPER_HALF_BYTE 4
 int parse_hex(char* _at, char x1, char x2) {
   // make linter happy
-  u_char* at = (u_char*)_at;
+  uint8_t* at = (uint8_t*)_at;
 
   *at = 0;
 

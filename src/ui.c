@@ -32,9 +32,9 @@
 #include "ui.h"
 #include "ui_state.h"
 #include "users.h"
-#include "util.h"
+#include "util/utf8.h"
 
-const u_char INPUTS_N = 3;
+const uint8_t INPUTS_N = 3;
 
 struct uint_point {
   uint x;
@@ -135,11 +135,11 @@ char* trunc_gethostname(size_t maxlen, const char* const ELLIPSIS) {
 }
 
 void ui_update_cursor_focus() {
-  u_char line = box_start.y;
-  u_char col = box_start.x + VALUES_COL;
+  uint8_t line = box_start.y;
+  uint8_t col = box_start.x + VALUES_COL;
 
   struct opts_field* ofield = get_opts_ffield();
-  u_char maxlen = VALUE_MAXLEN;
+  uint8_t maxlen = VALUE_MAXLEN;
   if (ofield->opts > 1) {
     maxlen -= utf8len(g_config->strings.opts_pre) +
               utf8len(g_config->strings.opts_post);
@@ -269,7 +269,7 @@ int load(struct Vector* users, struct Vector* sessions) {
   scratch_print_ui();
 
   /// INTERACTIVE
-  u_char len;
+  uint8_t len;
   char seq[0xff];
   uint esc = 0;
   while (true) {
@@ -362,11 +362,11 @@ void clean_line(struct uint_point origin, uint line) {
   printf("\x1b[%d;%dH%s", origin.y + line, origin.x + 1, line_cleaner);
 }
 
-u_char get_render_pos_offset(struct opts_field* self, u_char maxlen) {
+uint8_t get_render_pos_offset(struct opts_field* self, uint8_t maxlen) {
   if (self->current_opt != 0) return 0;
 
-  u_char pos = utf8len_until(self->efield.content,
-                             &self->efield.content[self->efield.pos]);
+  uint8_t pos = utf8len_until(self->efield.content,
+                              &self->efield.content[self->efield.pos]);
   return pos - ofield_display_cursor_col(self, maxlen);
 }
 
@@ -439,8 +439,8 @@ void print_session(struct session session, bool multiple) {
 
   char* toprint = session.name;
   if (multiple) {
-    u_char maxlen = VALUE_MAXLEN - utf8len(g_config->strings.opts_pre) -
-                    utf8len(g_config->strings.opts_post);
+    uint8_t maxlen = VALUE_MAXLEN - utf8len(g_config->strings.opts_pre) -
+                     utf8len(g_config->strings.opts_post);
     toprint += get_render_pos_offset(&of_session, maxlen);
     size_t printlen = utf8seekn(toprint, maxlen) - toprint;
 
@@ -467,8 +467,8 @@ void print_user(struct user user, bool multiple) {
 
   char* toprint = user.display_name;
   if (multiple) {
-    u_char maxlen = VALUE_MAXLEN - utf8len(g_config->strings.opts_pre) -
-                    utf8len(g_config->strings.opts_post);
+    uint8_t maxlen = VALUE_MAXLEN - utf8len(g_config->strings.opts_pre) -
+                     utf8len(g_config->strings.opts_post);
     toprint += get_render_pos_offset(&of_session, maxlen);
     size_t printlen = utf8seekn(toprint, maxlen) - toprint;
 

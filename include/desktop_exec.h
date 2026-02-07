@@ -6,8 +6,7 @@
 
   #include "macros.h"
 
-char* NULLABLE search_path(const char* NNULLABLE for_binary);
-int execvpe_desktop(char** args, char* NNULLABLE* NNULLABLE envlist);
+char* NULLABLE desktop_as_cmdline(char** args);
 int parse_exec_string(const char* exec_s, int* arg_count, char*** args);
 void free_parsed_args(int arg_count, char** args);
 

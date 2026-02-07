@@ -1,10 +1,9 @@
 #include <stddef.h>
 
-#include "config.h"
 #include "efield.h"
 #include "ofield.h"
 #include "ui.h"
-#include "util.h"
+#include "util/utf8.h"
 
 struct opts_field ofield_new(size_t opts) {
   if (opts == 0) {
@@ -55,11 +54,11 @@ bool ofield_seek(struct opts_field* self, char seek) {
   return true;
 }
 
-u_char ofield_display_cursor_col(struct opts_field* self, u_char maxlen) {
+uint8_t ofield_display_cursor_col(struct opts_field* self, uint8_t maxlen) {
   if (self->current_opt == 0) {
-    u_char display_len = utf8len(self->efield.content);
-    u_char pos = utf8len_until(self->efield.content,
-                               &self->efield.content[self->efield.pos]);
+    uint8_t display_len = utf8len(self->efield.content);
+    uint8_t pos = utf8len_until(self->efield.content,
+                                &self->efield.content[self->efield.pos]);
 
     if (display_len > maxlen) {
       if (pos < maxlen / 2) {

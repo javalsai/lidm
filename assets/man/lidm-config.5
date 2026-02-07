@@ -104,6 +104,9 @@ Specify the time format string to be displayed. Check \fBstrftime (3)\fP to know
 .TP
 \fBrefresh_rate\fP
 Rate (in milliseconds) at which the UI should refresh, affects clock and resize behavior.
+.TP
+\fBbypass_shell_login\fP
+Type \fBBOOL\fP, lidm logins through a login shell (e.g. `bash`) in login mode (e.g. `arg0` being `-bash`) to load `/etc/profile/, `/etc/profile.d/` and more. If this option is enabled that's bypassed entirely.
 
 
 .SH "SEE ALSO"

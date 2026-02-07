@@ -2,7 +2,7 @@
 
 #include "efield.h"
 #include "ui.h"
-#include "util.h"
+#include "util/utf8.h"
 
 struct editable_field efield_new(char* content) {
   struct editable_field efield;
@@ -16,14 +16,14 @@ struct editable_field efield_new(char* content) {
   return efield;
 }
 
-void efield_trim(struct editable_field* self, u_char pos) {
+void efield_trim(struct editable_field* self, uint8_t pos) {
   self->pos = pos;
   self->content[pos + 1] = '\0';
 }
 
 #define BACKSPACE_CODE 127
 void efield_update(struct editable_field* self, char* update) {
-  u_char insert_len = strlen(update);
+  uint8_t insert_len = strlen(update);
   if (insert_len == 0) return;
 
   if (self->pos > strlen(self->content))
@@ -61,7 +61,7 @@ bool efield_seek(struct editable_field* self, char seek) {
   if (*self->content == '\0') return false;
   if (seek == 0) return false;
 
-  u_char count = seek < 0 ? -seek : seek;
+  uint8_t count = seek < 0 ? -seek : seek;
   char* ptr = &self->content[self->pos];
   char* start = ptr;
 
@@ -75,6 +75,6 @@ bool efield_seek(struct editable_field* self, char seek) {
     }
   }
 
-  self->pos = (u_char)(ptr - self->content);
+  self->pos = (uint8_t)(ptr - self->content);
   return ptr != start;
 }

@@ -15,7 +15,7 @@
 #include "signal_handler.h"
 #include "ui.h"
 #include "users.h"
-#include "util.h"
+#include "util/vec.h"
 
 #define DATESTR_MAXBUFSIZE 0x20
 
@@ -31,6 +31,7 @@ int main(int argc, char* argv[]) {
     }
 
     log_init(log_fd);
+    log_puts("Starting log:");
   }
 
   if (argc == 2) {

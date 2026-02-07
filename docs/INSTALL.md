@@ -50,7 +50,6 @@ It is recommended to disable any other display managers that are still enabled:
 touch /etc/sv/lightdm/down # replace lightdm with your previous display manager (e.g., sddm, gdm)
 ```
 
-
 ## Fedora
 
 Thanks to @KernelFreeze there's a COPR repo available at <https://copr.fedorainfracloud.org/coprs/celestelove/lidm/> to install lidm. (<https://github.com/javalsai/lidm/discussions/92>)
@@ -59,9 +58,9 @@ Thanks to @KernelFreeze there's a COPR repo available at <https://copr.fedorainf
 
 There are several [AUR packages](https://aur.archlinux.org/packages?K=lidm&SeB=n) for most things. You only need to install one of the following:
 
-* `lidm`
-* `lidm-bin`
-* `lidm-git`
+- `lidm`
+- `lidm-bin`
+- `lidm-git`
 
 Each of those depend on `lidm-service` which is provided by `lidm-systemd` and `lidm-dinit` (you'll have to pick one). I maintain both but I'm open to anyone that actually uses systemd to take the first one.
 

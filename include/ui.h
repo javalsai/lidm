@@ -3,7 +3,7 @@
 
 #include "config.h"
 #include "ofield.h"
-#include "util.h"
+#include "util/vec.h"
 
 //    [box_start]
 //    ↓
@@ -40,7 +40,7 @@
 #define VALUE_MAXLEN (BOX_WIDTH - VALUES_COL + 1 - BOX_HMARGIN - 2)
 
 enum Input { SESSION, USER, PASSWD };
-extern const u_char INPUTS_N;
+extern const uint8_t INPUTS_N;
 
 void setup(struct config* config);
 int load(struct Vector* users, struct Vector* sessions);

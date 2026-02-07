@@ -18,6 +18,6 @@ void ofield_kbd_type(struct opts_field* self, char* typed, char* empty_default);
 bool ofield_opts_seek(struct opts_field* self, char seek);
 bool ofield_seek(struct opts_field* self, char seek);
 
-u_char ofield_display_cursor_col(struct opts_field* self, u_char maxlen);
+uint8_t ofield_display_cursor_col(struct opts_field* self, uint8_t maxlen);
 
 #endif

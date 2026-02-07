@@ -1,0 +1,9 @@
+type            = process
+command         = /bin/sh -c "LIDM_LOG=/tmp/lidm.debug /sbin/agetty tty8 linux-c -n -l /usr/local/bin/lidm -o 8"
+restart         = true
+depends-on      = login.target
+termsignal      = HUP
+smooth-recovery = true
+inittab-id      = 8
+inittab-line    = tty8
+log-type        = buffer

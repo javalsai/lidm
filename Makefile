@@ -1,4 +1,4 @@
-VERSION = 2.0.0
+VERSION := 2.0.0
 .DEFAULT_GOAL := lidm
 
 CDIR = src
@@ -9,7 +9,9 @@ ODIR = dist
 PREFIX = /usr/local
 
 INFO_GIT_REV ?= $(shell git describe --long --tags --always || echo '?')
+INFO_GIT_REV := $(INFO_GIT_REV)
 INFO_BUILD_TS ?= $(shell date +%s)
+INFO_BUILD_TS := $(INFO_BUILD_TS)
 
 CFLAGS ?= -O3 -Wall -Wextra -fdata-sections -ffunction-sections
 # C PreProcessor flags, not C Plus Plus
@@ -24,21 +26,19 @@ LDFLAGS ?= -Wl,--gc-sections
 LIBS = -lpam
 
 # includes all headers in `$(IDIR)` and compiles everything in `$(CDIR)`
-DEPS = $(wildcard $(IDIR)/*.h)
-_SOURCES = $(notdir $(wildcard $(CDIR)/*.c))
-OBJ = $(patsubst %.c,$(ODIR)/%.o,$(_SOURCES))
+DEPS = $(wildcard $(IDIR)/*.h $(IDIR)/**/*.h)
+_SOURCES = $(wildcard $(CDIR)/*.c) $(wildcard $(CDIR)/**/*.c)
+OBJ = $(patsubst $(CDIR)/%.c,$(ODIR)/%.o,$(_SOURCES))
 
 $(ODIR)/%.o: $(CDIR)/%.c $(DEPS)
-	@mkdir -p $(ODIR)
+	@mkdir -p $(dir $@)
 	$(CC) -c -o $@ $< $(ALLFLAGS)
 
 lidm: $(OBJ)
 	$(CC) -o $@ $^ $(ALLFLAGS) $(LIBS) $(LDFLAGS)
 
 clean:
-	rm -f \
-		$(ODIR)/* \
-		lidm
+	rm -rf $(ODIR) lidm
 
 install: lidm
 	mkdir -p ${DESTDIR}${PREFIX}/bin ${DESTDIR}${PREFIX}/share/man/man{1,5}

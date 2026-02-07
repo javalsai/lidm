@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "log.h"
 #include "macros.h"
 #include "pam.h"
 #include "sessions.h"
@@ -91,6 +92,10 @@ struct pamh_getenv_status pamh_get_complete_env(pam_handle_t* handle,
                                                 enum SessionType session_typ) {
   char** raw_envlist = pam_getenvlist(handle);
   if (!raw_envlist) FAIL(PAMH_ERR_ERRNO, "pam_getenvlist");
+
+  char** ptr = raw_envlist;
+  while (*ptr)
+    log_printf("[I] got pam env %s\n", *(ptr++));
 
   struct envpair extra_env[] = {
       {"TERM", getenv("TERM")},

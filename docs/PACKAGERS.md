@@ -29,6 +29,7 @@ The list of possible `#define`s is:
 | `SESSIONS_WAYLAND`         | `"/usr/share/wayland-sessions"`       |                                                                            | No                       |
 | `SESSIONS_WAYLAND_LOCAL`   | `"/usr/local/share/wayland-sessions"` |                                                                            | No                       |
 | `LIDM_CONF_PATH`           | `"/etc/lidm.ini"`                     | Path of the default configuration.                                         | Yes (`LIDM_CONF`)        |
+| `LOGIN_SHELL`              | `"bash"`                              | Login shell name.                                                          | No                       |
 
 # Other Build Settings
 

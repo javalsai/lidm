@@ -4,9 +4,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "desktop_exec.h"
 #include "macros.h"
-#include "util.h"
+#include "util/vec.h"
 
 enum SessionType {
   XORG,
@@ -51,18 +50,6 @@ static inline struct session_exec session_exec_desktop(
   };
 }
 
-static inline int session_exec_exec(struct session_exec* NNULLABLE exec,
-                                    char* NULLABLE* NNULLABLE envlist) {
-  switch (exec->typ) {
-    case EXEC_SHELL:
-      return execle(exec->shell, exec->shell, NULL, envlist);
-    case EXEC_DESKTOP:
-      return execvpe_desktop(exec->desktop.args, envlist);
-    default:
-      __builtin_unreachable();
-  }
-}
-
 struct session {
   char* NNULLABLE name;
   struct session_exec exec;
@@ -70,5 +57,9 @@ struct session {
 };
 
 struct Vector get_avaliable_sessions();
+int session_exec_exec(struct session_exec* NNULLABLE exec,
+                      char* NULLABLE* NNULLABLE envp);
+int session_exec_login_through_shell(struct session_exec* NNULLABLE exec,
+                                     char* NULLABLE* NNULLABLE envp);
 
 #endif

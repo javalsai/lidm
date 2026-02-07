@@ -8,6 +8,7 @@ static FILE* logger_out = NULL;
 
 void log_init(FILE* fd) {
   if (logger_out) (void)fclose(logger_out);
+  (void)setvbuf(fd, NULL, _IONBF, 0);
   logger_out = fd;
 }
 
