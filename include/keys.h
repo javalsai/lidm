@@ -1,6 +1,7 @@
 #ifndef KEYSH_
 #define KEYSH_
 
+#include <stdbool.h>
 #include <stdlib.h>
 
 enum Keys {
@@ -102,5 +103,16 @@ static const struct key_mapping KEY_MAPPINGS[] = {
     {PAGE_UP, {"\x1b[5~", NULL}},
     {PAGE_DOWN, {"\x1b[6~", NULL}},
 };
+
+struct option_keys {
+  bool is_some;
+  enum Keys key;
+};
+
+int find_keyname(enum Keys* at, const char* name);
+struct option_keys find_ansi(const char* seq);
+void read_press(u_char* length, char* out);
+// non blocking, waits up to tv or interrupt, returns true if actually read
+bool read_press_nb(u_char* length, char* out, struct timeval* tv);
 
 #endif

@@ -11,9 +11,9 @@
 
 #include "config.h"
 #include "desktop.h"
+#include "keys.h"
 #include "log.h"
 #include "macros.h"
-#include "util/keys.h"
 #include "util/vec.h"
 
 #define UPPER_HALF_BYTE 4

@@ -5,7 +5,6 @@
 #include <pwd.h>
 #include <security/pam_misc.h>
 #include <signal.h>
-#include <spawn.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -82,16 +81,6 @@ static void source_paths(struct Vector* NNULLABLE vec_envlist,
     log_puts("user has no home\n");
   }
 }
-
-/*char *buf;*/
-/*size_t bsize = snprintf(NULL, 0, "/run/user/%d", pw->pw_uid) + 1;*/
-/*buf = malloc(bsize);*/
-/*snprintf(buf, bsize, "/run/user/%d", pw->pw_uid);*/
-/*setenv("XDG_RUNTIME_DIR", buf, true);*/
-/*setenv("XDG_SESSION_CLASS", "user", true);*/
-/*setenv("XDG_SESSION_ID", "1", true);*/
-/*setenv("XDG_SESSION_DESKTOP", , true);*/
-/*setenv("XDG_SEAT", "seat0", true);*/
 
 struct child_msg {
   char* msg;
@@ -216,17 +205,14 @@ static void launch_with_xorg_server(struct config* config,
   (void)fflush(NULL);
   pid_t xorg_session_pid = fork();
   if (xorg_session_pid == 0) {
-    int spawn_status;
     if (config->behavior.bypass_shell_login)
-      spawn_status = session_exec_exec(exec, envlist);
+      session_exec_exec(exec, envlist);
     else
-      spawn_status = session_exec_login_through_shell(exec, envlist);
+      session_exec_login_through_shell(exec, envlist);
 
-    if (spawn_status != 0) {
-      perror("session exec");
-      (void)fputs("failure calling session\n", stderr);
-      _exit(EXIT_FAILURE);
-    }
+    perror("session exec error");
+    (void)fputs("failure calling session\n", stderr);
+    _exit(EXIT_FAILURE);
   }
 
   // looks weird, waiting on -1 should wait on any child and then just check if
@@ -292,13 +278,12 @@ inline static void forked(struct config* config, int pipefd[2],
     launch_with_xorg_server(config, &session->exec, pw, envlist);
     _exit(EXIT_SUCCESS);
   } else {
-    int exit;
     if (config->behavior.bypass_shell_login)
-      exit = session_exec_exec(&session->exec, envlist);
+      session_exec_exec(&session->exec, envlist);
     else
-      exit = session_exec_login_through_shell(&session->exec, envlist);
+      session_exec_login_through_shell(&session->exec, envlist);
     perror("session exec error");
-    _exit(exit);
+    _exit(EXIT_FAILURE);
   }
 }
 #undef SEND_MSG

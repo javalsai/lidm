@@ -1,7 +1,6 @@
 #include <errno.h>
 #include <ftw.h>
 #include <limits.h>
-#include <spawn.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>

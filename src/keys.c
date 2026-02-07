@@ -2,9 +2,9 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "keys.h"
 #include "macros.h"
 #include "ui.h"
-#include "util/keys.h"
 
 static int selret_magic();
 
