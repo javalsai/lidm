@@ -80,9 +80,6 @@ or try it out without installing by:
 nix run github:javalsai/lidm
 ```
 
-> [!CAUTION]
-> This doesn't include [service files](../assets/pkg/aur#services)
-
 ## Nix Module
 
 <details>
@@ -132,9 +129,6 @@ with config.lidm.keysEnum; {
 ```
 
 > _it's not necessary to cover all keys and anything can be put there, even if it's not valid config_
-
-> [!NOTE]
-> [service files](../assets/pkg/aur#services) **are** included and enabled
 
 # Installing from Source
 
