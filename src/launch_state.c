@@ -22,16 +22,16 @@ int read_launch_state(struct LaunchState* NNULLABLE state) {
 
   size_t num = 0;
   ssize_t chars = getline(&state->username, &num, state_fd);
-  if (chars < 0) goto fail;
-  if (state->username[chars] == '\n') state->username[chars] = 0;
+  if (chars <= 0) goto fail;
+  if (state->username[chars - 1] == '\n') state->username[chars - 1] = 0;
 
   num = 0;
   chars = getline(&state->session_opt, &num, state_fd);
-  if (chars < 0) {
+  if (chars <= 0) {
     free(state->session_opt);
     goto fail;
   }
-  if (state->session_opt[chars] == '\n') state->session_opt[chars] = 0;
+  if (state->session_opt[chars - 1] == '\n') state->session_opt[chars - 1] = 0;
 
   (void)fclose(state_fd);
   return 0;
