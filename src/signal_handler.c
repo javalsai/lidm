@@ -2,6 +2,9 @@
 #include <stddef.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#ifdef __FreeBSD__
+#include <signal.h>
+#endif
 
 #include "signal_handler.h"
 

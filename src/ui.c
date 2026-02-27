@@ -1,7 +1,9 @@
 // i'm sorry
 // really sorry
 
+#ifndef __FreeBSD__
 #include <asm-generic/errno.h>
+#endif
 #include <errno.h>
 #include <limits.h>
 #include <pwd.h>
@@ -424,7 +426,7 @@ void print_session(struct session session, bool multiple) {
   // already in the box, - 1 bcs no need to step over margin, same reasoning in
   // other places
   printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm",
-         (ulong)(box_start.x + VALUES_COL - VALUES_SEPR -
+         (unsigned long)(box_start.x + VALUES_COL - VALUES_SEPR -
                  utf8len(session_type) - 1),
          g_config->colors.e_header, session_type, g_config->colors.fg);
 
@@ -458,7 +460,7 @@ void print_session(struct session session, bool multiple) {
 void print_user(struct user user, bool multiple) {
   clean_line(box_start, USER_ROW);
   printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm",
-         (ulong)(box_start.x + VALUES_COL - VALUES_SEPR -
+         (unsigned long)(box_start.x + VALUES_COL - VALUES_SEPR -
                  utf8len(g_config->strings.e_user) - 1),
          g_config->colors.e_header, g_config->strings.e_user,
          g_config->colors.fg);
@@ -487,7 +489,7 @@ void print_passwd(uint length, bool err) {
   char passwd_prompt[VALUE_MAXLEN + 1];
   clean_line(box_start, PASSWD_ROW);
   printf("\r\x1b[%luC\x1b[%sm%s\x1b[%sm",
-         (ulong)(box_start.x + VALUES_COL - VALUES_SEPR -
+         (unsigned long)(box_start.x + VALUES_COL - VALUES_SEPR -
                  utf8len(g_config->strings.e_passwd) - 1),
          g_config->colors.e_header, g_config->strings.e_passwd,
          g_config->colors.fg);
@@ -498,7 +500,7 @@ void print_passwd(uint length, bool err) {
   else
     pass_color = g_config->colors.e_passwd;
 
-  ulong actual_len = length > VALUE_MAXLEN ? VALUE_MAXLEN : length;
+  unsigned long actual_len = length > VALUE_MAXLEN ? VALUE_MAXLEN : length;
   memset(passwd_prompt, ' ', VALUE_MAXLEN);
   memset(passwd_prompt, '*', actual_len);
   passwd_prompt[VALUE_MAXLEN] = '\0';

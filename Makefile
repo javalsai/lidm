@@ -8,10 +8,8 @@ ODIR = dist
 
 PREFIX = /usr/local
 
-INFO_GIT_REV ?= $(shell git describe --long --tags --always || echo '?')
-INFO_GIT_REV := $(INFO_GIT_REV)
-INFO_BUILD_TS ?= $(shell date +%s)
-INFO_BUILD_TS := $(INFO_BUILD_TS)
+INFO_GIT_REV != git describe --long --tags --always 2>/dev/null || echo '?'
+INFO_BUILD_TS != date +%s
 
 CFLAGS ?= -O3 -Wall -Wextra -fdata-sections -ffunction-sections
 # C PreProcessor flags, not C Plus Plus
@@ -21,21 +19,25 @@ _DFLAGS?= \
 	-DLIDM_GIT_REV=\"$(INFO_GIT_REV)\" \
 	-DLIDM_BUILD_TS=$(INFO_BUILD_TS)
 ALLFLAGS = $(_DFLAGS) $(CFLAGS) $(CPPFLAGS) -I$(IDIR)
-LDFLAGS ?= -Wl,--gc-sections
+LDFLAGS ?= -Wl,--gc-sections -L${PREFIX}/lib
 
 LIBS = -lpam
 
 # includes all headers in `$(IDIR)` and compiles everything in `$(CDIR)`
-DEPS = $(wildcard $(IDIR)/*.h $(IDIR)/**/*.h)
-_SOURCES = $(wildcard $(CDIR)/*.c) $(wildcard $(CDIR)/**/*.c)
-OBJ = $(patsubst $(CDIR)/%.c,$(ODIR)/%.o,$(_SOURCES))
+HEADERS != find $(IDIR) -type f -name "*.h"
+SOURCES != find $(CDIR) -type f -name "*.c"
+ALL_OBJECTS = ${SOURCES:src/%.c=$(ODIR)/%.o}
 
-$(ODIR)/%.o: $(CDIR)/%.c $(DEPS)
-	@mkdir -p $(dir $@)
-	$(CC) -c -o $@ $< $(ALLFLAGS)
-
-lidm: $(OBJ)
+lidm: $(ALL_OBJECTS)
 	$(CC) -o $@ $^ $(ALLFLAGS) $(LIBS) $(LDFLAGS)
+
+.for src in $(SOURCES)
+object = $(ODIR)/${src:S|^$(CDIR)/||:R}.o
+${object}: ${src} ${HEADERS}
+	@mkdir -p ${.TARGET:H}
+	@echo "DEBUG: compilation de $(src), cible [${.TARGET}] générée à partir de [${.ALLSRC:M*.c}]"
+	$(CC) $(ALLFLAGS) -c -o ${.TARGET} ${src}
+.endfor
 
 clean:
 	rm -rf $(ODIR) lidm

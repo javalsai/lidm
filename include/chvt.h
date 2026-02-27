@@ -2,8 +2,13 @@
 #define CHVTH_
 
 #include <fcntl.h>
+#ifdef __FreeBSD__
+#include <sys/kbio.h>
+#include <sys/consio.h>
+#else
 #include <linux/kd.h>
 #include <linux/vt.h>
+#endif
 #include <sys/ioctl.h>
 #include <unistd.h>
 

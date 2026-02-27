@@ -1,6 +1,11 @@
 #ifndef UIH_
 #define UIH_
 
+#ifdef __FreeBSD__
+#define RB_POWER_OFF 0x4321fedc
+#define HOST_NAME_MAX 64
+#endif
+
 #include "config.h"
 #include "ofield.h"
 #include "util/vec.h"

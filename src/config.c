@@ -1,5 +1,12 @@
 #include <errno.h>
+#ifdef __FreeBSD__
+#include <sys/param.h>
+#include <sys/mount.h>
+#include <sys/disk.h>
+#include <sys/stat.h>
+#else
 #include <linux/fs.h>
+#endif
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>

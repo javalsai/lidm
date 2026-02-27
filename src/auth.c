@@ -3,7 +3,11 @@
 #include <errno.h>
 #include <grp.h>
 #include <pwd.h>
+#ifdef __FreeBSD__
+#include <security/pam_appl.h>
+#else
 #include <security/pam_misc.h>
+#endif
 #include <signal.h>
 #include <stddef.h>
 #include <stdint.h>

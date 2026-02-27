@@ -1,5 +1,9 @@
 #include <pwd.h>
+#ifndef __FreeBSD__
 #include <security/_pam_types.h>
+#else
+#include <security/pam_appl.h>
+#endif
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
