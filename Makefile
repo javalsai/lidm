@@ -28,16 +28,19 @@ HEADERS != find $(IDIR) -type f -name "*.h"
 SOURCES != find $(CDIR) -type f -name "*.c"
 ALL_OBJECTS = ${SOURCES:src/%.c=$(ODIR)/%.o}
 
+$(ODIR)/%.o: $(CDIR)/%.c $(DEPS)
+	@mkdir -p $(dir $@)
+	$(CC) -c -o $@ $< $(ALLFLAGS)
+
 lidm: $(ALL_OBJECTS)
 	$(CC) -o $@ $^ $(ALLFLAGS) $(LIBS) $(LDFLAGS)
 
-.for src in $(SOURCES)
-object = $(ODIR)/${src:S|^$(CDIR)/||:R}.o
-${object}: ${src} ${HEADERS}
-	@mkdir -p ${.TARGET:H}
-	@echo "DEBUG: compilation de $(src), cible [${.TARGET}] générée à partir de [${.ALLSRC:M*.c}]"
-	$(CC) $(ALLFLAGS) -c -o ${.TARGET} ${src}
-.endfor
+#.for src in $(SOURCES)
+#object = $(ODIR)/${src:S|^$(CDIR)/||:R}.o
+#${object}: ${src} ${HEADERS}
+#	@mkdir -p ${.TARGET:H}
+#	$(CC) $(ALLFLAGS) -c -o ${.TARGET} ${src}
+#.endfor
 
 clean:
 	rm -rf $(ODIR) lidm
