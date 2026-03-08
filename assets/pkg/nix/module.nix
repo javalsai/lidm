@@ -11,7 +11,7 @@ let
   dmcfg = config.services.displayManager;
   desktops = dmcfg.sessionData.desktops;
 
-  version = "2.0.1";
+  version = "2.0.2";
   lidmPkg = pkgs.callPackage ./lidm.nix {
     inherit pkgs;
     config = {
@@ -21,7 +21,7 @@ let
         owner = "javalsai";
         repo = "lidm";
         rev = "v${version}";
-        sha256 = "sha256-bpUqhD1JSiYRf7w7ylEMXHMvEpnSri1zZSxRQPdZWB4=";
+        sha256 = "sha256-P0thtKNVae1oBuJq400fjZMMgd69iY4YDNed5RfQH4I=";
       };
 
       xsessions = "${desktops}/share/xsessions";
