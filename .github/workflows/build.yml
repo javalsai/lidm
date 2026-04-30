@@ -17,7 +17,7 @@ jobs:
       - id: build
         run: ARCH=amd64 assets/github_scripts/build.sh
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: build-amd64
           path: lidm-amd64
@@ -42,7 +42,7 @@ jobs:
       - id: build
         run: ARCH=i386 assets/github_scripts/build.sh CFLAGS="-O3 -Wall -m32"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: build-i386
           path: lidm-i386
@@ -70,7 +70,7 @@ jobs:
       - if: always()
         run: set +e; cat gss.out >>"$GITHUB_STEP_SUMMARY"; cat go.out >>"$GITHUB_OUTPUT"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: build-aarch64
           path: lidm-aarch64
@@ -98,7 +98,7 @@ jobs:
       - if: always()
         run: set +e; cat gss.out >>"$GITHUB_STEP_SUMMARY"; cat go.out >>"$GITHUB_OUTPUT"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: build-armv7
           path: lidm-armv7
@@ -126,7 +126,7 @@ jobs:
       - if: always()
         run: set +e; cat gss.out >>"$GITHUB_STEP_SUMMARY"; cat go.out >>"$GITHUB_OUTPUT"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: build-riscv64
           path: lidm-riscv64
@@ -155,7 +155,7 @@ jobs:
       - if: always()
         run: set +e; cat gss.out >>"$GITHUB_STEP_SUMMARY"; cat go.out >>"$GITHUB_OUTPUT"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: build-amd64-musl
           path: lidm-amd64-musl
