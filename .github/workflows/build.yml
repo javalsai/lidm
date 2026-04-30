@@ -13,7 +13,7 @@ jobs:
         with:
           packages: "git libpam0g-dev"
           version: 1.0
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - id: build
         run: ARCH=amd64 assets/github_scripts/build.sh
 
@@ -33,7 +33,7 @@ jobs:
         with:
           packages: "git libpam0g-dev gcc-multilib"
           version: 1.0
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update -y
@@ -57,7 +57,7 @@ jobs:
         with:
           packages: "git"
           version: 1.0
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: uraimo/run-on-arch-action@v2
         with:
           arch: aarch64
@@ -85,7 +85,7 @@ jobs:
         with:
           packages: "git"
           version: 1.0
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: uraimo/run-on-arch-action@v2
         with:
           arch: armv7
@@ -113,7 +113,7 @@ jobs:
         with:
           packages: "git"
           version: 1.0
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: uraimo/run-on-arch-action@v2
         with:
           arch: riscv64
@@ -138,7 +138,7 @@ jobs:
     runs-on: ubuntu-24.04
     permissions: write-all
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run in Musl Container
         uses: addnab/docker-run-action@v3
