@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: "codespell"
@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: "shellcheck"
@@ -35,7 +35,7 @@ jobs:
       image: ubuntu:25.04
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: apt -y update && apt install -y clang-format clang-tidy make gcc git bear libpam0g-dev
 
       - run: bear -- make
