@@ -46,6 +46,8 @@ struct ctx_typ {
   char* NULLABLE name;
   char* NULLABLE exec;
   char* NULLABLE tryexec;
+  char* NULLABLE nodisplay;
+  char* NULLABLE hidden;
 };
 struct status cb(void* _ctx, char* NULLABLE table, char* key, char* value) {
   struct ctx_typ* ctx = (struct ctx_typ*)_ctx;
@@ -62,6 +64,10 @@ struct status cb(void* _ctx, char* NULLABLE table, char* key, char* value) {
     if (ctx->exec == NULL) copy_at = &ctx->exec;
   } else if (strcmp(key, "TryExec") == 0) {
     if (ctx->tryexec == NULL) copy_at = &ctx->tryexec;
+  } else if (strcmp(key, "NoDisplay") == 0) {
+    if (ctx->nodisplay == NULL) copy_at = &ctx->nodisplay;
+  } else if (strcmp(key, "Hidden") == 0) {
+    if (ctx->hidden == NULL) copy_at = &ctx->hidden;
   }
 
   if (copy_at != NULL) {
@@ -74,7 +80,8 @@ struct status cb(void* _ctx, char* NULLABLE table, char* key, char* value) {
     }
   }
 
-  if (ctx->name != NULL && ctx->exec != NULL && ctx->tryexec != NULL) {
+  if (ctx->name != NULL && ctx->exec != NULL && ctx->tryexec != NULL &&
+      ctx->nodisplay != NULL && ctx->hidden != NULL) {
     ret.finish = true;
     ret.ret = 0;
   }
@@ -95,11 +102,11 @@ static int fn(const char* fpath, const struct stat* sb, int typeflag) {
   if (typeflag != FTW_F) return 0;
   log_printf("[I]  found file %s\n", fpath);
 
-  struct ctx_typ ctx = {
-      .name = NULL,
-      .exec = NULL,
-      .tryexec = NULL,
-  };
+  struct ctx_typ ctx = {.name = NULL,
+                        .exec = NULL,
+                        .tryexec = NULL,
+                        .nodisplay = NULL,
+                        .hidden = NULL};
 
   FILE* fd = fopen(fpath, "r");
   if (fd == NULL) {
@@ -119,7 +126,9 @@ static int fn(const char* fpath, const struct stat* sb, int typeflag) {
   free(ctx.tryexec);
 
   // just add this to the list
-  if (ctx.name != NULL && ctx.exec != NULL) {
+  if (ctx.name != NULL && ctx.exec != NULL &&
+      !(ctx.nodisplay != NULL && strcmp(ctx.nodisplay, "true") == 0) &&
+      !(ctx.hidden != NULL && strcmp(ctx.hidden, "true") == 0)) {
     struct session* this_session = malloc(sizeof(struct session));
     if (this_session == NULL) return 0;
 
