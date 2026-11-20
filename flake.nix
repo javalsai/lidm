@@ -18,7 +18,7 @@
         pkgs = import nixpkgs { inherit system; };
 
         name = "lidm";
-        version = builtins.elemAt (builtins.match "VERSION[[:blank:]]*=[[:space:]]*([^\n]*)\n.*" (builtins.readFile ./Makefile)) 0;
+        version = builtins.elemAt (builtins.match "VERSION[[:blank:]]*:?=[[:space:]]*([^\n]*)\n.*" (builtins.readFile ./Makefile)) 0;
 
         lidm = pkgs.callPackage assets/pkg/nix/lidm.nix {
           inherit pkgs;
@@ -33,11 +33,11 @@
           };
         };
       in
-      rec {
-        defaultApp = flake-utils.lib.mkApp { drv = defaultPackage; };
-        defaultPackage = lidm;
-        devShell = pkgs.mkShell { buildInputs = lidm.nativeBuildInputs ++ [ pkgs.clang-tools ]; };
-        formatter = nixpkgs.legacyPackages.${system}.nixfmt-tree;
+      {
+        apps.default = flake-utils.lib.mkApp { drv = lidm; };
+        packages.default = lidm;
+        devShells.default = pkgs.mkShell { buildInputs = lidm.nativeBuildInputs ++ [ pkgs.clang-tools ]; };
+        formatter = pkgs.nixfmt-tree;
       }
     )
     // {

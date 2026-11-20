@@ -33,7 +33,7 @@ in
   options = {
     lidm.keysEnum = lib.mkOption {
       type = with lib.types; attrs;
-      default = lidm.passthru.keysEnum;
+      default = lidmPkg.passthru.keysEnum;
       readOnly = true;
       description = "Keys enum constants";
     };
