@@ -34,7 +34,7 @@
         };
       in
       {
-        apps.default = flake-utils.lib.mkApp { drv = lidm; };
+        apps.default = (flake-utils.lib.mkApp { drv = lidm; }) // { meta = lidm.meta; };
         packages.default = lidm;
         devShells.default = pkgs.mkShell { buildInputs = lidm.nativeBuildInputs ++ [ pkgs.clang-tools ]; };
         formatter = pkgs.nixfmt-tree;
