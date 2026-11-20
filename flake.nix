@@ -18,7 +18,7 @@
         pkgs = import nixpkgs { inherit system; };
 
         name = "lidm";
-        version = builtins.elemAt (builtins.match "VERSION[[:blank:]]*:?=[[:space:]]*([^\n]*)\n.*" (builtins.readFile ./Makefile)) 0;
+        version = import assets/pkg/nix/version.nix;
 
         lidm = pkgs.callPackage assets/pkg/nix/lidm.nix {
           inherit pkgs;
