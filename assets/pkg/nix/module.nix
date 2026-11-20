@@ -49,8 +49,6 @@ in
     };
   };
   config = {
-    services.displayManager.defaultSession = "lidm";
-
     systemd.services.lidm = {
       description = "TUI display manager";
       aliases = [ "display-manager.service" ];
