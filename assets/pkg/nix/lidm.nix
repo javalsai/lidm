@@ -13,8 +13,8 @@ let
       }
     else
       null;
-  cfg-file = get-cfg.file;
-  maker = get-cfg.maker;
+  cfg-file = if get-cfg != null then get-cfg.file else null;
+  maker = if get-cfg != null then get-cfg.maker else null;
 in
 pkgs.stdenv.mkDerivation rec {
   pname = "lidm";
@@ -45,6 +45,10 @@ pkgs.stdenv.mkDerivation rec {
   '';
 
   passthru = {
-    keysEnum = maker.keys-enum;
+    keysEnum =
+      if maker != null then
+	maker.keys-enum
+      else
+	{ };
   };
 }
