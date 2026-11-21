@@ -23,7 +23,7 @@ pkgs.stdenv.mkDerivation rec {
   meta = {
     description = "A ✨fully✨ colorful customizable TUI display manager made in C for simplicity.";
     mainProgram = "lidm";
-    platforms = lib.platforms.linux;
+    platforms = lib.platforms.unix;
   };
 
   nativeBuildInputs = with pkgs; [
