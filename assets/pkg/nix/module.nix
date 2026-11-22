@@ -66,6 +66,7 @@ in
         TTYReset = "yes";
         TTYVHangup = "yes";
       };
+      environment.LIDM_CONF = lidmPkg.passthru.cfgFile;
     };
   };
 }

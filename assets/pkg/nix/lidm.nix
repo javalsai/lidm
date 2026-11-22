@@ -42,14 +42,14 @@ pkgs.stdenv.mkDerivation rec {
     ) "CPPFLAGS+=-DSESSIONS_XSESSIONS=\\\"${config.xsessions}\\\""
     ++ lib.optional (
       config.wayland-sessions != null
-    ) "CPPFLAGS+=-DSESSIONS_WAYLAND=\\\"${config.wayland-sessions}\\\""
-    ++ lib.optional (cfg-file != null) "CPPFLAGS+=-DLIDM_CONF_PATH=\\\"${cfg-file}\\\"";
+    ) "CPPFLAGS+=-DSESSIONS_WAYLAND=\\\"${config.wayland-sessions}\\\"";
 
   fixupPhase = ''
     rm -rf $out/etc
   '';
 
   passthru = {
+    cfgFile = cfg-file;
     keysEnum =
       if maker != null then
 	maker.keys-enum
