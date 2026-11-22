@@ -47,6 +47,12 @@ in
       default = { };
       description = "Config options for lidm | Either attr tree or name of bundled themes";
     };
+    services.lidm.package = lib.mkOption {
+      type = lib.types.package;
+      default = lidmPkg;
+      readOnly = true;
+      description = "The configurated lidm package";
+    };
   };
   config = {
     systemd.services.lidm = {
