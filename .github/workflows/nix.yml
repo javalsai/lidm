@@ -1,0 +1,54 @@
+name: Nix
+
+on:
+  push:
+    paths:
+      - '**.nix'
+      - .github/workflows/nix.yml
+      - flake.lock
+      - Makefile
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          extra-conf: |
+            log-lines = 500
+
+      - name: Clone repository
+        uses: actions/checkout@v6
+
+      - name: Check formatting
+        run: nix fmt -- --fail-on-change
+
+      - name: Run static analysis
+        if: always()
+        run: nix run nixpkgs#statix -- check
+
+      - name: Scan for dead code
+        if: always()
+        run: nix run nixpkgs#deadnix -- -f
+
+  check:
+    name: Check
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          extra-conf: |
+            log-lines = 500
+
+      - name: Clone repository
+        uses: actions/checkout@v6
+
+      - name: Check Nix flake outputs
+        run: nix flake check
