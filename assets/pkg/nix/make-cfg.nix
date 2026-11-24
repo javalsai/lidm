@@ -33,7 +33,7 @@ in
   inherit keys-enum;
   make =
     let
-      name-val-to-attrs = (name: value: { inherit name value; });
+      name-val-to-attrs = name: value: { inherit name value; };
       map-attrs = attrset: fn: lib.map fn (lib.attrsets.mapAttrsToList name-val-to-attrs attrset);
 
       try-foldl' =

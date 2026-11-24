@@ -1,9 +1,10 @@
 {
   config,
-  pkgs,
   lib,
+  pkgs,
   ...
 }:
+
 let
   get-cfg =
     if config.cfg != null then
@@ -13,18 +14,12 @@ let
       }
     else
       null;
-  cfg-file = if get-cfg != null then get-cfg.file else null;
-  maker = if get-cfg != null then get-cfg.maker else null;
+  cfg-file = get-cfg.file or null;
+  maker = get-cfg.maker or null;
 in
-pkgs.stdenv.mkDerivation rec {
+pkgs.stdenv.mkDerivation {
   pname = "lidm";
-  version = config.version;
-  src = config.src;
-  meta = {
-    description = "A ✨fully✨ colorful customizable TUI display manager made in C for simplicity.";
-    mainProgram = "lidm";
-    platforms = lib.platforms.unix;
-  };
+  inherit (config) src version;
 
   nativeBuildInputs = with pkgs; [
     gcc
@@ -50,10 +45,13 @@ pkgs.stdenv.mkDerivation rec {
 
   passthru = {
     cfgFile = cfg-file;
-    keysEnum =
-      if maker != null then
-	maker.keys-enum
-      else
-	{ };
+    keysEnum = if maker != null then maker.keys-enum else { };
+  };
+
+  meta = {
+    description = "A ✨fully✨ colorful customizable TUI display manager made in C for simplicity.";
+    license = lib.licenses.gpl3Only;
+    mainProgram = "lidm";
+    platforms = lib.platforms.linux;
   };
 }
