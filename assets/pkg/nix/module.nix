@@ -11,7 +11,7 @@ let
   dmcfg = config.services.displayManager;
   desktops = dmcfg.sessionData.desktops;
 
-  version = "2.0.1";
+  version = import ./version.nix;
   lidmPkg = pkgs.callPackage ./lidm.nix {
     inherit pkgs;
     config = {
@@ -21,7 +21,7 @@ let
         owner = "javalsai";
         repo = "lidm";
         rev = "v${version}";
-        sha256 = "sha256-bpUqhD1JSiYRf7w7ylEMXHMvEpnSri1zZSxRQPdZWB4=";
+        sha256 = "sha256-KShvyoaeFWI66vElHOroOduYXcehA1xrmhe+wpXrOEc=";
       };
 
       xsessions = "${desktops}/share/xsessions";
@@ -33,10 +33,11 @@ in
   options = {
     lidm.keysEnum = lib.mkOption {
       type = with lib.types; attrs;
-      default = lidm.passthru.keysEnum;
+      default = cfg.package.passthru.keysEnum;
       readOnly = true;
       description = "Keys enum constants";
     };
+
     services.lidm.config = lib.mkOption {
       type =
         with lib.types;
@@ -47,10 +48,14 @@ in
       default = { };
       description = "Config options for lidm | Either attr tree or name of bundled themes";
     };
+
+    services.lidm.package = lib.mkOption {
+      type = lib.types.package;
+      default = lidmPkg;
+      description = "The configured lidm package";
+    };
   };
   config = {
-    services.displayManager.defaultSession = "lidm";
-
     systemd.services.lidm = {
       description = "TUI display manager";
       aliases = [ "display-manager.service" ];
@@ -58,9 +63,10 @@ in
         "systemd-user-sessions.service"
         "plymouth-quit-wait.service"
       ];
+
       serviceConfig = {
         Type = "idle";
-        ExecStart = "${lidmPkg}/bin/lidm 7";
+        ExecStart = "${cfg.package}/bin/lidm 7";
         StandardInput = "tty";
         StandardOutput = "tty";
         StandardError = "tty";
@@ -68,6 +74,8 @@ in
         TTYReset = "yes";
         TTYVHangup = "yes";
       };
+
+      environment.LIDM_CONF = cfg.package.passthru.cfgFile;
     };
   };
 }

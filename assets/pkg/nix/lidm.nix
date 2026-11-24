@@ -1,9 +1,10 @@
 {
   config,
-  pkgs,
   lib,
+  pkgs,
   ...
 }:
+
 let
   get-cfg =
     if config.cfg != null then
@@ -13,13 +14,12 @@ let
       }
     else
       null;
-  cfg-file = get-cfg.file;
-  maker = get-cfg.maker;
+  cfg-file = get-cfg.file or null;
+  maker = get-cfg.maker or null;
 in
-pkgs.stdenv.mkDerivation rec {
+pkgs.stdenv.mkDerivation {
   pname = "lidm";
-  version = config.version;
-  src = config.src;
+  inherit (config) src version;
 
   nativeBuildInputs = with pkgs; [
     gcc
@@ -37,14 +37,21 @@ pkgs.stdenv.mkDerivation rec {
     ) "CPPFLAGS+=-DSESSIONS_XSESSIONS=\\\"${config.xsessions}\\\""
     ++ lib.optional (
       config.wayland-sessions != null
-    ) "CPPFLAGS+=-DSESSIONS_WAYLAND=\\\"${config.wayland-sessions}\\\""
-    ++ lib.optional (cfg-file != null) "CPPFLAGS+=-DLIDM_CONF_PATH=\\\"${cfg-file}\\\"";
+    ) "CPPFLAGS+=-DSESSIONS_WAYLAND=\\\"${config.wayland-sessions}\\\"";
 
   fixupPhase = ''
     rm -rf $out/etc
   '';
 
   passthru = {
-    keysEnum = maker.keys-enum;
+    cfgFile = cfg-file;
+    keysEnum = if maker != null then maker.keys-enum else { };
+  };
+
+  meta = {
+    description = "A ✨fully✨ colorful customizable TUI display manager made in C for simplicity.";
+    license = lib.licenses.gpl3Only;
+    mainProgram = "lidm";
+    platforms = lib.platforms.linux;
   };
 }
